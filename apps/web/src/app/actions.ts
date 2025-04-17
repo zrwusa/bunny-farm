@@ -21,8 +21,7 @@ export const createProduct = async (formData: FormData) => {
 
 export const createProductASCC = async (prevState: Product, formData: FormData) => {
     const product = {...prevState, ...Object.fromEntries(formData.entries())} as Product;
-    product.price = Number(product.price);
-
+    product.price = Number(product.price)
     const response = await fetchGraphQL<Mutation>(CREATE_PRODUCT.loc?.source.body, {
         variables: {
             createProductInput: product
@@ -39,6 +38,10 @@ export const createProductASCC = async (prevState: Product, formData: FormData) 
 
 export const getProducts = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
+
+    if (response.errors && response.errors.length > 0) {
+        return;
+    }
     return response.data.products;
 }
 

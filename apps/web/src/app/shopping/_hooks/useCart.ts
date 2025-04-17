@@ -149,6 +149,51 @@ export const useCart = () => {
     [cartSession, createCart, updateCart, dispatch]
   );
 
+  // Update cart item quantity
+  const updateCartItemQuantity = useCallback(
+    async (itemId: string, quantity: number) => {
+      if (!cartSession) return;
+
+      dispatch(setLoading(true));
+      try {
+        const updatedItems = cartSession.items.map((item: CartItem) =>
+          item.id === itemId ? { ...item, quantity } : item
+        );
+
+        const updatedCart = await updateCart(cartSession.id, updatedItems);
+        if (!updatedCart) {
+          throw new Error('Failed to update cart item quantity');
+        }
+      } catch (error) {
+        dispatch(setError(error instanceof Error ? error.message : 'Failed to update cart item quantity'));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    },
+    [cartSession, updateCart, dispatch]
+  );
+
+  // Remove item from cart
+  const removeFromCart = useCallback(
+    async (itemId: string) => {
+      if (!cartSession) return;
+
+      dispatch(setLoading(true));
+      try {
+        const updatedItems = cartSession.items.filter((item: CartItem) => item.id !== itemId);
+        const updatedCart = await updateCart(cartSession.id, updatedItems);
+        if (!updatedCart) {
+          throw new Error('Failed to remove item from cart');
+        }
+      } catch (error) {
+        dispatch(setError(error instanceof Error ? error.message : 'Failed to remove item from cart'));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    },
+    [cartSession, updateCart, dispatch]
+  );
+
   return {
     cartSession,
     loading,
@@ -156,5 +201,7 @@ export const useCart = () => {
     addToCart,
     fetchCart,
     clearCartItems,
+    updateCartItemQuantity,
+    removeFromCart,
   };
 };

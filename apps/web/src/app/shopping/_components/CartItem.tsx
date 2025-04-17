@@ -19,35 +19,19 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
     removeFromCart(item.id);
   };
 
-  const price = item.variant?.prices[0]?.price || 0;
-  const totalPrice = price * item.quantity;
-  const imageUrl = item.variant?.product?.images[0]?.url;
-
   return (
     <div className="flex items-center justify-between p-4 border-b">
       <div className="flex items-center space-x-4">
-        {imageUrl && (
-          <img
-            src={imageUrl}
-            alt={item.variant?.product?.name || 'Product'}
-            className="w-20 h-20 object-cover rounded"
-          />
-        )}
         <div>
           <h3 className="text-lg font-medium">
-            {item.variant?.product?.name || 'Product'}
+            Product ID: {item.productId}
           </h3>
           <p className="text-sm text-gray-500">
-            {item.variant?.color} - {item.variant?.size}
+            SKU: {item.skuId}
           </p>
-          <p className="text-sm text-gray-500">SKU: {item.variant?.sku}</p>
         </div>
       </div>
       <div className="flex items-center space-x-8">
-        <div className="text-right">
-          <p className="text-lg font-medium">${price.toFixed(2)}</p>
-          <p className="text-sm text-gray-500">Total: ${totalPrice.toFixed(2)}</p>
-        </div>
         <div className="flex items-center space-x-4">
           <select
             value={item.quantity}

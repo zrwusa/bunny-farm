@@ -16,7 +16,12 @@ export const CartList = () => {
   }
 
   if (!cartSession || cartSession.items.length === 0) {
-    return <div className="p-4">Your cart is empty</div>;
+    return (
+      <div className="p-4 text-center">
+        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+        <p className="text-gray-600">Add some items to your cart to see them here.</p>
+      </div>
+    );
   }
 
   const totalPrice = cartSession.items.reduce((sum: number, item: CartItemType) => {
@@ -29,7 +34,7 @@ export const CartList = () => {
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-2xl font-bold">Shopping Cart</h2>
         <button
-          onClick={clearCartItems}
+          onClick={() => clearCartItems(cartSession.id)}
           className="text-red-500 hover:text-red-700"
         >
           Clear Cart
