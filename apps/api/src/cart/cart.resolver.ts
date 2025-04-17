@@ -17,7 +17,7 @@ export class CartResolver {
     @Args('createCartInput') createCartInput: CreateCartInput,
     @CurrentUser('userId') userId: string,
   ) {
-    // 确保用户只能创建自己的购物车
+    // Ensure user can only create their own cart
     createCartInput.userId = userId;
     return this.cartService.create(createCartInput);
   }
@@ -27,7 +27,7 @@ export class CartResolver {
   async getMyCart(@CurrentUser('userId') userId: string) {
     let cart = await this.cartService.findByUserId(userId);
     if (!cart) {
-      // 如果用户没有购物车，创建一个新的
+      // Create a new cart if user doesn't have one
       cart = await this.cartService.create({ userId, items: [] });
     }
     return cart;
@@ -45,7 +45,7 @@ export class CartResolver {
     @Args('updateCartInput') updateCartInput: UpdateCartInput,
     @CurrentUser('userId') userId: string,
   ) {
-    // 验证购物车所有权
+    // Verify cart ownership
     const cart = await this.cartService.findOne(updateCartInput.id);
     if (cart.user.id !== userId) {
       throw new Error('Unauthorized to update this cart');
@@ -59,7 +59,7 @@ export class CartResolver {
     @Args('id') id: string,
     @CurrentUser('userId') userId: string,
   ) {
-    // 验证购物车所有权
+    // Verify cart ownership
     const cart = await this.cartService.findOne(id);
     if (cart.user.id !== userId) {
       throw new Error('Unauthorized to remove this cart');
@@ -73,7 +73,7 @@ export class CartResolver {
     @Args('id') id: string,
     @CurrentUser('userId') userId: string,
   ) {
-    // 验证购物车所有权
+    // Verify cart ownership
     const cart = await this.cartService.findOne(id);
     if (cart.user.id !== userId) {
       throw new Error('Unauthorized to clear this cart');

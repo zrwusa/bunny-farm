@@ -18,7 +18,7 @@ export const useCart = () => {
   const dispatch = useDispatch();
   const { cartSession, loading, error } = useSelector((state: RootState) => state.cart);
 
-  // 获取购物车数据
+  // Fetch cart data
   const fetchCart = useCallback(async () => {
     try {
       const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body);
@@ -26,7 +26,7 @@ export const useCart = () => {
         dispatch(setCartSession(response.data.myCart));
       }
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : '获取购物车失败'));
+      dispatch(setError(error instanceof Error ? error.message : 'Failed to fetch cart'));
     }
   }, [dispatch]);
 
@@ -34,7 +34,7 @@ export const useCart = () => {
     fetchCart();
   }, [fetchCart]);
 
-  // 创建购物车
+  // Create cart
   const createCart = useCallback(async (productId: string, skuId: string, quantity: number) => {
     try {
       const response = await fetchGraphQL<Mutation>(CREATE_CART.loc?.source.body, {
@@ -44,7 +44,6 @@ export const useCart = () => {
               productId,
               skuId,
               quantity,
-              id: '', // 新项目不需要 id
             }],
           },
         },
@@ -55,12 +54,12 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : '创建购物车失败'));
+      dispatch(setError(error instanceof Error ? error.message : 'Failed to create cart'));
       return null;
     }
   }, [dispatch]);
 
-  // 更新购物车
+  // Update cart
   const updateCart = useCallback(async (cartId: string, items: CartItem[]) => {
     try {
       const response = await fetchGraphQL<Mutation>(UPDATE_CART.loc?.source.body, {
@@ -68,7 +67,6 @@ export const useCart = () => {
           updateCartInput: {
             id: cartId,
             items: items.map(item => ({
-              id: item.id || '',
               productId: item.productId,
               skuId: item.skuId,
               quantity: item.quantity,
@@ -82,12 +80,12 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : '更新购物车失败'));
+      dispatch(setError(error instanceof Error ? error.message : 'Failed to update cart'));
       return null;
     }
   }, [dispatch]);
 
-  // 清空购物车
+  // Clear cart
   const clearCartItems = useCallback(async (cartId: string) => {
     try {
       const response = await fetchGraphQL<Mutation>(CLEAR_CART.loc?.source.body, {
@@ -101,12 +99,12 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : '清空购物车失败'));
+      dispatch(setError(error instanceof Error ? error.message : 'Failed to clear cart'));
       return null;
     }
   }, [dispatch]);
 
-  // 添加商品到购物车
+  // Add item to cart
   const addToCart = useCallback(
     async (productId: string, skuId: string, quantity: number) => {
       dispatch(setLoading(true));
@@ -114,7 +112,7 @@ export const useCart = () => {
         if (!cartSession) {
           const newCart = await createCart(productId, skuId, quantity);
           if (!newCart) {
-            throw new Error('创建购物车失败');
+            throw new Error('Failed to create cart');
           }
         } else {
           const existingItem = cartSession.items.find(
@@ -127,15 +125,23 @@ export const useCart = () => {
                   ? { ...item, quantity: item.quantity + quantity }
                   : item
               )
-            : [...cartSession.items, { id: '', productId, skuId, quantity }];
+            : [...cartSession.items, {
+                id: '',
+                productId,
+                skuId,
+                quantity,
+                selected: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }];
 
           const updatedCart = await updateCart(cartSession.id, updatedItems);
           if (!updatedCart) {
-            throw new Error('更新购物车失败');
+            throw new Error('Failed to update cart');
           }
         }
       } catch (error) {
-        dispatch(setError(error instanceof Error ? error.message : '添加商品失败'));
+        dispatch(setError(error instanceof Error ? error.message : 'Failed to add item to cart'));
       } finally {
         dispatch(setLoading(false));
       }

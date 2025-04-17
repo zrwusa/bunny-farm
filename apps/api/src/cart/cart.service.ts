@@ -21,17 +21,17 @@ export class CartService {
   async create(createCartInput: CreateCartInput) {
     const { userId, items } = createCartInput;
 
-    // 检查用户是否存在
+    // Check if user exists
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // 创建购物车会话
+    // Create cart session
     const cartSession = this.cartSessionRepository.create({ user });
     await this.cartSessionRepository.save(cartSession);
 
-    // 添加购物车商品
+    // Add cart items
     if (items && items.length > 0) {
       const cartItems = items.map(item =>
         this.cartItemRepository.create({
@@ -75,10 +75,10 @@ export class CartService {
     const cart = await this.findOne(id);
 
     if (updateCartInput.items) {
-      // 删除现有的购物车商品
+      // Remove existing cart items
       await this.cartItemRepository.delete({ session: { id } });
 
-      // 添加新的购物车商品
+      // Add new cart items
       const cartItems = updateCartInput.items.map(item =>
         this.cartItemRepository.create({
           session: cart,
