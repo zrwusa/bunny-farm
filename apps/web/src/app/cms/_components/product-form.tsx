@@ -1,0 +1,23 @@
+import {createProduct} from '@/app/actions';
+import SubmitButton from '@/app/cms/_components/submit-button';
+import {Input} from '@/components/ui/input';
+import {Card} from '@/components/ui/card';
+
+export const ProductFormClient = async () => {
+
+
+    return (
+        <Card className="p-4">
+            <form action={createProduct}>
+                <Input type="text" name="name" id="name" placeholder="name"/>
+                <Input type="text" name="brand" id="brand" placeholder="brand"/>
+                <Input type="number" name="price" id="price" placeholder="price"/>
+                <Input type="text" name="description" id="description"
+                       placeholder="description"/>
+                <SubmitButton type="submit">Submit</SubmitButton>
+            </form>
+        </Card>
+    );
+}
+
+export default ProductFormClient;

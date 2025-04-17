@@ -1,0 +1,497 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserPreference {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  receiveNotifications: Boolean!
+  receiveEmails: Boolean!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Category {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  description: String
+  parent: Category
+  subcategories: [Category!]!
+  products: [Product!]!
+}
+
+type Brand {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  description: String
+  products: [Product!]!
+}
+
+type ProductImage {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  url: String!
+  position: Float
+  product: Product!
+}
+
+type ProductReview {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+  rating: Int!
+  comment: String
+  product: Product
+  variant: ProductVariant
+}
+
+type Product {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  description: JSONObject
+  category: Category
+  brand: Brand
+  variants: [ProductVariant!]!
+  images: [ProductImage!]!
+  reviews: [ProductReview!]!
+}
+
+"""
+The `JSONObject` scalar type represents JSON objects as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSONObject
+
+type Warehouse {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  name: String!
+  location: String!
+  inventories: [Inventory!]!
+}
+
+type Inventory {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  quantity: Float!
+  variant: ProductVariant!
+  warehouse: Warehouse!
+}
+
+type ProductPrice {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  price: Float!
+  validFrom: DateTime
+  validTo: DateTime
+  variant: ProductVariant!
+}
+
+type InventoryRecord {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variant: ProductVariant!
+  changeQuantity: Int!
+  type: InventoryType!
+  reason: String
+  order: Order
+}
+
+enum InventoryType {
+  PURCHASE
+  SALE
+  RETURN
+  ADJUSTMENT
+}
+
+type ProductVariant {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  sku: String!
+  color: String!
+  size: String!
+  prices: [ProductPrice!]!
+  product: Product!
+  inventories: [Inventory!]!
+  inventoryRecords: [InventoryRecord!]!
+  reviews: [ProductReview!]!
+}
+
+type OrderItem {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  order: Order!
+  variant: ProductVariant!
+  quantity: Int!
+
+  """The total price of the current quantity of products"""
+  price: Float!
+}
+
+type Payment {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  order: Order!
+  status: PaymentStatus!
+  paymentMethod: PaymentMethod!
+  url: String
+  amount: Float!
+  paymentTime: DateTime
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  OTHER
+}
+
+type Order {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+  items: [OrderItem!]
+  payments: [Payment!]
+  status: OrderStatus!
+  paymentStatus: PaymentStatus!
+  shippingStatus: ShippingStatus!
+  paymentMethod: PaymentMethod!
+  totalPrice: Float!
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  AWAITING_SHIPMENT
+  SHIPPED
+  COMPLETED
+  CANCELLED
+  REFUNDING
+  REFUNDED
+  RETURNING
+  RETURNED
+}
+
+enum ShippingStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+}
+
+type UserProfile {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  avatarUrl: String
+  bio: String
+  displayName: String
+  birthDate: DateTime
+  gender: String
+}
+
+type UserAddress {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  postalCode: String!
+  country: String!
+  isDefault: Boolean!
+}
+
+type UserPaymentMethod {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  paymentType: String!
+  maskedCardNumber: String!
+  cardExpiry: DateTime
+  provider: String
+}
+
+type CartItem {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  session: CartSession!
+  productId: String!
+  skuId: String!
+  quantity: Int!
+  selected: Boolean!
+}
+
+type CartSession {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: User!
+  items: [CartItem!]!
+}
+
+type User {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  username: String!
+  email: String!
+  provider: String
+  providerId: String
+  preference: UserPreference
+  profile: UserProfile
+  addresses: [UserAddress!]
+  paymentMethods: [UserPaymentMethod!]
+  orders: [Order!]
+  reviews: [ProductReview!]
+  cartSessions: [CartSession!]
+}
+
+type App {
+  message: String!
+}
+
+type Shipment {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  order: Order!
+  status: ShipmentStatus!
+  carrier: Carrier!
+  trackingNumber: String
+  estimatedDelivery: DateTime
+  shippedAt: DateTime
+}
+
+enum ShipmentStatus {
+  PENDING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  FAILED
+  RETURNED
+}
+
+enum Carrier {
+  DHL
+  FEDEX
+  UPS
+  USPS
+  ARAMEX
+  LOCAL_COURIER
+}
+
+type TokenOutput {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type Query {
+  ping: App!
+  user(id: String!): User
+  users: [User!]!
+  me: User!
+  product(id: String!): Product
+  products: [Product!]!
+  searchProducts(keyword: String!): [Product!]!
+  suggestProductNames(input: String!): [String!]!
+  orders(filterOrderInput: FilterOrderInput!): [Order!]!
+  payments: [Payment!]!
+  payment(id: Int!): Payment!
+  shipments: [Shipment!]!
+  shipment(id: Int!): Shipment!
+  myCart: CartSession!
+  cart(id: String!): CartSession!
+}
+
+input FilterOrderInput {
+  page: Float! = 1
+  pageSize: Float! = 10
+  status: String
+  startDate: DateTime
+  endDate: DateTime
+}
+
+type Mutation {
+  createUser(createUserInput: CreateUserInput!): User!
+  createUserSettings(createUserPreferenceInput: CreateUserPreferenceInput!): UserPreference!
+  createProduct(createProductInput: CreateProductInput!): Product!
+  publishProduct(publishProductInput: PublishProductInput!): Product!
+  bulkIndexProducts: Boolean!
+  createOrder(createOrderInput: CreateOrderInput!): Order!
+  createPayment(createPaymentInput: CreatePaymentInput!): Payment!
+  confirmPayment(paymentId: String!, status: String!): Payment!
+  updatePayment(updatePaymentInput: UpdatePaymentInput!): Payment!
+  removePayment(id: Int!): Payment!
+  createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
+  updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
+  removeShipment(id: Int!): Shipment!
+  createCart(createCartInput: CreateCartInput!): CartSession!
+  updateCart(updateCartInput: UpdateCartInput!): CartSession!
+  removeCart(id: String!): CartSession!
+  clearCart(id: String!): CartSession!
+  login(input: LoginInput!): TokenOutput!
+  refreshToken(userId: String!, refreshToken: String!): TokenOutput!
+  logout: Boolean!
+}
+
+input CreateUserInput {
+  username: String!
+  email: String!
+  password: String!
+}
+
+input CreateUserPreferenceInput {
+  userId: String!
+  receiveNotifications: Boolean = false
+  receiveEmails: Boolean = false
+}
+
+input CreateProductInput {
+  name: String!
+  brandId: String!
+  price: Float!
+  description: JSONObject
+}
+
+input PublishProductInput {
+  name: String!
+  description: JSONObject
+  brand: BrandInput!
+  category: CategoryInput!
+  images: [ImageInput!]!
+  variants: [VariantInput!]!
+}
+
+input BrandInput {
+  id: String
+  name: String
+}
+
+input CategoryInput {
+  id: String
+  name: String
+}
+
+input ImageInput {
+  url: String!
+  position: Float!
+}
+
+input VariantInput {
+  size: String!
+  sku: String!
+  color: String!
+  prices: [PriceInput!]
+  inventories: [InventoryInput!]
+  inventoryRecords: [InventoryRecordInput!]
+}
+
+input PriceInput {
+  price: Float!
+  validFrom: DateTime!
+  validTo: DateTime!
+}
+
+input InventoryInput {
+  quantity: Float!
+  warehouse: WarehouseInput!
+}
+
+input WarehouseInput {
+  id: String
+  name: String
+  location: String
+}
+
+input InventoryRecordInput {
+  changeQuantity: Float!
+  type: String!
+}
+
+input CreateOrderInput {
+  """User Id"""
+  userId: String!
+  items: [OrderItemInput!]!
+}
+
+input OrderItemInput {
+  """Variant Ids"""
+  variantId: String!
+
+  """Quantity of the product(s)"""
+  quantity: Int!
+}
+
+input CreatePaymentInput {
+  """Order ID"""
+  orderId: String!
+}
+
+input UpdatePaymentInput {
+  """Order ID"""
+  orderId: String
+  id: Int!
+}
+
+input CreateShipmentInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateShipmentInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
+}
+
+input CreateCartInput {
+  userId: String!
+  items: [CartItemInput!]!
+}
+
+input CartItemInput {
+  productId: String!
+  skuId: String!
+  quantity: Int!
+}
+
+input UpdateCartInput {
+  id: String!
+  items: [CartItemInput!]
+}
+
+input LoginInput {
+  type: String!
+  email: String
+  password: String
+  oauthToken: String
+}

@@ -1,0 +1,18 @@
+{
+  "name": "bunny-farm",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.5.2",
+    "turbo": "^1.12.4"
+  },
+  "packageManager": "pnpm@8.15.4"
+}
