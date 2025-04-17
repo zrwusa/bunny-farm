@@ -4,3 +4,10 @@ mutation GoogleLogin($loginInput: LoginInput!) {
         refreshToken
     }
 }
+
+mutation RefreshToken($userId: String!, $refreshToken: String!) {
+    refreshToken(userId: $userId, refreshToken: $refreshToken) {
+        accessToken
+        refreshToken
+    }
+}

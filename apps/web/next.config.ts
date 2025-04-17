@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'm.media-amazon.com'
+            },
+            {
+                hostname: 'lh3.googleusercontent.com'
             }
         ]
     }
