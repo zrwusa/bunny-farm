@@ -1,6 +1,6 @@
 import {objToGraphQLString} from '@/utils';
 import {Product} from '@/store/app';
-import {fetchGraphQL, GraphQLResponse} from '@/lib/graphql-fetch';
+import {fetchGraphQL} from '@/lib/graphql-fetch';
 import {Mutation, Query, LoginInput} from '@/types/generated/graphql';
 import {ME_QUERY} from '@/lib/graphql';
 import {GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT} from '@/lib/graphql/mutations';

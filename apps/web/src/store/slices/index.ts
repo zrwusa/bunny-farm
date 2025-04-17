@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import cartReducer from './cartSlice';
+import { User } from '@/types/generated/graphql';
 
 // API State Slice
 interface ApiState {
@@ -31,7 +32,7 @@ export const apiStateReducer = apiStateSlice.reducer;
 // Auth Slice
 interface AuthState {
     isAuthenticated: boolean;
-    user: any | null;
+    user: User | null;
 }
 
 const authInitialState: AuthState = {
@@ -46,7 +47,7 @@ const authSlice = createSlice({
         setAuthenticated: (state, action: PayloadAction<boolean>) => {
             state.isAuthenticated = action.payload;
         },
-        setUser: (state, action: PayloadAction<any>) => {
+        setUser: (state, action: PayloadAction<User | null>) => {
             state.user = action.payload;
         },
     },

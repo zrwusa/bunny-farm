@@ -26,7 +26,7 @@ const ProductsSsrInner = ({title, products}: { title: string, products: Query['p
                 const result = await fetchGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
                     variables: { keyword: submitted }
                 });
-                setSearchData(result);
+                setSearchData(result.data);
                 setError(null);
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('Failed to search products'));
@@ -43,10 +43,12 @@ const ProductsSsrInner = ({title, products}: { title: string, products: Query['p
             if (!debouncedQuery) return;
 
             try {
+                console.log('Fetching suggestions for:', debouncedQuery);
                 const result = await fetchGraphQL<Query>(SUGGEST_PRODUCT_NAMES.loc?.source.body, {
                     variables: { input: debouncedQuery }
                 });
-                setSuggestData(result);
+                console.log('Received suggestions:', result.data?.suggestProductNames);
+                setSuggestData(result.data);
             } catch (err) {
                 console.error('Failed to fetch suggestions:', err);
             }
@@ -57,10 +59,14 @@ const ProductsSsrInner = ({title, products}: { title: string, products: Query['p
 
     const displayedProducts = searchData?.searchProducts ?? products;
     const suggestProductNames = suggestData?.suggestProductNames ?? [];
+    console.log('Current suggestions:', suggestProductNames);
 
     return (<>
         <SearchInput
-            onDebouncedChange={(value) => setDebouncedQuery(value)}
+            onDebouncedChange={(value) => {
+                console.log('Debounced value changed:', value);
+                setDebouncedQuery(value);
+            }}
             suggestions={suggestProductNames}
             onSubmit={(value) => {
                 setSubmitted(value);

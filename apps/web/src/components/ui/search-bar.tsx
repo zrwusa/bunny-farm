@@ -17,29 +17,38 @@ export const SearchInput = ({
     const [input, setInput] = useState('');
     const [activeIndex, setActiveIndex] = useState(-1);
     const [isFocused, setIsFocused] = useState(false);
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const debounced = useDebounce(input, 300);
     const ulRef = useRef<HTMLUListElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
+        console.log('SearchInput - Current suggestions:', suggestions);
+        console.log('SearchInput - isFocused:', isFocused);
+        console.log('SearchInput - showSuggestions:', showSuggestions);
         onDebouncedChange(debounced);
-    }, [debounced]);
+    }, [debounced, suggestions, isFocused, showSuggestions]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!suggestions.length) return;
 
         if (e.key === 'ArrowDown') {
+            e.preventDefault();
             setActiveIndex((prev) => (prev + 1) % suggestions.length);
+            setShowSuggestions(true);
         } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
             setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+            setShowSuggestions(true);
         } else if (e.key === 'Enter') {
-            e.preventDefault(); // Prevent problems like form submissions
+            e.preventDefault();
             const value = activeIndex >= 0 ? suggestions[activeIndex] : input;
             setInput(value);
             onSubmit?.(value);
-            // setIsFocused(false);
+            setShowSuggestions(false);
             setActiveIndex(-1);
         } else if (e.key === 'Escape') {
-            setIsFocused(false);
+            setShowSuggestions(false);
             setActiveIndex(-1);
         }
     };
@@ -47,33 +56,41 @@ export const SearchInput = ({
     const handleClickSuggestion = (value: string) => {
         setInput(value);
         onSubmit?.(value);
-        setIsFocused(false);
+        setShowSuggestions(false);
+        inputRef.current?.focus();
     };
 
     return (
         <div className="relative w-full max-w-md">
             <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => {
                     setInput(e.target.value);
                     setIsFocused(true);
+                    setShowSuggestions(true);
                 }}
                 onKeyDown={handleKeyDown}
-                onFocus={() => setIsFocused(true)}
+                onFocus={() => {
+                    setIsFocused(true);
+                    if (suggestions.length > 0) {
+                        setShowSuggestions(true);
+                    }
+                }}
                 onBlur={() => {
-                    // Check whether the suggestion area is clicked
-                    requestAnimationFrame(() => {
+                    // Delay hiding suggestions to allow for click events
+                    setTimeout(() => {
                         if (!ulRef.current?.contains(document.activeElement)) {
-                            setIsFocused(false);
+                            setShowSuggestions(false);
                         }
-                    });
+                    }, 200);
                 }}
                 placeholder={placeholder}
                 className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300"
             />
 
-            {isFocused && suggestions.length > 0 && (
+            {showSuggestions && suggestions.length > 0 && (
                 <ul
                     ref={ulRef}
                     className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-md max-h-60 overflow-y-auto"
@@ -84,7 +101,10 @@ export const SearchInput = ({
                             className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
                                 i === activeIndex ? 'bg-gray-100' : ''
                             }`}
-                            onMouseDown={() => handleClickSuggestion(s)}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                handleClickSuggestion(s);
+                            }}
                         >
                             {s}
                         </li>

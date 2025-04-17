@@ -2,10 +2,13 @@
 
 import {Product, User} from '@/store/app';
 import {objToGraphQLString} from '@/utils';
-import {fetchGraphQL, GraphQLResponse} from '@/lib/graphql-fetch';
-import {LoginInput, Mutation, Query} from '@/types/generated/graphql';
+import {fetchGraphQL} from '@/lib/graphql-fetch';
+import {Mutation, Query} from '@/types/generated/graphql';
 import {GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS} from '@/lib/graphql/queries';
 import {CREATE_PRODUCT} from '@/lib/graphql/mutations';
+import { createProductClient } from './cms/actions/product';
+
+export { createProductClient };
 
 export const createProduct = async (formData: FormData) => {
     const product = Object.fromEntries(formData.entries()) as unknown as Product;
@@ -17,23 +20,6 @@ export const createProduct = async (formData: FormData) => {
         }
     });
     return response.data.createProduct;
-}
-
-export const createProductASCC = async (prevState: Product, formData: FormData) => {
-    const product = {...prevState, ...Object.fromEntries(formData.entries())} as Product;
-    product.price = Number(product.price)
-    const response = await fetchGraphQL<Mutation>(CREATE_PRODUCT.loc?.source.body, {
-        variables: {
-            createProductInput: product
-        }
-    });
-
-    if (response.errors && response.errors.length > 0) {
-        return product;
-    }
-    const {createProduct} = response.data;
-    if (createProduct.id) return createProduct
-    return product;
 }
 
 export const getProducts = async () => {

@@ -7,12 +7,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Convert object to GraphQL string
-export function objToGraphQLString(obj: Record<string, any>): string {
+export function objToGraphQLString(obj: Record<string, unknown>): string {
   return Object.entries(obj)
     .map(([key, value]) => {
       if (value === undefined || value === null) return '';
-      if (typeof value === 'object') {
-        return `${key}: {${objToGraphQLString(value)}}`;
+      if (typeof value === 'object' && value !== null) {
+        return `${key}: {${objToGraphQLString(value as Record<string, unknown>)}}`;
       }
       if (typeof value === 'string') {
         return `${key}: "${value}"`;
@@ -75,7 +75,7 @@ export function deepClone<T>(obj: T): T {
 }
 
 // Check if object is empty
-export function isEmpty(obj: Record<string, any>): boolean {
+export function isEmpty(obj: Record<string, unknown>): boolean {
   return Object.keys(obj).length === 0;
 }
 

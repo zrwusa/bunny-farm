@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CartItem, CartSession } from '../_types/cart';
+import { CartSession } from '@/types/generated/graphql';
 import { RootState } from '@/store/store';
 import {
   setCartSession,
@@ -10,15 +10,31 @@ import {
   setError,
   clearCart,
 } from '@/store/slices/cartSlice';
-import { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from '@/lib/graphql/cart';
-import { fetchGraphQL, GraphQLResponse } from '@/lib/graphql-fetch';
+import { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from '@/lib/graphql/queries';
+import { fetchGraphQL } from '@/lib/graphql-fetch';
 import { Query, Mutation } from '@/types/generated/graphql';
+
+// Define a local CartItem type with necessary fields
+export interface LocalCartItem {
+  id: string;
+  productId: string;
+  skuId: string;
+  quantity: number;
+  selected: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const handleError = (error: unknown, dispatch: any) => {
+  const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+  dispatch(setError(errorMessage));
+  return null;
+};
 
 export const useCart = () => {
   const dispatch = useDispatch();
   const { cartSession, loading, error } = useSelector((state: RootState) => state.cart);
 
-  // Fetch cart data
   const fetchCart = useCallback(async () => {
     try {
       const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body);
@@ -26,7 +42,7 @@ export const useCart = () => {
         dispatch(setCartSession(response.data.myCart));
       }
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : 'Failed to fetch cart'));
+      handleError(error, dispatch);
     }
   }, [dispatch]);
 
@@ -34,17 +50,12 @@ export const useCart = () => {
     fetchCart();
   }, [fetchCart]);
 
-  // Create cart
   const createCart = useCallback(async (productId: string, skuId: string, quantity: number) => {
     try {
       const response = await fetchGraphQL<Mutation>(CREATE_CART.loc?.source.body, {
         variables: {
           createCartInput: {
-            items: [{
-              productId,
-              skuId,
-              quantity,
-            }],
+            items: [{ productId, skuId, quantity }],
           },
         },
       });
@@ -54,13 +65,11 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : 'Failed to create cart'));
-      return null;
+      return handleError(error, dispatch);
     }
   }, [dispatch]);
 
-  // Update cart
-  const updateCart = useCallback(async (cartId: string, items: CartItem[]) => {
+  const updateCart = useCallback(async (cartId: string, items: LocalCartItem[]) => {
     try {
       const response = await fetchGraphQL<Mutation>(UPDATE_CART.loc?.source.body, {
         variables: {
@@ -80,18 +89,14 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : 'Failed to update cart'));
-      return null;
+      return handleError(error, dispatch);
     }
   }, [dispatch]);
 
-  // Clear cart
   const clearCartItems = useCallback(async (cartId: string) => {
     try {
       const response = await fetchGraphQL<Mutation>(CLEAR_CART.loc?.source.body, {
-        variables: {
-          id: cartId,
-        },
+        variables: { id: cartId },
       });
       if (response.data.clearCart) {
         dispatch(setCartSession(response.data.clearCart));
@@ -99,28 +104,24 @@ export const useCart = () => {
       }
       return null;
     } catch (error) {
-      dispatch(setError(error instanceof Error ? error.message : 'Failed to clear cart'));
-      return null;
+      return handleError(error, dispatch);
     }
   }, [dispatch]);
 
-  // Add item to cart
   const addToCart = useCallback(
     async (productId: string, skuId: string, quantity: number) => {
       dispatch(setLoading(true));
       try {
         if (!cartSession) {
           const newCart = await createCart(productId, skuId, quantity);
-          if (!newCart) {
-            throw new Error('Failed to create cart');
-          }
+          if (!newCart) throw new Error('Failed to create cart');
         } else {
           const existingItem = cartSession.items.find(
-            (item: CartItem) => item.productId === productId && item.skuId === skuId
+            item => item.productId === productId && item.skuId === skuId
           );
 
           const updatedItems = existingItem
-            ? cartSession.items.map((item: CartItem) =>
+            ? cartSession.items.map(item =>
                 item.id === existingItem.id
                   ? { ...item, quantity: item.quantity + quantity }
                   : item
@@ -136,12 +137,10 @@ export const useCart = () => {
               }];
 
           const updatedCart = await updateCart(cartSession.id, updatedItems);
-          if (!updatedCart) {
-            throw new Error('Failed to update cart');
-          }
+          if (!updatedCart) throw new Error('Failed to update cart');
         }
       } catch (error) {
-        dispatch(setError(error instanceof Error ? error.message : 'Failed to add item to cart'));
+        handleError(error, dispatch);
       } finally {
         dispatch(setLoading(false));
       }
@@ -149,23 +148,20 @@ export const useCart = () => {
     [cartSession, createCart, updateCart, dispatch]
   );
 
-  // Update cart item quantity
   const updateCartItemQuantity = useCallback(
     async (itemId: string, quantity: number) => {
       if (!cartSession) return;
 
       dispatch(setLoading(true));
       try {
-        const updatedItems = cartSession.items.map((item: CartItem) =>
+        const updatedItems = cartSession.items.map(item =>
           item.id === itemId ? { ...item, quantity } : item
         );
 
         const updatedCart = await updateCart(cartSession.id, updatedItems);
-        if (!updatedCart) {
-          throw new Error('Failed to update cart item quantity');
-        }
+        if (!updatedCart) throw new Error('Failed to update cart item quantity');
       } catch (error) {
-        dispatch(setError(error instanceof Error ? error.message : 'Failed to update cart item quantity'));
+        handleError(error, dispatch);
       } finally {
         dispatch(setLoading(false));
       }
@@ -173,20 +169,17 @@ export const useCart = () => {
     [cartSession, updateCart, dispatch]
   );
 
-  // Remove item from cart
   const removeFromCart = useCallback(
     async (itemId: string) => {
       if (!cartSession) return;
 
       dispatch(setLoading(true));
       try {
-        const updatedItems = cartSession.items.filter((item: CartItem) => item.id !== itemId);
+        const updatedItems = cartSession.items.filter(item => item.id !== itemId);
         const updatedCart = await updateCart(cartSession.id, updatedItems);
-        if (!updatedCart) {
-          throw new Error('Failed to remove item from cart');
-        }
+        if (!updatedCart) throw new Error('Failed to remove item from cart');
       } catch (error) {
-        dispatch(setError(error instanceof Error ? error.message : 'Failed to remove item from cart'));
+        handleError(error, dispatch);
       } finally {
         dispatch(setLoading(false));
       }

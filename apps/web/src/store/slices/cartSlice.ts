@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {CartSession} from '@/app/shopping/_types/cart';
+import { CartSession } from '@/types/generated/graphql';
 
 interface CartState {
     cartSession: CartSession | null;

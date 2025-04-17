@@ -16,6 +16,9 @@ import {
   MeQueryVariables,
 } from '@/types/generated/graphql';
 
+// Export cart queries
+export { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from './queries';
+
 // Products
 export const GET_PRODUCTS = gql`
   query GetProducts {
@@ -270,4 +273,3 @@ export type {
 
 export * from './mutations';
 export * from './queries';
-export * from './cart';

@@ -1,10 +1,10 @@
 'use client';
 
 import { useCart } from '../_hooks/useCart';
-import { CartItem as CartItemType } from '../_types/cart';
+import type { LocalCartItem } from '../_hooks/useCart';
 
 interface CartItemProps {
-  item: CartItemType;
+  item: LocalCartItem;
 }
 
 export const CartItem: React.FC<CartItemProps> = ({ item }) => {
