@@ -14,5 +14,4 @@ const ProductsPage = () => {
         </ListSizeProvider>
     )
 }
-
 export default ProductsPage;

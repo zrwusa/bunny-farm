@@ -3,6 +3,7 @@
 import { useCart } from '../_hooks/useCart';
 import { CartItem } from './CartItem';
 import type { LocalCartItem } from '../_hooks/useCart';
+import Link from 'next/link';
 
 export const CartList = () => {
   const { cartSession, loading, error, clearCartItems } = useCart();
@@ -41,9 +42,12 @@ export const CartList = () => {
         ))}
       </div>
       <div className="p-4 border-t">
-        <button className="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+        <Link
+          href="/shopping/order"
+          className="block w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 text-center"
+        >
           Proceed to Checkout
-        </button>
+        </Link>
       </div>
     </div>
   );
