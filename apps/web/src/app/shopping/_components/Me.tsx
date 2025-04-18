@@ -32,7 +32,7 @@ export default function Me() {
         try {
             await logout();
             setIsAuthenticated(false);
-            router.push('/login');
+            router.push('/auth');
         } catch (error) {
             console.error('Failed to logout:', error);
         }
@@ -40,7 +40,7 @@ export default function Me() {
 
     if (!isAuthenticated) {
         return (
-            <button onClick={() => router.push(`/login?from=${pathname}`)}>
+            <button onClick={() => router.push(`/auth?from=${pathname}`)}>
                 Login
             </button>
         );
