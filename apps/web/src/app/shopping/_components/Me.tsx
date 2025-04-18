@@ -23,8 +23,10 @@ export default function Me() {
         const fetchUser = async () => {
             try {
                 const result = await getMeApolloGql();
-                setUser(result);
-                setIsAuthenticated(true);
+                if (result) {
+                    setUser(result);
+                    setIsAuthenticated(true);
+                }
             } catch (error) {
                 console.error('Failed to fetch user:', error);
                 setIsAuthenticated(false);
@@ -38,7 +40,7 @@ export default function Me() {
         try {
             await logout();
             setIsAuthenticated(false);
-            router.push('/auth');
+            router.push('/login');
         } catch (error) {
             console.error('Failed to logout:', error);
         }
@@ -47,7 +49,7 @@ export default function Me() {
     if (!isAuthenticated) {
         return (
             <button
-                onClick={() => router.push(`/auth?from=${pathname}`)}
+                onClick={() => router.push(`/login?from=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
             >
                 Login
