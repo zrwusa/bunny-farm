@@ -61,7 +61,7 @@ export const SearchInput = ({
     };
 
     return (
-        <div className="relative w-full max-w-md">
+        <div className="relative w-full">
             <input
                 ref={inputRef}
                 type="text"

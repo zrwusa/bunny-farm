@@ -14,7 +14,7 @@ interface ProductListProps {
 const ProductList = memo(({title, products, size = 3, aboveTheFold = 3}: ProductListProps) => {
 
     return (
-        <section>
+        <section className="container mx-auto px-4 py-8">
             {title ? <h2 className="text-2xl font-bold mb-4">{title}</h2> : null}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.slice(0, size).map(({id, name, brand, category, images, variants}, index) => {

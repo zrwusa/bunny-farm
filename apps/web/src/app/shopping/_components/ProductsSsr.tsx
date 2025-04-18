@@ -12,9 +12,13 @@ export const ProductsSsr = async ({ searchParams = {} }: { searchParams?: { q?: 
     console.log('Searching for products with query:', query);
     products = await searchProducts(query);
     console.log('Search results:', products);
+  } else {
+    console.log('Fetching all products');
+    products = await searchProducts('');
+    console.log('All products:', products);
   }
 
-  return <ProductsSsrInner title={query ? `Search results for "${query}"` : "Products"} products={products} />;
+  return <ProductsSsrInner title={query ? `Search results for "${query}"` : "All Products"} products={products} />;
 };
 
 export default ProductsSsr;
