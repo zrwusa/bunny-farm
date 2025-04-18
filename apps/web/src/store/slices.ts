@@ -1,7 +1,7 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {requestKeys} from '@/lib/constants/contants/request-keys';
+import {requestKeys} from '@/lib/constants/request-keys';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
-import {Product} from '@/store/app';
+import {Product} from '@/types/generated/graphql';
 import {Query} from '@/types/generated/graphql';
 
 
@@ -37,8 +37,12 @@ const productSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchData.fulfilled, (state, action) => {
-                if (action.payload.requestKey === requestKeys.FETCH_PRODUCTS && action.payload.data?.products)
-                    state.products = action.payload.data.products as Product[];
+                if (action.payload.requestKey === requestKeys.FETCH_PRODUCTS && action.payload.data?.products) {
+                    state.products = action.payload.data.products.map(product => ({
+                        ...product,
+                        price: 0 // Add required price field
+                    })) as Product[];
+                }
             });
     },
 });

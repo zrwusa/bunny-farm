@@ -1,5 +1,5 @@
 import {objToGraphQLString} from '@/utils';
-import {Product} from '@/store/app';
+import {Product} from '@/types/generated/graphql';
 import {revalidatePath} from 'next/cache';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Mutation} from '@/types/generated/graphql';
@@ -22,7 +22,7 @@ export const createProductClient = async (prevState: Product, formData: FormData
     if (response.errors && response.errors.length > 0) {
         return product;
     }
-    const {createProduct} = response.data;
-    if (createProduct.id) return createProduct
+    const {createProduct} = response.data || {};
+    if (createProduct?.id) return createProduct;
     return product;
 }

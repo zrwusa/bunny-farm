@@ -1,7 +1,7 @@
 'use server'
 
-import { Product } from '@/store/app';
 import { fetchGraphQL } from './graphql-fetch';
+import { Product } from '@/types/generated/graphql';
 import { Mutation, Query, User } from '@/types/generated/graphql';
 import { GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS, SEARCH_PRODUCTS } from '@/lib/graphql/queries';
 import { CREATE_PRODUCT } from '@/lib/graphql/mutations';

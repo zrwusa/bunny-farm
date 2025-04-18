@@ -2,7 +2,7 @@
 
 import {useSelector} from 'react-redux';
 import {RootState} from '@/store/store';
-import {Product} from '@/store/app';
+import {Product} from '@/types/generated/graphql';
 
 
 const Products = ({products}: { products?: Product[] }) => {
