@@ -1,4 +1,5 @@
 import {gql} from '@apollo/client';
+import {LoginInput} from '@/types/generated/graphql';
 
 export const GET_USERS = gql`
   query GetUsers {
@@ -205,6 +206,28 @@ export const SEARCH_PRODUCTS = gql`
           price
         }
       }
+    }
+  }
+`;
+
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      email
+      profile {
+        avatarUrl
+        displayName
+      }
+    }
+  }
+`;
+
+export const GOOGLE_LOGIN = gql`
+  mutation GoogleLogin($input: LoginInput!) {
+    login(input: $input) {
+      accessToken
+      refreshToken
     }
   }
 `;

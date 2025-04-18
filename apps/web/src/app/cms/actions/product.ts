@@ -1,7 +1,7 @@
 import {objToGraphQLString} from '@/utils';
 import {Product} from '@/store/app';
 import {revalidatePath} from 'next/cache';
-import {fetchGraphQL, GraphQLResponse} from '@/lib/api/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Mutation} from '@/types/generated/graphql';
 
 export const createProductClient = async (prevState: Product, formData: FormData) => {
