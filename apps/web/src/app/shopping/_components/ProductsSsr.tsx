@@ -1,5 +1,5 @@
 import ProductsSsrInner from '@/app/shopping/_components/ProductsSsrInner';
-import {getProducts} from '@/app/actions';
+import {getProducts} from '@/lib/api/actions';
 
 export const ProductsSsr = async () => {
     const products = await getProducts();

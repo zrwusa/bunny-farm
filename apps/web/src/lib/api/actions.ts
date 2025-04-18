@@ -2,11 +2,11 @@
 
 import {Product, User} from '@/store/app';
 import {objToGraphQLString} from '@/utils';
-import {fetchGraphQL} from '@/lib/graphql-fetch';
+import {fetchGraphQL} from './graphql-fetch';
 import {Mutation, Query} from '@/types/generated/graphql';
 import {GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS} from '@/lib/graphql/queries';
 import {CREATE_PRODUCT} from '@/lib/graphql/mutations';
-import { createProductClient } from './cms/actions/product';
+import { createProductClient } from './client-actions';
 
 export { createProductClient };
 
@@ -51,7 +51,7 @@ export const getProduct = async (id: string) => {
 
 export const getUsers = async () => {
     const response = await fetchGraphQL<Query>(GET_USERS.loc?.source.body);
-    return response.data.users.map(user => ({
+    return response.data.users.map((user: { id: string; username: string; provider?: string }) => ({
         id: user.id,
         username: user.username,
         provider: user.provider || 'local',

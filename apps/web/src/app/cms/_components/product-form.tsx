@@ -1,4 +1,4 @@
-import {createProduct} from '@/app/actions';
+import {createProduct} from '@/lib/api/actions';
 import SubmitButton from '@/app/cms/_components/submit-button';
 import {Input} from '@/components/ui/input';
 import {Card} from '@/components/ui/card';

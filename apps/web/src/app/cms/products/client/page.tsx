@@ -1,9 +1,10 @@
 'use client'
 
 import {useEffect, useState} from 'react'
+import {useRouter} from 'next/navigation'
 import {ProductsTable} from '@/app/cms/_components/product-table'
 import {Product} from '@/types/generated/graphql'
-import {fetchGraphQL, GraphQLResponse} from '@/lib/graphql-fetch'
+import {fetchGraphQL, GraphQLResponse} from '@/lib/api/graphql-fetch'
 
 interface ProductsResponse {
     products: Product[]

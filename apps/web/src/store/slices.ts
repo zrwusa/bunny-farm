@@ -1,8 +1,9 @@
 import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {requestKeys} from '@/lib/contants/request-keys';
-import {fetchGraphQL, GraphQLResponse} from '@/lib/graphql-fetch';
+import {requestKeys} from '@/lib/constants/contants/request-keys';
+import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Product} from '@/store/app';
 import {Query} from '@/types/generated/graphql';
+import {GraphQLResponse} from '@apollo/client';
 
 const authSlice = createSlice({
     name: 'auth',

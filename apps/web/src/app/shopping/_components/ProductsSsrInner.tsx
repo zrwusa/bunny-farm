@@ -1,12 +1,17 @@
 'use client'
 
 import {useEffect, useState} from 'react';
-import ProductList from '@/app/shopping/_components/ProductList';
+import {useRouter} from 'next/navigation';
+import {getProductsApolloGql, getSuggestProductNamesApolloGql} from '@/lib/api/client-actions';
 import {Query} from '@/types/generated/graphql';
+import {Product} from '@/app/shopping/_types/product';
+import {ProductCard} from '@/app/shopping/_components/ProductCard';
+import {SearchInput} from '@/components/ui/search-bar';
+import {ProductCardSkeleton} from '@/app/shopping/_components/product-card-skeleton';
 import {useListSize} from '@/app/shopping/_hooks/use-list-size';
 import {SEARCH_PRODUCTS, SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';
-import {SearchInput} from '@/components/ui/search-bar';
-import {fetchGraphQL} from '@/lib/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/graphql-fetch';
+import ProductList from '@/app/shopping/_components/ProductList';
 
 const ProductsSsrInner = ({title, products}: { title: string, products: Query['products'] }) => {
     const [debouncedQuery, setDebouncedQuery] = useState('');

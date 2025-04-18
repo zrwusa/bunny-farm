@@ -1,7 +1,9 @@
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
 import {Query} from '@/types/generated/graphql';
 import {GET_PRODUCTS} from '@/lib/graphql/queries';
 import ProductsSsrInner from '@/app/shopping/_components/ProductsSsrInner';
-import {fetchGraphQL} from '@/lib/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 
 async function getProducts() {
     const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body, {

@@ -12,6 +12,9 @@ export class GoogleOAuthService {
     });
 
     const payload = ticket.getPayload();
+    if (!payload) {
+      throw new Error('Failed to get Google user payload');
+    }
 
     return {
       googleId: payload.sub, // Google User ID

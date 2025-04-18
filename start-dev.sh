@@ -8,4 +8,4 @@ lsof -ti:8080 | xargs kill -9
 sleep 2
 
 # Start development servers
-cd apps/web && pnpm dev & cd apps/server && pnpm dev
+cd apps/web && pnpm dev & cd apps/api && pnpm dev

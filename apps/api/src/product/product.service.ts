@@ -104,7 +104,7 @@ export class ProductService {
       const variants = await Promise.all(
         publishProductInput.variants.map(async (variantInput) => {
           const inventories = await Promise.all(
-            variantInput.inventories.map(async (inventoryInput) => {
+            (variantInput.inventories ?? []).map(async (inventoryInput) => {
               const { warehouse: warehouseInput } = inventoryInput;
               let warehouse: Warehouse | null = null;
 
@@ -177,6 +177,6 @@ export class ProductService {
 
   async suggestProductNames(input: string) {
     const suggestOptions = await this.searchService.suggestProducts(input);
-    return suggestOptions.map((opt) => opt._source.name);
+    return suggestOptions.map((opt) => opt._source?.name ?? '');
   }
 }

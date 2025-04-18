@@ -35,6 +35,9 @@ export class AuthService {
   async validateOAuthUser(provider: string, oauthToken: string): Promise<User> {
     const googleUser = await this.googleOauthService.verifyIdToken(oauthToken);
     const { email, googleId, avatar: avatarUrl, name: displayName } = googleUser;
+    if (!email) {
+      throw new UnauthorizedException('Email is required for OAuth login');
+    }
     let user = await this.userService.findByProviderId(provider, googleId);
     if (!user) {
       user = await this.userService.createOAuthUser({

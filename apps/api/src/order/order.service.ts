@@ -65,7 +65,7 @@ export class OrderService {
           .select('SUM(inventory_records.change_quantity)', 'totalStock')
           .getRawOne<{ totalStock: string }>();
 
-        if ((Number(totalStock.totalStock) || 0) < quantity) {
+        if ((Number(totalStock?.totalStock ?? 0)) < quantity) {
           throw new BadRequestException(`Product variant ${variant.product.name} is out of stock`);
         }
         const price = variant.prices[0].price;

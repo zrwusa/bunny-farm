@@ -6,11 +6,17 @@ import { Profile, Strategy as GoogleStrategyBase } from 'passport-google-oauth20
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(GoogleStrategyBase, 'google') {
   constructor(config: ConfigService) {
+    const clientID = config.get('GOOGLE_CLIENT_ID');
+    const clientSecret = config.get('GOOGLE_CLIENT_SECRET');
+    if (!clientID || !clientSecret) {
+      throw new Error('Google OAuth credentials are not configured');
+    }
     super({
-      clientID: config.get('GOOGLE_CLIENT_ID'),
-      clientSecret: config.get('GOOGLE_CLIENT_SECRET'),
+      clientID,
+      clientSecret,
       callbackURL: 'http://localhost:3000/auth/google/callback',
       scope: ['email', 'profile'],
+      passReqToCallback: true,
     });
   }
 
@@ -19,7 +25,7 @@ export class GoogleStrategy extends PassportStrategy(GoogleStrategyBase, 'google
     return {
       provider: 'google',
       oauthId: id,
-      email: emails[0].value,
+      email: emails?.[0]?.value,
       displayName,
       avatar: photos?.[0]?.value,
     };

@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import {useRouter, usePathname} from 'next/navigation';
-import {getMeApolloGql, logout} from '@/app/client-actions';
+import {getMeApolloGql, logout} from '@/lib/api/client-actions';
 import {Query} from '@/types/generated/graphql';
 import Image from 'next/image';
 import {Button} from '@/components/ui/button';

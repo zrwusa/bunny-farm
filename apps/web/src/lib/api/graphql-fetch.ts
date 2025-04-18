@@ -1,5 +1,5 @@
 import { GraphQLResponse } from '@/types/generated/graphql';
-import { getStoredTokens, isTokenExpired, isTokenExpiringSoon, setStoredTokens, getUserIdFromToken } from '@/lib/auth';
+import { getStoredTokens, isTokenExpired, isTokenExpiringSoon, setStoredTokens, getUserIdFromToken } from './auth';
 
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;

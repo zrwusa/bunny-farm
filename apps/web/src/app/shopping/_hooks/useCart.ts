@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CartSession } from '@/types/generated/graphql';
 import { RootState } from '@/store/store';
@@ -11,7 +11,7 @@ import {
   clearCart,
 } from '@/store/slices/cartSlice';
 import { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from '@/lib/graphql/queries';
-import { fetchGraphQL } from '@/lib/graphql-fetch';
+import { fetchGraphQL } from '@/lib/api/graphql-fetch';
 import { Query, Mutation } from '@/types/generated/graphql';
 
 // Define a local CartItem type with necessary fields

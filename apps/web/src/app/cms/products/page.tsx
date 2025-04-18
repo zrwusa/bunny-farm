@@ -1,5 +1,5 @@
 import Products from '@/app/cms/_components/products';
-import {getProducts} from '@/app/actions';
+import {getProducts} from '@/lib/api/actions';
 
 const ProductList = async () => {
     const products = await getProducts();

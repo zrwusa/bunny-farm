@@ -1,8 +1,8 @@
 "use client"
 
-import {Button} from "@/components/ui/button";
-import {logout} from "@/app/client-actions";
-import {useRouter} from "next/navigation";
+import {Button} from '@/components/ui/button';
+import {useRouter} from 'next/navigation';
+import {logout} from '@/lib/api/client-actions';
 
 export const LogoutButton = () => {
     const router = useRouter();

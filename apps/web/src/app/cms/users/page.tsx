@@ -1,4 +1,4 @@
-import {getUsers} from '@/app/actions';
+import {getUsers} from '@/lib/api/actions';
 import {Switch} from '@/components/ui/switch';
 
 

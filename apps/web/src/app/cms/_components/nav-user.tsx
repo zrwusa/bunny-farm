@@ -2,6 +2,7 @@
 
 import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} from 'lucide-react'
 import {useRouter} from 'next/navigation'
+import {logout} from '@/lib/api/client-actions'
 
 import {Avatar, AvatarFallback, AvatarImage,} from '@/components/ui/avatar'
 import {
@@ -14,7 +15,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from '@/components/ui/sidebar'
-import {logout} from '@/app/client-actions'
 
 export function NavUser({
                             user,

@@ -9,7 +9,8 @@ import {useEffect, useMemo, useState} from 'react';
 import {Input} from '@/components/ui/input';
 import useDebounce from '@/hooks/use-debounce';
 import {useListSize} from '@/app/shopping/_hooks/use-list-size';
-import {fetchGraphQL} from '@/lib/graphql-fetch';
+import {SEARCH_PRODUCTS, SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';
+import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 
 export const ProductsCsr = () => {
     const [data, setData] = useState<Query['products']>([]);
