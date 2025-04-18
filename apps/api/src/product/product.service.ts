@@ -167,12 +167,21 @@ export class ProductService {
   }
 
   async searchProducts(query: string) {
-    const productIds = (await this.searchService.searchProducts(query)).map((hit) => hit._id);
+    console.log('Backend searchProducts called with query:', query);
 
-    return await this.productRepo.find({
+    const searchResults = await this.searchService.searchProducts(query);
+    console.log('Elasticsearch search results:', searchResults);
+
+    const productIds = searchResults.map((hit) => hit._id);
+    console.log('Product IDs from search:', productIds);
+
+    const products = await this.productRepo.find({
       where: { id: In(productIds) },
       order: { images: { position: 'ASC' } },
     });
+
+    console.log('Found products:', products.length);
+    return products;
   }
 
   async suggestProductNames(input: string) {

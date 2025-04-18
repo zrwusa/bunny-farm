@@ -1,11 +1,10 @@
 'use server'
 
-import {Product, User} from '@/store/app';
-import {objToGraphQLString} from '@/utils';
-import {fetchGraphQL} from './graphql-fetch';
-import {Mutation, Query} from '@/types/generated/graphql';
-import {GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS} from '@/lib/graphql/queries';
-import {CREATE_PRODUCT} from '@/lib/graphql/mutations';
+import { Product } from '@/store/app';
+import { fetchGraphQL } from './graphql-fetch';
+import { Mutation, Query, User } from '@/types/generated/graphql';
+import { GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS, SEARCH_PRODUCTS } from '@/lib/graphql/queries';
+import { CREATE_PRODUCT } from '@/lib/graphql/mutations';
 import { createProductClient } from './client-actions';
 
 export { createProductClient };
@@ -19,47 +18,73 @@ export const createProduct = async (formData: FormData) => {
             createProductInput: product
         }
     });
+
+    if (!response?.data) {
+        throw new Error('Failed to create product');
+    }
     return response.data.createProduct;
 }
 
 export const getProducts = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
 
-    if (response.errors && response.errors.length > 0) {
-        return;
+    if (!response?.data || response.errors?.length) {
+        console.error('Error fetching products:', response.errors);
+        return [];
     }
-    return response.data.products;
+    return response.data.products ?? [];
 }
 
 export const getProductIds = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
 
-    if (response.errors && response.errors.length > 0) {
-        return;
+    if (!response?.data || response.errors?.length) {
+        console.error('Error fetching product IDs:', response.errors);
+        return [];
     }
-    return response.data.products;
+    return response.data.products ?? [];
 }
 
 export const getProduct = async (id: string) => {
     const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, {variables: {id}});
 
-    if (response.errors && response.errors.length > 0) {
-        return;
+    if (!response?.data || response.errors?.length) {
+        console.error('Error fetching product:', response.errors);
+        return null;
     }
-    return response.data.product;
+    return response.data.product ?? null;
 }
 
 export const getUsers = async () => {
     const response = await fetchGraphQL<Query>(GET_USERS.loc?.source.body);
-    return response.data.users.map((user: { id: string; username: string; provider?: string }) => ({
+
+    if (!response?.data || response.errors?.length) {
+        console.error('Error fetching users:', response.errors);
+        return [];
+    }
+
+    const users = response.data.users ?? [];
+    return users.map((user: User) => ({
         id: user.id,
         username: user.username,
-        provider: user.provider || 'local',
+        provider: user.provider ?? 'unknown',
         settings: {
             userId: user.id,
             receiveEmails: false,
             receiveNotifications: false
         },
         posts: []
-    })) as User[];
+    }));
 }
+
+export const searchProducts = async (keyword: string) => {
+    const response = await fetchGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
+        variables: { keyword }
+    });
+
+    if (!response?.data || response.errors?.length) {
+        console.error('Error searching products:', response.errors);
+        return [];
+    }
+    return response.data.searchProducts ?? [];
+};

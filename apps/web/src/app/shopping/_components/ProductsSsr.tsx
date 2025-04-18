@@ -1,10 +1,20 @@
-import ProductsSsrInner from '@/app/shopping/_components/ProductsSsrInner';
-import {getProducts} from '@/lib/api/actions';
+import { Product, Query } from '@/types/generated/graphql';
+import { searchProducts } from '@/lib/api/actions';
+import ProductsSsrInner from './ProductsSsrInner';
 
-export const ProductsSsr = async () => {
-    const products = await getProducts();
+export const ProductsSsr = async ({ searchParams = {} }: { searchParams?: { q?: string } }) => {
+  const query = searchParams?.q;
+  console.log('Search query:', query);
 
-    return <ProductsSsrInner title="Products SSR" products={products}></ProductsSsrInner>
-}
+  let products: Query['products'] = [];
+
+  if (query) {
+    console.log('Searching for products with query:', query);
+    products = await searchProducts(query);
+    console.log('Search results:', products);
+  }
+
+  return <ProductsSsrInner title={query ? `Search results for "${query}"` : "Products"} products={products} />;
+};
 
 export default ProductsSsr;

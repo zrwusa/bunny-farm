@@ -176,3 +176,35 @@ export const CLEAR_CART = gql`
     }
   }
 `;
+
+export const SUGGEST_PRODUCT_NAMES = gql`
+  query SuggestProductNames($input: String!) {
+    suggestProductNames(input: $input)
+  }
+`;
+
+export const SEARCH_PRODUCTS = gql`
+  query SearchProducts($keyword: String!) {
+    searchProducts(keyword: $keyword) {
+      id
+      name
+      description
+      images {
+        id
+        url
+        position
+      }
+      brand {
+        id
+        name
+      }
+      variants {
+        id
+        prices {
+          id
+          price
+        }
+      }
+    }
+  }
+`;
