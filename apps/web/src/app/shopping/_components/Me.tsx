@@ -5,7 +5,13 @@ import {useRouter, usePathname} from 'next/navigation';
 import {getMeApolloGql, logout} from '@/lib/api/client-actions';
 import {Query} from '@/types/generated/graphql';
 import Image from 'next/image';
-import {Button} from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {LogOut, User} from "lucide-react";
 
 export default function Me() {
     const [user, setUser] = useState<Query['me'] | null>(null);
@@ -40,27 +46,41 @@ export default function Me() {
 
     if (!isAuthenticated) {
         return (
-            <button onClick={() => router.push(`/auth?from=${pathname}`)}>
+            <button
+                onClick={() => router.push(`/auth?from=${pathname}`)}
+                className="text-sm font-medium hover:text-primary"
+            >
                 Login
             </button>
         );
     }
 
     return (
-        <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-                <Image
-                    src={user?.profile?.avatarUrl ?? '/avatar.svg'}
-                    alt={user?.profile?.displayName ?? 'User avatar'}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                />
-                <span>{user?.profile?.displayName ?? user?.email}</span>
-            </div>
-            <Button variant="ghost" onClick={handleLogout}>
-                Logout
-            </Button>
-        </div>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 focus:outline-none">
+                    <Image
+                        src={user?.profile?.avatarUrl ?? '/avatar.svg'}
+                        alt={user?.profile?.displayName ?? 'User avatar'}
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                    />
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    <span>{user?.profile?.displayName ?? user?.email}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }

@@ -40,7 +40,7 @@ const NavBar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+      <div className="w-full flex h-14 items-center px-4">
         <div className="mr-4 flex">
           <a className="mr-6 flex items-center space-x-2" href="/shopping">
             <span className="font-bold">Bunny Farm</span>
@@ -58,7 +58,7 @@ const NavBar = () => {
               onSubmit={handleSearch}
             />
           </div>
-          <div className="ml-4">
+          <div className="flex items-center justify-end">
             <Me />
           </div>
         </div>
