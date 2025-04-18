@@ -38,7 +38,7 @@ export const useCart = () => {
   const fetchCart = useCallback(async () => {
     try {
       const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body);
-      if (response.data.myCart) {
+      if (response?.data?.myCart) {
         dispatch(setCartSession(response.data.myCart));
       }
     } catch (error) {
@@ -59,7 +59,7 @@ export const useCart = () => {
           },
         },
       });
-      if (response.data.createCart) {
+      if (response?.data?.createCart) {
         dispatch(setCartSession(response.data.createCart));
         return response.data.createCart;
       }
@@ -83,7 +83,7 @@ export const useCart = () => {
           },
         },
       });
-      if (response.data.updateCart) {
+      if (response?.data?.updateCart) {
         dispatch(setCartSession(response.data.updateCart));
         return response.data.updateCart;
       }
@@ -98,7 +98,7 @@ export const useCart = () => {
       const response = await fetchGraphQL<Mutation>(CLEAR_CART.loc?.source.body, {
         variables: { id: cartId },
       });
-      if (response.data.clearCart) {
+      if (response?.data?.clearCart) {
         dispatch(setCartSession(response.data.clearCart));
         return response.data.clearCart;
       }

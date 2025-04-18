@@ -1,6 +1,6 @@
 'use client'
 
-import {Product} from '@/app/shopping/_types/product';
+
 import {Query} from '@/types/generated/graphql';
 import ProductList from '@/app/shopping/_components/ProductList';
 import {useListSize} from '@/app/shopping/_hooks/use-list-size';

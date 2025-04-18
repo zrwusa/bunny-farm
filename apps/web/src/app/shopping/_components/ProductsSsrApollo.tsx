@@ -9,7 +9,7 @@ async function getProducts() {
     const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body, {
         revalidate: 30
     });
-    return response.data.products;
+    return response.data?.products;
 }
 
 export const ProductsSsrApollo = async () => {

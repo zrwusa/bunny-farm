@@ -12,11 +12,11 @@ import {RichTextEditor} from '@/app/shopping/_components/RichTextEditor';
 import {FlyingItemAnimation} from '@/app/shopping/_components/FlyingItemAnimation';
 import {useAddToCartWithFlyAnimation} from '@/app/shopping/_hooks/useAddToCartWithFlyAnimation';
 
-export interface ProductDetailProps {
+export interface ProductProps {
     product: Query['product'];
 }
 
-export const ProductDetail: FC<ProductDetailProps> = ({product}) => {
+export const Product: FC<ProductProps> = ({product}) => {
     const {flyingItem, handleAddToCart} = useAddToCartWithFlyAnimation(product?.images[0]?.url);
     if (!product) return <p className="text-center text-gray-500">Product not found</p>;
     const {images, variants, name, brand, category, description} = product;

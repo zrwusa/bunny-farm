@@ -3,7 +3,7 @@ import {requestKeys} from '@/lib/constants/contants/request-keys';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Product} from '@/store/app';
 import {Query} from '@/types/generated/graphql';
-import {GraphQLResponse} from '@apollo/client';
+
 
 const authSlice = createSlice({
     name: 'auth',
@@ -37,8 +37,8 @@ const productSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchData.fulfilled, (state, action) => {
-                if (action.payload.requestKey === requestKeys.FETCH_PRODUCTS)
-                    state.products = action.payload.data.products;
+                if (action.payload.requestKey === requestKeys.FETCH_PRODUCTS && action.payload.data?.products)
+                    state.products = action.payload.data.products as Product[];
             });
     },
 });

@@ -25,6 +25,9 @@ export const ProductsCsr = () => {
             try {
                 setLoading(true);
                 const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
+                if (!response.data) {
+                    throw new Error('No data received from API');
+                }
                 setData(response.data.products);
                 setError(null);
             } catch (err) {

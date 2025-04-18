@@ -1,19 +1,29 @@
 export type Product = {
-    id?: string;
+    id: string;
     name: string;
-    price: number;
-    brand: {
-        name: string; // Brand Name
-        description?: string; // Brand description
+    description?: any;
+    brand?: {
+        id: string;
+        name: string;
     };
-    description: unknown;
-    variants: {
-        name: string,
-        sku: string,
-        prices: {
-            price: number
-        }[]
-    }[]
+    category?: {
+        id: string;
+        name: string;
+    };
+    images: Array<{
+        id: string;
+        url: string;
+        position?: number;
+    }>;
+    variants: Array<{
+        id: string;
+        size: string;
+        sku: string;
+        color: string;
+        prices: Array<{
+            price: number;
+        }>;
+    }>;
 }
 
 export type User = {
