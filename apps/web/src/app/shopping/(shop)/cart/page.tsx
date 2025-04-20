@@ -1,6 +1,6 @@
 'use client';
 
-import { CartList } from '@/app/shopping/_components/CartList';
+import { CartList } from '@/app/shopping/_components/cart-list';
 
 export default function CartPage() {
   return (

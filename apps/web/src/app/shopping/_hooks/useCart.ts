@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { CartSession } from '@/types/generated/graphql';
+import { CartSession, CartItem } from '@/types/generated/graphql';
 import { RootState } from '@/store/store';
 import {
   setCartSession,
@@ -14,16 +14,6 @@ import { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from '@/lib/graphql
 import { fetchGraphQL } from '@/lib/api/graphql-fetch';
 import { Query, Mutation } from '@/types/generated/graphql';
 
-// Define a local CartItem type with necessary fields
-export interface LocalCartItem {
-  id: string;
-  productId: string;
-  skuId: string;
-  quantity: number;
-  selected: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
 
 const handleError = (error: unknown, dispatch: any) => {
   const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -69,7 +59,7 @@ export const useCart = () => {
     }
   }, [dispatch]);
 
-  const updateCart = useCallback(async (cartId: string, items: LocalCartItem[]) => {
+  const updateCart = useCallback(async (cartId: string, items: CartItem[]) => {
     try {
       const response = await fetchGraphQL<Mutation>(UPDATE_CART.loc?.source.body, {
         variables: {

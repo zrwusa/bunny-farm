@@ -1,9 +1,9 @@
-import {objToGraphQLString} from '@/utils';
-import {Product} from '@/types/generated/graphql';
-import {fetchGraphQL} from './graphql-fetch';
-import {Mutation, Query, LoginInput} from '@/types/generated/graphql';
-import {ME_QUERY} from '@/lib/graphql';
-import {GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT} from '@/lib/graphql/mutations';
+import { objToGraphQLString } from '@/utils';
+import { Product } from '@/types/generated/graphql';
+import { fetchGraphQL } from './graphql-fetch';
+import { Mutation, Query, LoginInput } from '@/types/generated/graphql';
+import { ME_QUERY } from '@/lib/graphql';
+import { GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT } from '@/lib/graphql/mutations';
 
 export const createProductClient = async (prevState: Product, formData: FormData) => {
     const formEntries = Object.fromEntries(formData.entries());
@@ -18,12 +18,9 @@ export const createProductClient = async (prevState: Product, formData: FormData
         }
     });
 
-    if (response.errors && response.errors.length > 0) {
-        return product;
-    }
-    const {createProduct} = response.data || {};
-    if (createProduct?.id) return createProduct;
-    return product;
+    const { createProduct } = response.data || {};
+    if (!createProduct?.id) return product;
+    return createProduct;
 }
 
 export const getMeApolloGql = async () => {
@@ -33,7 +30,7 @@ export const getMeApolloGql = async () => {
 
 export const googleLogin = async (loginInput: LoginInput) => {
     const response = await fetchGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
-        variables: {input: loginInput}
+        variables: { input: loginInput }
     });
     return response.data?.login;
 };

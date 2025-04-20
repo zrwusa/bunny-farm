@@ -1,4 +1,3 @@
-import { GraphQLResponse } from '@/types/generated/graphql';
 import { getStoredTokens, isTokenExpired, isTokenExpiringSoon, setStoredTokens, getUserIdFromToken } from './auth';
 
 let isRefreshing = false;
@@ -68,7 +67,7 @@ export async function fetchGraphQL<T>(
         variables?: Record<string, unknown>;
         revalidate?: number;
     }
-): Promise<GraphQLResponse<T>> {
+): Promise<{ data: T }> {
     const revalidate = options?.revalidate ?? 10;
     const variables = options?.variables;
 

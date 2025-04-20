@@ -5,13 +5,9 @@ import { Product } from '@/types/generated/graphql';
 import { Mutation, Query, User } from '@/types/generated/graphql';
 import { GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS, SEARCH_PRODUCTS } from '@/lib/graphql/queries';
 import { CREATE_PRODUCT } from '@/lib/graphql/mutations';
-import { createProductClient } from './client-actions';
-
-export { createProductClient };
 
 export const createProduct = async (formData: FormData) => {
     const product = Object.fromEntries(formData.entries()) as unknown as Product;
-    product.price = Number(product.price);
 
     const response = await fetchGraphQL<Mutation>(CREATE_PRODUCT.loc?.source.body, {
         variables: {
@@ -28,8 +24,8 @@ export const createProduct = async (formData: FormData) => {
 export const getProducts = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
 
-    if (!response?.data || response.errors?.length) {
-        console.error('Error fetching products:', response.errors);
+    if (!response?.data) {
+        console.error('Error fetching products');
         return [];
     }
     return response.data.products ?? [];
@@ -38,18 +34,18 @@ export const getProducts = async () => {
 export const getProductIds = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
 
-    if (!response?.data || response.errors?.length) {
-        console.error('Error fetching product IDs:', response.errors);
+    if (!response?.data) {
+        console.error('Error fetching product IDs');
         return [];
     }
     return response.data.products ?? [];
 }
 
 export const getProduct = async (id: string) => {
-    const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, {variables: {id}});
+    const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, { variables: { id } });
 
-    if (!response?.data || response.errors?.length) {
-        console.error('Error fetching product:', response.errors);
+    if (!response?.data) {
+        console.error('Error fetching product');
         return null;
     }
     return response.data.product ?? null;
@@ -58,8 +54,8 @@ export const getProduct = async (id: string) => {
 export const getUsers = async () => {
     const response = await fetchGraphQL<Query>(GET_USERS.loc?.source.body);
 
-    if (!response?.data || response.errors?.length) {
-        console.error('Error fetching users:', response.errors);
+    if (!response?.data) {
+        console.error('Error fetching users');
         return [];
     }
 
@@ -82,8 +78,8 @@ export const searchProducts = async (keyword: string) => {
         variables: { keyword }
     });
 
-    if (!response?.data || response.errors?.length) {
-        console.error('Error searching products:', response.errors);
+    if (!response?.data) {
+        console.error('Error searching products');
         return [];
     }
     return response.data.searchProducts ?? [];

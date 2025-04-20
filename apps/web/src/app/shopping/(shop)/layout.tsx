@@ -1,6 +1,6 @@
 import type {Metadata} from 'next';
 import {ReactNode} from 'react';
-import FloatingCart from '@/app/shopping/_components/FloatingCart';
+import FloatingCart from '@/app/shopping/_components/floating-cart';
 import NavBar from '@/app/shopping/_components/nav-bar';
 
 export const metadata: Metadata = {

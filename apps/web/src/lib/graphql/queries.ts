@@ -21,7 +21,6 @@ export const GET_PRODUCTS = gql`
       images {
         id
         url
-        position
       }
       brand {
         id
@@ -29,9 +28,13 @@ export const GET_PRODUCTS = gql`
       }
       variants {
         id
+        color
+        size
         prices {
           id
           price
+          validFrom
+          validTo
         }
       }
     }
@@ -47,7 +50,6 @@ export const GET_PRODUCT = gql`
       images {
         id
         url
-        position
       }
       brand {
         id
@@ -60,6 +62,8 @@ export const GET_PRODUCT = gql`
         prices {
           id
           price
+          validFrom
+          validTo
         }
         inventories {
           id
@@ -193,7 +197,6 @@ export const SEARCH_PRODUCTS = gql`
       images {
         id
         url
-        position
       }
       brand {
         id
@@ -201,9 +204,13 @@ export const SEARCH_PRODUCTS = gql`
       }
       variants {
         id
+        color
+        size
         prices {
           id
           price
+          validFrom
+          validTo
         }
       }
     }

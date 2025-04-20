@@ -1,7 +1,7 @@
 'use client';
 
 import { useCart } from '../_hooks/useCart';
-import { CartItem } from './CartItem';
+import { CartItem } from './cart-item';
 import type { LocalCartItem } from '../_hooks/useCart';
 import Link from 'next/link';
 

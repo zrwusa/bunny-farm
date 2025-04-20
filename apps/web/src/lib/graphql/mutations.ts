@@ -4,13 +4,32 @@ export const CREATE_PRODUCT = gql`
   mutation CreateProduct($createProductInput: CreateProductInput!) {
     createProduct(createProductInput: $createProductInput) {
       id
-      price
       name
+      description
       brand {
         id
         name
       }
-      description
+      category {
+        id
+        name
+      }
+      variants {
+        id
+        sku
+        color
+        size
+        prices {
+          id
+          price
+          validFrom
+          validTo
+        }
+      }
+      images {
+        id
+        url
+      }
     }
   }
 `;
@@ -19,10 +38,24 @@ export const CREATE_PRODUCT_CLIENT = gql`
   mutation CreateProductClient($createProductInput: CreateProductInput!) {
     createProduct(createProductInput: $createProductInput) {
       id
-      price
       name
-      brand
       description
+      brand {
+        id
+        name
+      }
+      variants {
+        id
+        sku
+        color
+        size
+        prices {
+          id
+          price
+          validFrom
+          validTo
+        }
+      }
     }
   }
 `;
