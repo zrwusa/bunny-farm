@@ -119,6 +119,7 @@ export const Product: FC<ProductProps> = ({product}) => {
                                         </TableCell>
                                         <TableCell>
                                             <Button
+                                                data-testid="add-to-cart"
                                                 onClick={(event) => handleAddToCart(event, variant, price, index)}
                                                 size="sm">
                                                 Add to Cart

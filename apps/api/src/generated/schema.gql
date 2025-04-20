@@ -254,7 +254,7 @@ type CartSession {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  user: User!
+  user: User
   items: [CartItem!]!
 }
 
@@ -328,7 +328,7 @@ type Query {
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
-  myCart: CartSession!
+  myCart(sessionId: String): CartSession!
   cart(id: String!): CartSession!
 }
 
@@ -354,7 +354,7 @@ type Mutation {
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
   removeShipment(id: Int!): Shipment!
-  createCart(createCartInput: CreateCartInput!): CartSession!
+  createCart(createCartInput: CreateCartInput!, sessionId: String): CartSession!
   updateCart(updateCartInput: UpdateCartInput!): CartSession!
   removeCart(id: String!): CartSession!
   clearCart(id: String!): CartSession!
@@ -474,7 +474,7 @@ input UpdateShipmentInput {
 }
 
 input CreateCartInput {
-  userId: String!
+  userId: String
   items: [CartItemInput!]!
 }
 

@@ -14,6 +14,7 @@ export default function FloatingCart() {
         <Link href="/shopping/cart">
             <motion.div
                 id="floating-cart"
+                data-testid="cart-icon"
                 className="fixed bottom-5 right-5 bg-gray-900/80 text-white p-3 rounded-full shadow-lg cursor-pointer flex items-center justify-center"
                 whileHover={{scale: 1.1}}
                 whileTap={{scale: 0.9}}

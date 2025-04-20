@@ -68,7 +68,7 @@ export type CartSession = {
   id: Scalars['String']['output'];
   items: Array<CartItem>;
   updatedAt: Scalars['DateTime']['output'];
-  user: User;
+  user?: Maybe<User>;
 };
 
 export type Category = {
@@ -89,7 +89,7 @@ export type CategoryInput = {
 
 export type CreateCartInput = {
   items: Array<CartItemInput>;
-  userId: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateOrderInput = {
@@ -221,6 +221,7 @@ export type MutationConfirmPaymentArgs = {
 
 export type MutationCreateCartArgs = {
   createCartInput: CreateCartInput;
+  sessionId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -466,6 +467,11 @@ export type QueryCartArgs = {
 };
 
 
+export type QueryMyCartArgs = {
+  sessionId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryOrdersArgs = {
   filterOrderInput: FilterOrderInput;
 };
@@ -681,31 +687,34 @@ export type GetProductIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetProductIdsQuery = { products: Array<{ id: string }> };
 
-export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetMyCartQuery = { myCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user: { id: string, username: string, email: string } } };
-
-export type CreateCartMutationVariables = Exact<{
-  createCartInput: CreateCartInput;
+export type GetMyCartQueryVariables = Exact<{
+  sessionId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type CreateCartMutation = { createCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user: { id: string, username: string, email: string } } };
+export type GetMyCartQuery = { myCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
+
+export type CreateCartMutationVariables = Exact<{
+  createCartInput: CreateCartInput;
+  sessionId?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type CreateCartMutation = { createCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
 
 export type UpdateCartMutationVariables = Exact<{
   updateCartInput: UpdateCartInput;
 }>;
 
 
-export type UpdateCartMutation = { updateCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user: { id: string, username: string, email: string } } };
+export type UpdateCartMutation = { updateCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
 
 export type ClearCartMutationVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type ClearCartMutation = { clearCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user: { id: string, username: string, email: string } } };
+export type ClearCartMutation = { clearCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
 
 export type SuggestProductNamesQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -1112,8 +1121,8 @@ export type GetProductIdsLazyQueryHookResult = ReturnType<typeof useGetProductId
 export type GetProductIdsSuspenseQueryHookResult = ReturnType<typeof useGetProductIdsSuspenseQuery>;
 export type GetProductIdsQueryResult = Apollo.QueryResult<GetProductIdsQuery, GetProductIdsQueryVariables>;
 export const GetMyCartDocument = gql`
-    query GetMyCart {
-  myCart {
+    query GetMyCart($sessionId: String) {
+  myCart(sessionId: $sessionId) {
     id
     items {
       id
@@ -1147,6 +1156,7 @@ export const GetMyCartDocument = gql`
  * @example
  * const { data, loading, error } = useGetMyCartQuery({
  *   variables: {
+ *      sessionId: // value for 'sessionId'
  *   },
  * });
  */
@@ -1167,8 +1177,8 @@ export type GetMyCartLazyQueryHookResult = ReturnType<typeof useGetMyCartLazyQue
 export type GetMyCartSuspenseQueryHookResult = ReturnType<typeof useGetMyCartSuspenseQuery>;
 export type GetMyCartQueryResult = Apollo.QueryResult<GetMyCartQuery, GetMyCartQueryVariables>;
 export const CreateCartDocument = gql`
-    mutation CreateCart($createCartInput: CreateCartInput!) {
-  createCart(createCartInput: $createCartInput) {
+    mutation CreateCart($createCartInput: CreateCartInput!, $sessionId: String) {
+  createCart(createCartInput: $createCartInput, sessionId: $sessionId) {
     id
     items {
       id
@@ -1205,6 +1215,7 @@ export type CreateCartMutationFn = Apollo.MutationFunction<CreateCartMutation, C
  * const [createCartMutation, { data, loading, error }] = useCreateCartMutation({
  *   variables: {
  *      createCartInput: // value for 'createCartInput'
+ *      sessionId: // value for 'sessionId'
  *   },
  * });
  */

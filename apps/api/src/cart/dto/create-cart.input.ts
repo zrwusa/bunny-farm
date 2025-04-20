@@ -3,8 +3,8 @@ import { CartItemInput } from './cart-item.input';
 
 @InputType()
 export class CreateCartInput {
-  @Field(() => String)
-  userId: string;
+  @Field(() => String, { nullable: true })
+  userId?: string;
 
   @Field(() => [CartItemInput])
   items: CartItemInput[];

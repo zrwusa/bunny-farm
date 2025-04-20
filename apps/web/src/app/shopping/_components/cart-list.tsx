@@ -17,7 +17,7 @@ export const CartList = () => {
 
   if (!cartSession?.items.length) {
     return (
-      <div className="p-4 text-center">
+      <div className="p-4 text-center" data-testid="empty-cart-message">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
         <p className="text-gray-600">Add some items to your cart to see them here.</p>
       </div>
@@ -29,13 +29,14 @@ export const CartList = () => {
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-2xl font-bold">Shopping Cart</h2>
         <button
+          data-testid="clear-cart"
           onClick={() => clearCartItems(cartSession.id)}
           className="text-red-500 hover:text-red-700"
         >
           Clear Cart
         </button>
       </div>
-      <div className="divide-y">
+      <div className="divide-y" data-testid="cart-items">
         {cartSession.items.map((item: CartItemType) => (
           <CartItem key={item.id} item={item} />
         ))}

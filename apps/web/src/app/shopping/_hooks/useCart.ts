@@ -15,7 +15,16 @@ import { fetchGraphQL } from '@/lib/api/graphql-fetch';
 import { Query, Mutation } from '@/types/generated/graphql';
 
 const handleError = (error: unknown, dispatch: any) => {
-  const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+  let errorMessage = 'An unexpected error occurred';
+
+  if (error instanceof Error) {
+    if (error.message.includes('Either userId or sessionId must be provided')) {
+      errorMessage = 'Please provide a session ID for guest cart';
+    } else {
+      errorMessage = error.message;
+    }
+  }
+
   dispatch(setError(errorMessage));
   return null;
 };
@@ -24,13 +33,26 @@ export const useCart = () => {
   const dispatch = useDispatch();
   const { cartSession, loading, error } = useSelector((state: RootState) => state.cart);
   const isFetching = useRef(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Generate or retrieve session ID
+    let storedSessionId = localStorage.getItem('cartSessionId');
+    if (!storedSessionId) {
+      storedSessionId = Math.random().toString(36).substring(2);
+      localStorage.setItem('cartSessionId', storedSessionId);
+    }
+    setSessionId(storedSessionId);
+  }, []);
 
   const fetchCart = useCallback(async () => {
-    if (isFetching.current) return;
+    if (isFetching.current || !sessionId) return;
 
     isFetching.current = true;
     try {
-      const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body);
+      const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body, {
+        variables: { sessionId },
+      });
       if (response?.data?.myCart) {
         dispatch(setCartSession(response.data.myCart));
       }
@@ -39,21 +61,27 @@ export const useCart = () => {
     } finally {
       isFetching.current = false;
     }
-  }, [dispatch]);
+  }, [dispatch, sessionId]);
 
   useEffect(() => {
-    if (!cartSession) {
+    if (!cartSession && sessionId) {
       fetchCart();
     }
-  }, [cartSession, fetchCart]);
+  }, [cartSession, fetchCart, sessionId]);
 
   const createCart = useCallback(async (productId: string, skuId: string, quantity: number) => {
+    if (!sessionId) {
+      dispatch(setError('Session ID is required for guest cart'));
+      return null;
+    }
+
     try {
       const response = await fetchGraphQL<Mutation>(CREATE_CART.loc?.source.body, {
         variables: {
           createCartInput: {
             items: [{ productId, skuId, quantity }],
           },
+          sessionId,
         },
       });
       if (response?.data?.createCart) {
@@ -64,7 +92,7 @@ export const useCart = () => {
     } catch (error) {
       return handleError(error, dispatch);
     }
-  }, [dispatch]);
+  }, [dispatch, sessionId]);
 
   const updateCart = useCallback(async (cartId: string, items: CartItem[]) => {
     try {
@@ -105,45 +133,67 @@ export const useCart = () => {
     }
   }, [dispatch]);
 
-  const addToCart = useCallback(
-    async (productId: string, skuId: string, quantity: number) => {
-      dispatch(setLoading(true));
-      try {
-        if (!cartSession) {
-          const newCart = await createCart(productId, skuId, quantity);
-          if (!newCart) throw new Error('Failed to create cart');
-        } else {
-          const existingItem = cartSession.items.find(
-            item => item.productId === productId && item.skuId === skuId
-          );
+  const addToCart = useCallback(async (productId: string, skuId: string, quantity: number) => {
+    if (!sessionId) {
+      dispatch(setError('Session ID is required for guest cart'));
+      return null;
+    }
 
-          const updatedItems = existingItem
-            ? cartSession.items.map(item =>
-                item.id === existingItem.id
-                  ? { ...item, quantity: item.quantity + quantity }
-                  : item
-              )
-            : [...cartSession.items, {
-                id: '',
-                productId,
-                skuId,
-                quantity,
-                selected: true,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-              }];
+    try {
+      // If cart exists, update it
+      if (cartSession) {
+        const existingItem = cartSession.items.find(
+          item => item.productId === productId && item.skuId === skuId
+        );
 
-          const updatedCart = await updateCart(cartSession.id, updatedItems);
-          if (!updatedCart) throw new Error('Failed to update cart');
+        const updatedItems = existingItem
+          ? cartSession.items.map(item =>
+              item.id === existingItem.id
+                ? { productId: item.productId, skuId: item.skuId, quantity: item.quantity + quantity }
+                : { productId: item.productId, skuId: item.skuId, quantity: item.quantity }
+            )
+          : [...cartSession.items.map(item => ({
+              productId: item.productId,
+              skuId: item.skuId,
+              quantity: item.quantity
+            })), {
+              productId,
+              skuId,
+              quantity
+            }];
+
+        const response = await fetchGraphQL<Mutation>(CREATE_CART.loc?.source.body, {
+          variables: {
+            createCartInput: {
+              items: updatedItems,
+            },
+            sessionId,
+          },
+        });
+        if (response?.data?.createCart) {
+          dispatch(setCartSession(response.data.createCart));
+          return response.data.createCart;
         }
-      } catch (error) {
-        handleError(error, dispatch);
-      } finally {
-        dispatch(setLoading(false));
+      } else {
+        // Create new cart
+        const response = await fetchGraphQL<Mutation>(CREATE_CART.loc?.source.body, {
+          variables: {
+            createCartInput: {
+              items: [{ productId, skuId, quantity }],
+            },
+            sessionId,
+          },
+        });
+        if (response?.data?.createCart) {
+          dispatch(setCartSession(response.data.createCart));
+          return response.data.createCart;
+        }
       }
-    },
-    [cartSession, createCart, updateCart, dispatch]
-  );
+      return null;
+    } catch (error) {
+      return handleError(error, dispatch);
+    }
+  }, [dispatch, sessionId, cartSession]);
 
   const updateCartItemQuantity = useCallback(
     async (itemId: string, quantity: number) => {
@@ -173,15 +223,30 @@ export const useCart = () => {
       dispatch(setLoading(true));
       try {
         const updatedItems = cartSession.items.filter(item => item.id !== itemId);
-        const updatedCart = await updateCart(cartSession.id, updatedItems);
-        if (!updatedCart) throw new Error('Failed to remove item from cart');
+        const response = await fetchGraphQL<Mutation>(UPDATE_CART.loc?.source.body, {
+          variables: {
+            updateCartInput: {
+              id: cartSession.id,
+              items: updatedItems.map(item => ({
+                productId: item.productId,
+                skuId: item.skuId,
+                quantity: item.quantity,
+              })),
+            },
+          },
+        });
+        if (response?.data?.updateCart) {
+          dispatch(setCartSession(response.data.updateCart));
+        } else {
+          throw new Error('Failed to remove item from cart');
+        }
       } catch (error) {
         handleError(error, dispatch);
       } finally {
         dispatch(setLoading(false));
       }
     },
-    [cartSession, updateCart, dispatch]
+    [cartSession, dispatch]
   );
 
   return {

@@ -87,8 +87,8 @@ export const GET_PRODUCT_IDS = gql`
 `;
 
 export const GET_MY_CART = gql`
-  query GetMyCart {
-    myCart {
+  query GetMyCart($sessionId: String) {
+    myCart(sessionId: $sessionId) {
       id
       items {
         id
@@ -111,8 +111,8 @@ export const GET_MY_CART = gql`
 `;
 
 export const CREATE_CART = gql`
-  mutation CreateCart($createCartInput: CreateCartInput!) {
-    createCart(createCartInput: $createCartInput) {
+  mutation CreateCart($createCartInput: CreateCartInput!, $sessionId: String) {
+    createCart(createCartInput: $createCartInput, sessionId: $sessionId) {
       id
       items {
         id

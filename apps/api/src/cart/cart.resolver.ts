@@ -6,31 +6,42 @@ import { UpdateCartInput } from './dto/update-cart.input';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { RedisService } from '../redis/redis.service';
 
 @Resolver(() => CartSession)
 export class CartResolver {
-  constructor(private readonly cartService: CartService) {}
+  constructor(
+    private readonly cartService: CartService,
+    private readonly redisService: RedisService,
+  ) {}
 
   @Mutation(() => CartSession)
-  @UseGuards(GqlAuthGuard)
   async createCart(
     @Args('createCartInput') createCartInput: CreateCartInput,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('userId') userId?: string,
+    @Args('sessionId', { nullable: true }) sessionId?: string,
   ) {
-    // Ensure user can only create their own cart
-    createCartInput.userId = userId;
-    return this.cartService.create(createCartInput);
+    if (userId) {
+      createCartInput.userId = userId;
+    }
+    return this.cartService.create(createCartInput, sessionId);
   }
 
   @Query(() => CartSession, { name: 'myCart' })
-  @UseGuards(GqlAuthGuard)
-  async getMyCart(@CurrentUser('userId') userId: string) {
-    let cart = await this.cartService.findByUserId(userId);
-    if (!cart) {
-      // Create a new cart if user doesn't have one
-      cart = await this.cartService.create({ userId, items: [] });
+  async getMyCart(
+    @CurrentUser('userId') userId?: string,
+    @Args('sessionId', { nullable: true }) sessionId?: string,
+  ) {
+    if (userId) {
+      let cart = await this.cartService.findByUserId(userId);
+      if (!cart) {
+        cart = await this.cartService.create({ userId, items: [] }, sessionId);
+      }
+      return cart;
+    } else if (sessionId) {
+      return this.cartService.getGuestCart(sessionId);
     }
-    return cart;
+    return null;
   }
 
   @Query(() => CartSession, { name: 'cart' })
@@ -40,16 +51,19 @@ export class CartResolver {
   }
 
   @Mutation(() => CartSession)
-  @UseGuards(GqlAuthGuard)
   async updateCart(
     @Args('updateCartInput') updateCartInput: UpdateCartInput,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('userId') userId?: string,
   ) {
-    // Verify cart ownership
     const cart = await this.cartService.findOne(updateCartInput.id);
-    if (cart.user.id !== userId) {
-      throw new Error('Unauthorized to update this cart');
+
+    // If it's a user cart, verify ownership
+    if (cart.user) {
+      if (!userId || cart.user.id !== userId) {
+        throw new Error('Unauthorized to update this cart');
+      }
     }
+
     return this.cartService.update(updateCartInput.id, updateCartInput);
   }
 
@@ -61,23 +75,39 @@ export class CartResolver {
   ) {
     // Verify cart ownership
     const cart = await this.cartService.findOne(id);
-    if (cart.user.id !== userId) {
+    if (!cart.user || cart.user.id !== userId) {
       throw new Error('Unauthorized to remove this cart');
     }
     return this.cartService.remove(id);
   }
 
   @Mutation(() => CartSession)
-  @UseGuards(GqlAuthGuard)
   async clearCart(
     @Args('id') id: string,
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('userId') userId?: string,
   ) {
-    // Verify cart ownership
+    // Check if it's a guest cart
+    const guestCartKey = this.cartService.getGuestCartKey(id);
+    const guestCart = await this.redisService.getCart(guestCartKey);
+
+    if (guestCart) {
+      // Clear guest cart
+      await this.redisService.deleteCart(guestCartKey);
+      return {
+        id,
+        items: [],
+        user: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+
+    // If it's a user cart, verify ownership
     const cart = await this.cartService.findOne(id);
-    if (cart.user.id !== userId) {
+    if (!cart.user || !userId || cart.user.id !== userId) {
       throw new Error('Unauthorized to clear this cart');
     }
+
     return this.cartService.clearCart(id);
   }
 }

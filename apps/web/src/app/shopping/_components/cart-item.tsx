@@ -20,7 +20,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
   };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b">
+    <div className="flex items-center justify-between p-4 border-b" data-testid="cart-item">
       <div className="flex items-center space-x-4">
         <div>
           <h3 className="text-lg font-medium">
@@ -34,6 +34,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
       <div className="flex items-center space-x-8">
         <div className="flex items-center space-x-4">
           <select
+            data-testid="quantity-select"
             value={item.quantity}
             onChange={handleQuantityChange}
             className="border rounded p-1"
@@ -45,6 +46,7 @@ export const CartItem: React.FC<CartItemProps> = ({ item }) => {
             ))}
           </select>
           <button
+            data-testid="remove-item"
             onClick={handleRemove}
             className="text-red-500 hover:text-red-700"
           >

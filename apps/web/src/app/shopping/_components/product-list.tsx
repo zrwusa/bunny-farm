@@ -28,8 +28,8 @@ export const ProductList = async ({ searchParams = {} }: { searchParams?: { q?: 
                         loading: index >= aboveTheFold ? 'lazy' : undefined as 'lazy' | 'eager' | undefined
                     }
                     return (
-                        <Card key={id} className="overflow-hidden">
-                            <Link href={`/shopping/products/${id}`}>
+                        <Link href={`/shopping/products/${id}`} key={id}>
+                            <Card className="overflow-hidden" data-testid="product-card">
                                 <Image
                                     src={imageUrl}
                                     width={640}
@@ -38,16 +38,16 @@ export const ProductList = async ({ searchParams = {} }: { searchParams?: { q?: 
                                     alt={name}
                                     className="w-full object-cover"
                                 />
-                            </Link>
-                            <CardHeader>
-                                <CardTitle className="line-clamp-3">{name}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-gray-600">{brand?.name ?? 'Unknown Brand'}</p>
-                                <p className="text-lg font-semibold mt-2">${price}</p>
-                                <p>{category?.name}</p>
-                            </CardContent>
-                        </Card>
+                                <CardHeader>
+                                    <CardTitle className="line-clamp-3">{name}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-gray-600">{brand?.name ?? 'Unknown Brand'}</p>
+                                    <p className="text-lg font-semibold mt-2">${price}</p>
+                                    <p>{category?.name}</p>
+                                </CardContent>
+                            </Card>
+                        </Link>
                     );
                 })}
             </div>
