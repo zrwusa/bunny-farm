@@ -2,9 +2,8 @@
 
 import { useCart } from '../_hooks/useCart';
 import { CartItem } from './cart-item';
-import type { LocalCartItem } from '../_hooks/useCart';
 import Link from 'next/link';
-
+import { CartItem as CartItemType } from '@/types/generated/graphql';
 export const CartList = () => {
   const { cartSession, loading, error, clearCartItems } = useCart();
 
@@ -37,7 +36,7 @@ export const CartList = () => {
         </button>
       </div>
       <div className="divide-y">
-        {cartSession.items.map((item: LocalCartItem) => (
+        {cartSession.items.map((item: CartItemType) => (
           <CartItem key={item.id} item={item} />
         ))}
       </div>
