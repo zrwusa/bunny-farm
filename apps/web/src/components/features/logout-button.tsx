@@ -13,7 +13,7 @@ export const LogoutButton = () => {
     };
 
     return (
-        <Button variant="ghost" onClick={handleLogout}>
+        <Button variant="ghost" onClick={handleLogout} data-testid="logout-button">
             Logout
         </Button>
     );

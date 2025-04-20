@@ -26,6 +26,7 @@ export default function Me() {
             <button
                 onClick={() => router.push(`/login?redirect=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
+                data-testid="login-button"
             >
                 Login
             </button>
