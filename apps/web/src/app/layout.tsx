@@ -4,6 +4,7 @@ import './globals.css';
 import {ReactNode} from 'react';
 import ReduxProvider from '@/providers/redux-provider';
 import {GoogleOAuthProvider} from '@react-oauth/google';
+import { AuthProvider } from '@/contexts/auth-context';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -31,7 +32,9 @@ export default function RootLayout({
               suppressHydrationWarning>
         <ReduxProvider>
             <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+            <AuthProvider>
                 {children}
+                </AuthProvider>
             </GoogleOAuthProvider>
         </ReduxProvider>
         </body>

@@ -2,10 +2,7 @@
 
 import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} from 'lucide-react'
 import {usePathname, useRouter} from 'next/navigation'
-import {logout} from '@/lib/api/client-actions'
-import {useEffect, useState} from 'react'
-import {getMe} from '@/lib/api/client-actions'
-import {Query} from '@/types/generated/graphql'
+import {useAuth} from '@/contexts/auth-context'
 
 import {Avatar, AvatarFallback, AvatarImage,} from '@/components/ui/avatar'
 import {
@@ -22,24 +19,8 @@ import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from '@/co
 export function NavUser() {
     const {isMobile} = useSidebar()
     const router = useRouter()
-
     const pathname = usePathname();
-    const [user, setUser] = useState<Query['me'] | null>(null)
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const result = await getMe();
-                if (result) {
-                    setUser(result);
-                }
-            } catch (error) {
-                console.error('Failed to fetch user:', error);
-            }
-        };
-
-        fetchUser();
-    }, []);
+    const { user, logout } = useAuth();
 
     const handleLogout = async () => {
         await logout();

@@ -1,9 +1,7 @@
 'use client'
 
-import {useEffect, useState} from 'react';
-import {useRouter, usePathname} from 'next/navigation';
-import {getMe, logout} from '@/lib/api/client-actions';
-import {Query} from '@/types/generated/graphql';
+import { useAuth } from '@/contexts/auth-context';
+import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import {
     DropdownMenu,
@@ -11,42 +9,19 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {LogOut, User} from "lucide-react";
+import { LogOut, User } from "lucide-react";
 
 export default function Me() {
-    const [user, setUser] = useState<Query['me'] | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const { user, logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const result = await getMe();
-                if (result) {
-                    setUser(result);
-                    setIsAuthenticated(true);
-                }
-            } catch (error) {
-                console.error('Failed to fetch user:', error);
-                setIsAuthenticated(false);
-            }
-        };
-
-        fetchUser();
-    }, [router]);
-
     const handleLogout = async () => {
-        try {
-            await logout();
-            setIsAuthenticated(false);
-            router.push(`/login?redirect=${pathname}`);
-        } catch (error) {
-            console.error('Failed to logout:', error);
-        }
+        await logout();
+        router.push(`/login?redirect=${pathname}`);
     };
 
-    if (!isAuthenticated) {
+    if (!user) {
         return (
             <button
                 onClick={() => router.push(`/login?redirect=${pathname}`)}
