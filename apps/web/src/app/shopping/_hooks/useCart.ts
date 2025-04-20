@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CartSession, CartItem } from '@/types/generated/graphql';
 import { RootState } from '@/store/store';
@@ -14,7 +14,6 @@ import { GET_MY_CART, CREATE_CART, UPDATE_CART, CLEAR_CART } from '@/lib/graphql
 import { fetchGraphQL } from '@/lib/api/graphql-fetch';
 import { Query, Mutation } from '@/types/generated/graphql';
 
-
 const handleError = (error: unknown, dispatch: any) => {
   const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
   dispatch(setError(errorMessage));
@@ -24,8 +23,12 @@ const handleError = (error: unknown, dispatch: any) => {
 export const useCart = () => {
   const dispatch = useDispatch();
   const { cartSession, loading, error } = useSelector((state: RootState) => state.cart);
+  const isFetching = useRef(false);
 
   const fetchCart = useCallback(async () => {
+    if (isFetching.current) return;
+
+    isFetching.current = true;
     try {
       const response = await fetchGraphQL<Query>(GET_MY_CART.loc?.source.body);
       if (response?.data?.myCart) {
@@ -33,12 +36,16 @@ export const useCart = () => {
       }
     } catch (error) {
       handleError(error, dispatch);
+    } finally {
+      isFetching.current = false;
     }
   }, [dispatch]);
 
   useEffect(() => {
-    fetchCart();
-  }, [fetchCart]);
+    if (!cartSession) {
+      fetchCart();
+    }
+  }, [cartSession, fetchCart]);
 
   const createCart = useCallback(async (productId: string, skuId: string, quantity: number) => {
     try {
