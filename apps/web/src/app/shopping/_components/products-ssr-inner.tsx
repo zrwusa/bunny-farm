@@ -2,7 +2,7 @@
 
 
 import {Query} from '@/types/generated/graphql';
-import ProductList from '@/app/shopping/_components/ProductList';
+import ProductList from '@/app/shopping/_components/product-list';
 import {useListSize} from '@/app/shopping/_hooks/use-list-size';
 
 const ProductsSsrInner = ({title, products}: { title: string, products: Query['products'] }) => {

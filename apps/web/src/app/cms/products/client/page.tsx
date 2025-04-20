@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react'
 import {useRouter} from 'next/navigation'
 import {ProductsTable} from '@/app/cms/_components/product-table'
 import {Product} from '@/types/generated/graphql'
-import {fetchGraphQL, GraphQLResponse} from '@/lib/api/graphql-fetch'
+import {fetchGraphQL} from '@/lib/api/graphql-fetch'
 
 interface ProductsResponse {
     products: Product[]
@@ -41,6 +41,10 @@ export default function ProductsPage() {
 
                 if (response.errors) {
                     throw new Error(response.errors[0].message)
+                }
+
+                if (!response.data) {
+                    throw new Error('No data returned from API')
                 }
 
                 setProducts(response.data.products)

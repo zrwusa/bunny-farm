@@ -1,4 +1,4 @@
-import Me from './Me';
+import Me from './me';
 
 export const FlowNavBar = () => {
   return (

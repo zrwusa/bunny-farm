@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Me from '@/app/shopping/_components/Me';
+import Me from '@/app/shopping/_components/me';
 import { SearchInput } from '@/components/ui/search-bar';
 import { useState, useEffect } from 'react';
 import { SEARCH_PRODUCTS, SUGGEST_PRODUCT_NAMES } from '@/lib/graphql';
@@ -18,11 +18,9 @@ const NavBar = () => {
       if (!debouncedQuery) return;
 
       try {
-        console.log('Fetching suggestions for:', debouncedQuery);
         const result = await fetchGraphQL<Query>(SUGGEST_PRODUCT_NAMES.loc?.source.body, {
           variables: { input: debouncedQuery }
         });
-        console.log('Received suggestions:', result.data?.suggestProductNames);
         if (result.data) {
           setSuggestData(result.data);
         }
@@ -50,7 +48,6 @@ const NavBar = () => {
           <div className="w-full mr-6">
             <SearchInput
               onDebouncedChange={(value) => {
-                console.log('Debounced value changed:', value);
                 setDebouncedQuery(value);
               }}
               suggestions={suggestData?.suggestProductNames ?? []}

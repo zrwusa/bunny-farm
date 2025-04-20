@@ -1,6 +1,6 @@
 'use client';
 
-import {Query} from '@/types/generated/graphql';
+import {Product as ProductType} from '@/types/generated/graphql';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from '@/components/ui/carousel';
 import {Badge} from '@/components/ui/badge';
@@ -8,12 +8,12 @@ import {Separator} from '@/components/ui/separator';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Button} from '@/components/ui/button';
 import React, {FC} from 'react';
-import {RichTextEditor} from '@/app/shopping/_components/RichTextEditor';
-import {FlyingItemAnimation} from '@/app/shopping/_components/FlyingItemAnimation';
+import {RichTextEditor} from '@/app/shopping/_components/rich-text-editor';
+import {FlyingItemAnimation} from '@/app/shopping/_components/flyingItem-animation';
 import {useAddToCartWithFlyAnimation} from '@/app/shopping/_hooks/useAddToCartWithFlyAnimation';
 
 export interface ProductProps {
-    product: Query['product'];
+    product: ProductType;
 }
 
 export const Product: FC<ProductProps> = ({product}) => {

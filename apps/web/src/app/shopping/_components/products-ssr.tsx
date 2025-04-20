@@ -1,6 +1,6 @@
 import { Product, Query } from '@/types/generated/graphql';
 import { searchProducts } from '@/lib/api/actions';
-import ProductsSsrInner from './ProductsSsrInner';
+import ProductsSsrInner from './products-ssr-inner';
 
 export const ProductsSsr = async ({ searchParams = {} }: { searchParams?: { q?: string } }) => {
   const query = searchParams?.q;

@@ -1,7 +1,6 @@
-import {ListSizeProvider} from '@/app/shopping/_hooks/list-size-context';
-import {ProductsSsr} from '@/app/shopping/_components/ProductsSsr';
-// import {ProductsCsr} from '@/app/shopping/_components/ProductsCsr';
-// import {ProductsSsrApollo} from '@/app/shopping/_components/ProductsSsrApollo';
+import { ListSizeProvider } from '@/app/shopping/_hooks/list-size-context';
+import { ProductsSsr } from '@/app/shopping/_components/products-ssr';
+
 
 interface ProductsPageProps {
     searchParams: { q?: string };
@@ -10,9 +9,7 @@ interface ProductsPageProps {
 const ProductsPage = ({ searchParams }: ProductsPageProps) => {
     return (
         <ListSizeProvider listSize={20}>
-            <ProductsSsr searchParams={searchParams}/>
-            {/*<ProductsCsr/>*/}
-            {/*<ProductsSsrApollo/>*/}
+            <ProductsSsr searchParams={searchParams} />
         </ListSizeProvider>
     )
 }

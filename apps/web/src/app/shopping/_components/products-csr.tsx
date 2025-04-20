@@ -3,7 +3,7 @@
 import {Query} from '@/types/generated/graphql';
 import {Card, CardContent} from '@/components/ui/card';
 import {Skeleton} from '@/components/ui/skeleton';
-import ProductList from '@/app/shopping/_components/ProductList';
+import ProductList from '@/app/shopping/_components/product-list';
 import {GET_PRODUCTS} from '@/lib/graphql/queries';
 import {useEffect, useMemo, useState} from 'react';
 import {Input} from '@/components/ui/input';
