@@ -4,7 +4,7 @@ import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} fr
 import {usePathname, useRouter} from 'next/navigation'
 import {logout} from '@/lib/api/client-actions'
 import {useEffect, useState} from 'react'
-import {getMeApolloGql} from '@/lib/api/client-actions'
+import {getMe} from '@/lib/api/client-actions'
 import {Query} from '@/types/generated/graphql'
 
 import {Avatar, AvatarFallback, AvatarImage,} from '@/components/ui/avatar'
@@ -29,7 +29,7 @@ export function NavUser() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const result = await getMeApolloGql();
+                const result = await getMe();
                 if (result) {
                     setUser(result);
                 }

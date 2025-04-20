@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {Query} from '@/types/generated/graphql';
-import {getMeApolloGql} from '@/lib/api/client-actions';
+import {getMe} from '@/lib/api/client-actions';
 
 
 export const useMe = () => {
@@ -8,7 +8,7 @@ export const useMe = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getMeApolloGql()
+        getMe()
             .then((me) => {
                 setUser(me);
             })

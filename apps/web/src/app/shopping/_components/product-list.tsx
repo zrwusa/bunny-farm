@@ -1,23 +1,26 @@
-import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
+import { Product, Query } from '@/types/generated/graphql';
+import { searchProducts } from '@/lib/api/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
-import {Query} from '@/types/generated/graphql';
-import {memo} from 'react';
+import { memo } from 'react';
 import Link from 'next/link';
 
-interface ProductListProps {
-    title: string
-    products: Query['products'];
-    size?: number;
-    aboveTheFold?: number;
-}
 
-const ProductList = memo(({title, products, size = 3, aboveTheFold = 3}: ProductListProps) => {
+export const ProductList = async ({ searchParams = {} }: { searchParams?: { q?: string } }) => {
+    const query = searchParams?.q ?? '';
+
+    let products: Query['products'] = [];
+
+    products = await searchProducts(query);
+    const size = 20;
+    const aboveTheFold = 3;
+    const title = query ? `Search results for "${query}"` : "All Products";
 
     return (
         <section className="container mx-auto px-4 py-8">
             {title ? <h2 className="text-2xl font-bold mb-4">{title}</h2> : null}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.slice(0, size).map(({id, name, brand, category, images, variants}, index) => {
+                {products.slice(0, size).map(({ id, name, brand, category, images, variants }, index) => {
                     const imageUrl = images?.[0]?.url || '/placeholder.jpg';
                     const price = variants?.[0]?.prices?.[0]?.price ?? 'N/A';
                     const priorityOrLazy = {
@@ -50,8 +53,6 @@ const ProductList = memo(({title, products, size = 3, aboveTheFold = 3}: Product
             </div>
         </section>
     );
-});
-
-ProductList.displayName = 'ProductList'
+};
 
 export default ProductList;

@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import {useRouter, usePathname} from 'next/navigation';
-import {getMeApolloGql, logout} from '@/lib/api/client-actions';
+import {getMe, logout} from '@/lib/api/client-actions';
 import {Query} from '@/types/generated/graphql';
 import Image from 'next/image';
 import {
@@ -22,7 +22,7 @@ export default function Me() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const result = await getMeApolloGql();
+                const result = await getMe();
                 if (result) {
                     setUser(result);
                     setIsAuthenticated(true);

@@ -23,7 +23,7 @@ export const createProductClient = async (prevState: Product, formData: FormData
     return createProduct;
 }
 
-export const getMeApolloGql = async () => {
+export const getMe = async () => {
     const response = await fetchGraphQL<Query>(ME_QUERY.loc?.source.body || '');
     return response.data?.me;
 };
