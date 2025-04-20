@@ -1,7 +1,7 @@
 'use client'
 
 import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} from 'lucide-react'
-import {useRouter} from 'next/navigation'
+import {usePathname, useRouter} from 'next/navigation'
 import {logout} from '@/lib/api/client-actions'
 import {useEffect, useState} from 'react'
 import {getMeApolloGql} from '@/lib/api/client-actions'
@@ -22,6 +22,8 @@ import {SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar,} from '@/co
 export function NavUser() {
     const {isMobile} = useSidebar()
     const router = useRouter()
+
+    const pathname = usePathname();
     const [user, setUser] = useState<Query['me'] | null>(null)
 
     useEffect(() => {
@@ -41,7 +43,7 @@ export function NavUser() {
 
     const handleLogout = async () => {
         await logout();
-        router.push('/login');
+        router.push(`/login?redirect=${pathname}`);
     };
 
     // Get initials for avatar fallback
@@ -57,7 +59,8 @@ export function NavUser() {
     if (!user) {
         return (
             <button
-                onClick={() => router.push('/login')}
+                onClick={() =>
+                    router.push(`/login?redirect=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
             >
                 Login

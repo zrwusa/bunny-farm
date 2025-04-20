@@ -40,7 +40,7 @@ export default function Me() {
         try {
             await logout();
             setIsAuthenticated(false);
-            router.push('/login');
+            router.push(`/login?redirect=${pathname}`);
         } catch (error) {
             console.error('Failed to logout:', error);
         }
@@ -49,7 +49,7 @@ export default function Me() {
     if (!isAuthenticated) {
         return (
             <button
-                onClick={() => router.push(`/login?from=${pathname}`)}
+                onClick={() => router.push(`/login?redirect=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
             >
                 Login

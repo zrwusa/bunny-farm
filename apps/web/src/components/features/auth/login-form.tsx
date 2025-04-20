@@ -19,7 +19,7 @@ export function LoginForm({
     ...props
 }: LoginFormProps) {
     const searchParams = useSearchParams();
-    const from = searchParams.get('from') || '/';
+    const from = searchParams.get('redirect') || '/';
 
     return (
         <div className={cn('flex flex-col gap-6', className)} {...props}>
