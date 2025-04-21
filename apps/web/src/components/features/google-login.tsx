@@ -2,7 +2,8 @@
 
 import { GoogleLogin } from '@react-oauth/google';
 import { useRouter, usePathname } from 'next/navigation';
-import { googleLogin } from '@/lib/api/client-actions';
+import { googleLogin, getMe } from '@/lib/api/client-actions';
+import { useAuth } from '@/contexts/auth-context';
 
 export type GoogleLoginButtonProps = {
     from?: string;
@@ -12,6 +13,7 @@ export type GoogleLoginButtonProps = {
 export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => {
     const router = useRouter();
     const pathname = usePathname();
+    const { user, setUser } = useAuth();
 
     return (
         <GoogleLogin
@@ -27,6 +29,10 @@ export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => 
                     const { accessToken, refreshToken } = result;
                     localStorage.setItem('access_token', accessToken);
                     localStorage.setItem('refresh_token', refreshToken);
+
+                    // Refresh user state
+                    const me = await getMe();
+                    setUser(me);
 
                     // If no 'from' parameter is specified, use current path
                     const redirectPath = from || pathname;

@@ -1,38 +1,13 @@
-// Add type declaration at the top of the file
-declare global {
-  interface Window {
-    google: {
-      accounts: {
-        id: {
-          initialize: () => void;
-          renderButton: () => void;
-          prompt: () => void;
-          disableAutoSelect: () => void;
-          storeCredential: () => void;
-          cancel: () => void;
-          revoke: () => void;
-          getToken: () => { credential: string };
-        };
-      };
-    };
-  }
-}
-
-describe('Cart Flow Test', () => {
+describe('Cart Flow Test (After Login)', () => {
   beforeEach(() => {
     // Visit the product list page
     cy.visit('http://localhost:3000/shopping/products');
 
-    // Check if already logged in, if yes then logout
-    cy.get('body').then(($body) => {
-      if ($body.find('[data-testid="logout-button"]').length) {
-        cy.get('[data-testid="logout-button"]').click();
-        cy.wait(2000);
-      }
-    });
+    // Check if already logged in, if not then fail
+    cy.get('[data-testid="logout-button"]').should('exist');
   });
 
-  it('should complete the full cart flow', () => {
+  it('should complete the cart flow', () => {
     // Click on the first product to enter details page
     cy.get('[data-testid="product-card"]').first().click();
     cy.wait(2000);
@@ -52,28 +27,6 @@ describe('Cart Flow Test', () => {
     // Remove one variant
     cy.get('[data-testid="remove-item"]').first().click();
     cy.wait(5000);
-
-    // Click login button
-    cy.get('[data-testid="login-button"]').click();
-    cy.wait(2000);
-
-    // Wait for login page to load
-    cy.url().should('include', '/login');
-    cy.wait(2000);
-
-    // Wait for Google login button to be visible
-    cy.get('.S9gUrf-YoZ4jf').should('be.visible');
-    cy.wait(2000);
-
-    // Click the Google login button
-    cy.get('.S9gUrf-YoZ4jf').click();
-    cy.wait(2000);
-
-    // Wait for manual login (30 seconds)
-    cy.wait(30000);
-
-    // Verify we are logged in by checking for logout button
-    cy.get('[data-testid="logout-button"]').should('exist');
 
     // Visit cart page to check variant count
     cy.visit('http://localhost:3000/shopping/cart');
