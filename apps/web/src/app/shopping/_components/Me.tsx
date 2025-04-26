@@ -36,7 +36,10 @@ export default function Me() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 focus:outline-none">
+                <button
+                    className="flex items-center gap-2 focus:outline-none"
+                    data-testid="avatar-button"
+                >
                     <Image
                         src={user?.profile?.avatarUrl ?? '/avatar.svg'}
                         alt={user?.profile?.displayName ?? 'User avatar'}
@@ -54,6 +57,7 @@ export default function Me() {
                 <DropdownMenuItem
                     onClick={handleLogout}
                     className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                    data-testid="logout-button"
                 >
                     <LogOut className="h-4 w-4" />
                     <span>Logout</span>
