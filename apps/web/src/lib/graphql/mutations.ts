@@ -74,3 +74,22 @@ export const LOGOUT = gql`
     logout
   }
 `;
+
+export const REGISTER = gql`
+  mutation Register($createUserInput: CreateUserInput!) {
+    createUser(createUserInput: $createUserInput) {
+      id
+      username
+      email
+    }
+  }
+`;
+
+export const LOCAL_LOGIN = gql`
+  mutation LocalLogin($input: LoginInput!) {
+    login(input: $input) {
+      accessToken
+      refreshToken
+    }
+  }
+`;

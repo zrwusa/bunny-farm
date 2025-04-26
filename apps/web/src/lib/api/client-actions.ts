@@ -1,9 +1,10 @@
 import { objToGraphQLString } from '@/utils';
 import { Product } from '@/types/generated/graphql';
 import { fetchGraphQL } from './graphql-fetch';
-import { Mutation, Query, LoginInput } from '@/types/generated/graphql';
+import { Mutation, Query, LoginInput, CreateUserInput } from '@/types/generated/graphql';
 import { ME_QUERY } from '@/lib/graphql';
-import { GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT } from '@/lib/graphql/mutations';
+import { GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT, REGISTER, LOCAL_LOGIN } from '@/lib/graphql/mutations';
+import { setStoredTokens } from './auth';
 
 export const createProductClient = async (prevState: Product, formData: FormData) => {
     const formEntries = Object.fromEntries(formData.entries());
@@ -43,3 +44,37 @@ export const logout = async () => {
     }
     return response.data?.logout;
 };
+
+export const register = async (createUserInput: CreateUserInput) => {
+    const response = await fetchGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
+        variables: { createUserInput }
+    });
+    return response.data?.createUser;
+};
+
+export async function localLogin(email: string, password: string) {
+  try {
+    const { data } = await fetchGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
+      LOCAL_LOGIN.loc?.source.body || '',
+      {
+        variables: {
+          input: {
+            email,
+            password,
+            type: 'local',
+          },
+        },
+      }
+    );
+
+    if (data?.login) {
+      setStoredTokens(data.login.accessToken, data.login.refreshToken);
+      return data.login;
+    }
+
+    throw new Error('Login failed');
+  } catch (error) {
+    console.error('Login error:', error);
+    throw error;
+  }
+}
