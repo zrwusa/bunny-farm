@@ -49,17 +49,17 @@ export function LoginForm({
                 const me = await getMe();
                 setUser(me);
 
-                // 登录成功后重定向到原始页面
+                // Redirect to original page after successful login
                 router.replace(from);
                 onSuccess?.();
             }
         } catch (err: any) {
             if (err.message?.includes('Invalid credentials')) {
-                setError('邮箱或密码错误，请重试');
+                setError('Invalid email or password. Please try again.');
             } else if (err.message?.includes('User not found')) {
-                setError('该邮箱未注册，请先注册');
+                setError('Email not registered. Please sign up first.');
             } else {
-                setError('登录失败，请稍后重试');
+                setError('Login failed. Please try again later.');
             }
         } finally {
             setIsLoading(false);

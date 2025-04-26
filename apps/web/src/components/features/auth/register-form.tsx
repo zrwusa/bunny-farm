@@ -36,7 +36,7 @@ export function RegisterForm({
     setError(null);
     setIsLoading(true);
 
-    // 验证密码
+    // Validate password
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       setIsLoading(false);
@@ -51,7 +51,7 @@ export function RegisterForm({
       });
 
       if (result) {
-        // 注册成功后重定向到登录页
+        // Redirect to login page after successful registration
         router.replace(`/login?redirect=${from}`);
         onSuccess?.();
       }
