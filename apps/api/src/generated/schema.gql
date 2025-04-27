@@ -119,6 +119,15 @@ enum InventoryType {
   ADJUSTMENT
 }
 
+type VariantImage {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  url: String!
+  position: Float
+  variant: ProductVariant!
+}
+
 type ProductVariant {
   id: String!
   createdAt: DateTime!
@@ -127,6 +136,7 @@ type ProductVariant {
   color: String!
   size: String!
   prices: [ProductPrice!]!
+  images: [VariantImage!]!
   product: Product!
   inventories: [Inventory!]!
   inventoryRecords: [InventoryRecord!]!
@@ -411,6 +421,7 @@ input VariantInput {
   sku: String!
   color: String!
   prices: [PriceInput!]
+  images: [VariantImageInput!]
   inventories: [InventoryInput!]
   inventoryRecords: [InventoryRecordInput!]
 }
@@ -419,6 +430,11 @@ input PriceInput {
   price: Float!
   validFrom: DateTime!
   validTo: DateTime!
+}
+
+input VariantImageInput {
+  url: String!
+  position: Float!
 }
 
 input InventoryInput {

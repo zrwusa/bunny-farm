@@ -42,7 +42,11 @@ export class ProductService {
 
   findAll() {
     return this.productRepo.find({
-      order: { images: { position: 'ASC' } },
+      order: {
+        images: { position: 'ASC' },
+        // TODO doesn't really work for deep nested order
+        // variants: { images: { position: 'ASC' } }
+      },
     });
   }
 

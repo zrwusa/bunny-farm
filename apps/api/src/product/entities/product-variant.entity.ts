@@ -6,6 +6,7 @@ import { Inventory } from './inventory.entity';
 import { ProductPrice } from './product-price.entity';
 import { ProductReview } from './product-review.entity';
 import { InventoryRecord } from './inventory-record.entity';
+import { VariantImage } from './variant-image.entity';
 
 @ObjectType()
 @Entity('product_variants')
@@ -29,6 +30,13 @@ export class ProductVariant extends BaseEntity {
     cascade: true,
   })
   prices!: ProductPrice[]; // prices
+
+  @Field(() => [VariantImage])
+  @OneToMany(() => VariantImage, (image) => image.variant, {
+    eager: true,
+    cascade: true,
+  })
+  images!: VariantImage[]; // Product pictures
 
   @Field(() => Product)
   @ManyToOne(() => Product, (product) => product.variants, {

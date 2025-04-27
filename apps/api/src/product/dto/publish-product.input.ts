@@ -40,6 +40,17 @@ class PriceInput {
 }
 
 @InputType()
+class VariantImageInput {
+  @Field()
+  @IsString()
+  url: string;
+
+  @Field()
+  @IsNumber()
+  position: number;
+}
+
+@InputType()
 class WarehouseInput {
   @Field({ nullable: true }) // Allow GraphQL to pass null
   @IsString()
@@ -80,6 +91,13 @@ class VariantInput {
   @Type(() => PriceInput)
   @IsOptional()
   prices?: PriceInput[];
+
+  @Field(() => [VariantImageInput], { nullable: true })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => VariantImageInput)
+  @IsOptional()
+  images?: VariantImageInput[];
 
   @Field(() => [InventoryInput], { nullable: true })
   @IsArray()

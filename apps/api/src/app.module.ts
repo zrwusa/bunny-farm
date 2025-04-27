@@ -34,6 +34,7 @@ import { CartModule } from './cart/cart.module';
 import { AuthModule } from './auth/auth.module';
 import { CartSession } from './cart/entities/cart-session.entity';
 import { CartItem } from './cart/entities/cart-item.entity';
+import { VariantImage } from './product/entities/variant-image.entity';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { CartItem } from './cart/entities/cart-item.entity';
             ProductPrice,
             ProductReview,
             ProductVariant,
+            VariantImage,
             Warehouse,
             Order,
             OrderItem,
