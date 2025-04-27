@@ -15,7 +15,7 @@ export class UserPreferenceService {
   ) {}
 
   findOne(userId: string) {
-    // return this.userSettingsRepository.findOneBy({ user: userId });
+    return this.userSettingsRepository.findOneBy({ id: userId });
   }
 
   async create(createUserPreferenceInput: CreateUserPreferenceInput) {

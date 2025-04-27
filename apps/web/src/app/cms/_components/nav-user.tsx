@@ -24,7 +24,7 @@ export function NavUser() {
 
     const handleLogout = async () => {
         await logout();
-        router.push(`/login?redirect=${pathname}`);
+        router.push(`/auth/login?redirect=${pathname}`);
     };
 
     // Get initials for avatar fallback
@@ -41,7 +41,7 @@ export function NavUser() {
         return (
             <button
                 onClick={() =>
-                    router.push(`/login?redirect=${pathname}`)}
+                    router.push(`/auth/login?redirect=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
             >
                 Login

@@ -72,9 +72,9 @@ export async function localLogin(email: string, password: string) {
       return data.login;
     }
 
+    // TODO find the best approach to handle error properly
     throw new Error('Login failed');
   } catch (error) {
-    console.error('Login error:', error);
     throw error;
   }
 }

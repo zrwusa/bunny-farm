@@ -2,12 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchProductDto } from './dto/search-product.dto';
 import {
-  SearchResponse,
   BulkResponse,
   WriteResponseBase,
   UpdateResponse,
   SearchHit,
-  SearchCompletionSuggestOption
+  SearchCompletionSuggestOption,
 } from '@elastic/elasticsearch/lib/api/types';
 
 @Injectable()
@@ -157,13 +156,13 @@ export class SearchService {
 
       // Convert suggestions to SearchHit format
       const suggestions = result.suggest?.product_suggest?.[0]?.options ?? [];
-      return (Array.isArray(suggestions) ? suggestions : [suggestions]).map(suggestion => {
+      return (Array.isArray(suggestions) ? suggestions : [suggestions]).map((suggestion) => {
         const completionOption = suggestion as SearchCompletionSuggestOption<SearchProductDto>;
         return {
           _index: 'products',
           _id: completionOption._id || '',
           _score: 0,
-          _source: completionOption._source || {} as SearchProductDto
+          _source: completionOption._source || ({} as SearchProductDto),
         };
       });
     } else {

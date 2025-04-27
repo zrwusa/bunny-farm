@@ -103,7 +103,7 @@ export class CartService {
             productId: item.productId,
             skuId: item.skuId,
             quantity: item.quantity,
-          })
+          }),
         );
         await this.cartItemRepository.save(cartItems);
       }
@@ -114,7 +114,7 @@ export class CartService {
       const userCartKey = this.getUserCartKey(userId);
       await this.redisService.setCart(userCartKey, cart);
 
-      // If logged in user has sessionId, try to merge anonymous cart
+      // If logged-in user has sessionId, try to merge anonymous cart
       if (sessionId) {
         const guestCartKey = this.getGuestCartKey(sessionId);
         const guestCart = await this.redisService.getCart(guestCartKey);
@@ -131,7 +131,7 @@ export class CartService {
       const guestCartKey = this.getGuestCartKey(sessionId);
       const cart = {
         id: sessionId,
-        items: (items || []).map(item => ({
+        items: (items || []).map((item) => ({
           id: `${sessionId}-${item.productId}-${item.skuId}-${Date.now()}`,
           productId: item.productId,
           skuId: item.skuId,
@@ -176,7 +176,7 @@ export class CartService {
         throw new NotFoundException('Cart not found');
       }
       return cart;
-    } catch (error) {
+    } catch {
       // If database query fails (e.g., because ID is not bigint), return null
       return null;
     }
@@ -201,7 +201,7 @@ export class CartService {
         const guestCartKey = this.getGuestCartKey(id);
         const updatedCart = {
           ...cart,
-          items: updateCartInput.items.map(item => ({
+          items: updateCartInput.items.map((item) => ({
             id: `${id}-${item.productId}-${item.skuId}-${Date.now()}`,
             productId: item.productId,
             skuId: item.skuId,
@@ -224,7 +224,7 @@ export class CartService {
           productId: item.productId,
           skuId: item.skuId,
           quantity: item.quantity,
-        })
+        }),
       );
       await this.cartItemRepository.save(cartItems);
     }
@@ -310,7 +310,7 @@ export class CartService {
             productId: item.productId,
             skuId: item.skuId,
             quantity: item.quantity,
-          })
+          }),
         );
         await this.cartItemRepository.save(cartItems);
       } else {
@@ -326,7 +326,7 @@ export class CartService {
               productId: item.productId,
               skuId: item.skuId,
               quantity: item.quantity,
-            })
+            }),
           );
           await this.cartItemRepository.save(cartItems);
         }

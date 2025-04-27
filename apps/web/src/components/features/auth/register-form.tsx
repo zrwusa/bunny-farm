@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { cn } from '@/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,7 +31,7 @@ export function RegisterForm({
   const router = useRouter();
   const from = searchParams.get('redirect') || '/';
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -52,11 +52,11 @@ export function RegisterForm({
 
       if (result) {
         // Redirect to login page after successful registration
-        router.replace(`/login?redirect=${from}`);
+        router.replace(`/auth/login?redirect=${from}`);
         onSuccess?.();
       }
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+    } catch (err: unknown) {
+      setError(`Registration failed. Please try again. ${JSON.stringify(err)}`);
     } finally {
       setIsLoading(false);
     }
@@ -127,7 +127,7 @@ export function RegisterForm({
               </Button>
               <div className="text-center text-sm">
                 Already have an account?{' '}
-                <Link href={`/login${from ? `?redirect=${encodeURIComponent(from)}` : ''}`} className="underline underline-offset-4">
+                <Link href={`/auth/login${from ? `?redirect=${encodeURIComponent(from)}` : ''}`} className="underline underline-offset-4">
                   Login
                 </Link>
               </div>

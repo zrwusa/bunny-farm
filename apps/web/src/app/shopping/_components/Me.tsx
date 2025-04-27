@@ -18,13 +18,13 @@ export default function Me() {
 
     const handleLogout = async () => {
         await logout();
-        router.push(`/login?redirect=${pathname}`);
+        router.push(`/auth/login?redirect=${pathname}`);
     };
 
     if (!user) {
         return (
             <button
-                onClick={() => router.push(`/login?redirect=${pathname}`)}
+                onClick={() => router.push(`/auth/login?redirect=${pathname}`)}
                 className="text-sm font-medium hover:text-primary"
                 data-testid="login-button"
             >

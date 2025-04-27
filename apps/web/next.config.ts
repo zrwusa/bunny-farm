@@ -24,6 +24,18 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'lh3.googleusercontent.com'
+            },
+            {
+                hostname: 'sydneytools.co.nz'
+            },
+            {
+                hostname: 'c.media-amazon.com'
+            },
+            {
+                hostname: 'www.rupes.com'
+            },
+            {
+                hostname: 'media.cdn.festool.io'
             }
         ]
     }

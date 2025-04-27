@@ -17,7 +17,9 @@ describe('Cart Flow Test', () => {
     // Click on the first product to enter details page
     cy.get('[data-testid="product-card"]').first().click();
     cy.wait(1000);
-    cy.url().should('include', '/shopping/products/360372033897218397');
+
+    // Verify we're on a product detail page
+    cy.url().should('match', /\/shopping\/products\/[^/]+$/);
 
     // Add two different variants to cart
     cy.get('[data-testid="add-to-cart"]').first().click();

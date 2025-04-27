@@ -70,7 +70,7 @@ export class PaymentService {
   }
 
   update(id: number, updatePaymentInput: UpdatePaymentInput) {
-    return `This action updates a #${id} payment`;
+    return `This action updates a #${id} payment with input ${updatePaymentInput}`;
   }
 
   remove(id: number) {

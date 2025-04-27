@@ -69,10 +69,7 @@ export class CartResolver {
 
   @Mutation(() => CartSession)
   @UseGuards(GqlAuthGuard)
-  async removeCart(
-    @Args('id') id: string,
-    @CurrentUser('userId') userId: string,
-  ) {
+  async removeCart(@Args('id') id: string, @CurrentUser('userId') userId: string) {
     // Verify cart ownership
     const cart = await this.cartService.findOne(id);
     if (!cart.user || cart.user.id !== userId) {
@@ -82,10 +79,7 @@ export class CartResolver {
   }
 
   @Mutation(() => CartSession)
-  async clearCart(
-    @Args('id') id: string,
-    @CurrentUser('userId') userId?: string,
-  ) {
+  async clearCart(@Args('id') id: string, @CurrentUser('userId') userId?: string) {
     // Check if it's a guest cart
     const guestCartKey = this.cartService.getGuestCartKey(id);
     const guestCart = await this.redisService.getCart(guestCartKey);

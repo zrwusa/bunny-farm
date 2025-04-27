@@ -85,7 +85,7 @@ export class RedisService {
       const mergedItems = [...targetCart.items];
       sourceCart.items.forEach((sourceItem: any) => {
         const existingItem = mergedItems.find(
-          (item) => item.productId === sourceItem.productId && item.skuId === sourceItem.skuId
+          (item) => item.productId === sourceItem.productId && item.skuId === sourceItem.skuId,
         );
         if (existingItem) {
           existingItem.quantity += sourceItem.quantity;
@@ -113,6 +113,6 @@ export class RedisService {
 
   // Get keys by pattern
   async getKeys(pattern: string): Promise<string[]> {
-    return await this.redis.keys(pattern);
+    return this.redis.keys(pattern);
   }
 }
