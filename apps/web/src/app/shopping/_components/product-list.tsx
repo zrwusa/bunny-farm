@@ -11,7 +11,7 @@ export const ProductList = async ({searchParams = {}}: { searchParams?: { q?: st
     let products: Query['products'] = [];
 
     products = await searchProducts(query);
-    const size = 20;
+    const size = 100;
     const aboveTheFold = 3;
     const title = query ? `Search results for "${query}"` : 'All Products';
 

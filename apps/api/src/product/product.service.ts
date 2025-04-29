@@ -171,13 +171,9 @@ export class ProductService {
   }
 
   async searchProducts(query: string) {
-    console.log('Backend searchProducts called with query:', query);
-
     const searchResults = await this.searchService.searchProducts(query);
-    console.log('Elasticsearch search results:', searchResults);
 
     const productIds = searchResults.map((hit) => hit._id);
-    console.log('Product IDs from search:', productIds);
 
     const products = await this.productRepo.find({
       where: { id: In(productIds) },

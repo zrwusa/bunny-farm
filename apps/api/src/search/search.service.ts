@@ -38,10 +38,7 @@ export class SearchService {
   }
 
   async searchProducts(query: string): Promise<SearchHit<SearchProductDto>[]> {
-    console.log('SearchService.searchProducts called with query:', query);
-
     const isEmptyQuery = !query?.trim();
-    console.log('Is empty query:', isEmptyQuery);
 
     const searchQuery = isEmptyQuery
       ? { match_all: {} } // If query is empty, match all
@@ -59,22 +56,18 @@ export class SearchService {
           },
         };
 
-    console.log('Elasticsearch query:', JSON.stringify(searchQuery, null, 2));
-
     try {
       const response = await this.elasticsearchService.search<SearchProductDto>({
         index: 'products',
-        size: 20, // Restrictions to return up to 20 records
+        size: 100, // Restrictions to return up to 100 records
         query: searchQuery,
         sort: isEmptyQuery
           ? [{ id: { order: 'desc' } }] // When empty strings are created in reverse order (assuming you have this field)
           : undefined,
       });
 
-      console.log('Elasticsearch response:', JSON.stringify(response, null, 2));
       return response.hits?.hits || [];
     } catch (error) {
-      console.error('Elasticsearch search error:', error);
       throw error;
     }
   }

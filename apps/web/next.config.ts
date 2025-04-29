@@ -36,6 +36,12 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'media.cdn.festool.io'
+            },
+            {
+                hostname: 'www.18650batterystore.com'
+            },
+            {
+                hostname: 'www.toolnation.com'
             }
         ]
     }
