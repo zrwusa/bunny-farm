@@ -50,6 +50,12 @@ export class ProductService {
     });
   }
 
+  findMany(ids: string[]) {
+    return this.productRepo.findBy({
+      id: In(ids),
+    });
+  }
+
   findOne(id: string) {
     return this.productRepo.findOne({
       where: { id },

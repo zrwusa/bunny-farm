@@ -35,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
 import { CartSession } from './cart/entities/cart-session.entity';
 import { CartItem } from './cart/entities/cart-item.entity';
 import { VariantImage } from './product/entities/variant-image.entity';
+import { Request, Response } from 'express';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { VariantImage } from './product/entities/variant-image.entity';
       debug: true, // Enable debugging mode to log detailed GraphQL execution info
       playground: true, // Enable GraphQL Playground for in-browser query testing
       introspection: true, // Allow introspection queries to fetch schema details
+      context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
       formatError: (error) => {
         console.error('GraphQL Error:', error);
         return error;

@@ -7,6 +7,7 @@ import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { RedisService } from '../redis/redis.service';
+import {OptionalGqlAuthGuard} from '../auth/guards/optional-gql-auth.guard';
 
 @Resolver(() => CartSession)
 export class CartResolver {
@@ -28,10 +29,12 @@ export class CartResolver {
   }
 
   @Query(() => CartSession, { name: 'myCart' })
+  @UseGuards(OptionalGqlAuthGuard)
   async getMyCart(
     @CurrentUser('userId') userId?: string,
     @Args('sessionId', { nullable: true }) sessionId?: string,
   ) {
+    console.log('---userId', userId);
     if (userId) {
       let cart = await this.cartService.findByUserId(userId);
       if (!cart) {

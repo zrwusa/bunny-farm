@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy as GoogleStrategyBase } from 'passport-google-oauth20';
 
+// Use it when logging in, not authentication request
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(GoogleStrategyBase, 'google') {
   constructor(config: ConfigService) {

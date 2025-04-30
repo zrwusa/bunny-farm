@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from '../types/types';
 
+// // Use it when a request for user authentication is required. Every time the backend is requested, the token will be verified.
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   private readonly logger = new Logger(JwtStrategy.name);

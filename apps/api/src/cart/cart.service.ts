@@ -67,7 +67,7 @@ export class CartService {
       }
     }
 
-    // If logged in user has sessionId, try to merge anonymous cart
+    // If logged-in user has sessionId, try to merge anonymous cart
     if (sessionId) {
       const guestCartKey = this.getGuestCartKey(sessionId);
       const guestCart = await this.redisService.getCart(guestCartKey);
@@ -183,10 +183,15 @@ export class CartService {
   }
 
   async findByUserId(userId: string) {
-    return this.cartSessionRepository.findOne({
+    const userCartKey = this.getUserCartKey(userId);
+    const userCart = await this.redisService.getCart(userCartKey);
+    const cartSession = await this.cartSessionRepository.findOne({
       where: { user: { id: userId } },
       relations: ['items', 'user'],
     });
+    console.log('userCart', userCart);
+    console.log('cartSession', cartSession);
+    return userCart;
   }
 
   async update(id: string, updateCartInput: UpdateCartInput) {
