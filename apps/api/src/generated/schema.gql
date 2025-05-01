@@ -338,8 +338,8 @@ type Query {
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
-  myCart(sessionId: String): CartSession!
   cart(id: String!): CartSession!
+  myCart(sessionId: String): CartSession!
 }
 
 input FilterOrderInput {
