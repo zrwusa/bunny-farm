@@ -8,7 +8,7 @@ import { UserProfile } from './user-profile.entity';
 import { UserAddress } from './user-address.entity';
 import { UserPaymentMethod } from './user-payment-method.entity';
 import { ProductReview } from '../../product/entities/product-review.entity';
-import { CartSession } from '../../cart/entities/cart-session.entity';
+import { Cart } from '../../cart/entities/cart.entity';
 
 @Entity({ name: 'users' })
 @ObjectType()
@@ -66,7 +66,7 @@ export class User extends BaseEntity {
   @Field(() => [ProductReview], { nullable: true })
   reviews?: ProductReview[];
 
-  @Field(() => [CartSession], { nullable: true })
-  @OneToMany(() => CartSession, (session) => session.user)
-  cartSessions?: CartSession[];
+  @Field(() => [Cart], { nullable: true })
+  @OneToMany(() => Cart, (session) => session.user)
+  carts?: Cart[];
 }

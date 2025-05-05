@@ -120,7 +120,7 @@ export const Product: FC<ProductProps> = ({product}) => {
                                         <TableCell>
                                             <Button
                                                 data-testid="add-to-cart"
-                                                onClick={(event) => handleAddToCart(event, variant, price, index)}
+                                                onClick={(event) => handleAddToCart(event, variant, price, index, product.id)}
                                                 size="sm">
                                                 Add to Cart
                                             </Button>

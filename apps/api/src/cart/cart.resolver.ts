@@ -1,111 +1,76 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+// apps/api/src/cart/cart.resolver.ts
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { CartService } from './cart.service';
-import { CartSession } from './entities/cart-session.entity';
-import { CreateCartInput } from './dto/create-cart.input';
-import { UpdateCartInput } from './dto/update-cart.input';
-import { UseGuards } from '@nestjs/common';
-import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
+import { Cart } from './entities/cart.entity';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { RedisService } from '../redis/redis.service';
+import { UpdateItemQuantityInput } from './dto/update-item-quantity.input';
+import { AddItemToCartInput } from './dto/add-item-to-cart.input';
+import { RemoveItemsInput } from './dto/remove-items.input';
+import { CachedCart } from './dto/cached-cart.object';
+import { UseGuards } from '@nestjs/common';
 import { OptionalGqlAuthGuard } from '../auth/guards/optional-gql-auth.guard';
+import { CurrentJwtUser } from '../auth/types/types';
 
-@Resolver(() => CartSession)
+@Resolver(() => Cart)
 export class CartResolver {
-  constructor(
-    private readonly cartService: CartService,
-    private readonly redisService: RedisService,
-  ) {}
+  constructor(private readonly cartService: CartService) {}
 
-  @Mutation(() => CartSession)
+  @Query(() => CachedCart, { name: 'cart' })
   @UseGuards(OptionalGqlAuthGuard)
-  async createCart(
-    @Args('createCartInput') createCartInput: CreateCartInput,
-    @CurrentUser('userId') userId?: string,
-    @Args('sessionId', { nullable: true }) sessionId?: string,
-  ) {
-    if (userId) {
-      createCartInput.userId = userId;
-    }
-    return this.cartService.create(createCartInput, sessionId);
+  async getCart(
+    @Args('clientCartId', { nullable: true }) clientCartId?: string,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    return this.cartService.getCart({ user, clientCartId });
   }
 
-  @Query(() => CartSession, { name: 'cart' })
-  @UseGuards(GqlAuthGuard)
-  async getCart(@Args('id') id: string) {
-    return this.cartService.findOne(id);
-  }
-
-  @Mutation(() => CartSession)
-  async updateCart(
-    @Args('updateCartInput') updateCartInput: UpdateCartInput,
-    @CurrentUser('userId') userId?: string,
-  ) {
-    const cart = await this.cartService.findOne(updateCartInput.id);
-
-    // If it's a user cart, verify ownership
-    if (cart.user) {
-      if (!userId || cart.user.id !== userId) {
-        throw new Error('Unauthorized to update this cart');
-      }
-    }
-
-    return this.cartService.update(updateCartInput.id, updateCartInput);
-  }
-
-  @Query(() => CartSession, { name: 'myCart' })
+  @Mutation(() => CachedCart)
   @UseGuards(OptionalGqlAuthGuard)
-  async getMyCart(
-    @CurrentUser('userId') userId?: string,
-    @Args('sessionId', { nullable: true }) sessionId?: string,
-  ) {
-    console.log('---userId', userId);
-    if (userId) {
-      let cart = await this.cartService.findByUserId(userId);
-      if (!cart) {
-        cart = await this.cartService.create({ userId, items: [] }, sessionId);
-      }
-      return cart;
-    } else if (sessionId) {
-      return this.cartService.getGuestCart(sessionId);
-    }
-    return null;
+  async addToCart(
+    @Args('addItemToCartInput') addItemToCartInput: AddItemToCartInput,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    const { clientCartId, item } = addItemToCartInput;
+    return this.cartService.addItem({ user, clientCartId, item });
   }
 
-  @Mutation(() => CartSession)
-  @UseGuards(GqlAuthGuard)
-  async removeCart(@Args('id') id: string, @CurrentUser('userId') userId: string) {
-    // Verify cart ownership
-    const cart = await this.cartService.findOne(id);
-    if (!cart.user || cart.user.id !== userId) {
-      throw new Error('Unauthorized to remove this cart');
-    }
-    return this.cartService.remove(id);
+  @Mutation(() => CachedCart)
+  @UseGuards(OptionalGqlAuthGuard)
+  async updateItemQuantity(
+    @Args('updateItemQuantityInput') updateItemQuantityInput: UpdateItemQuantityInput,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    const { clientCartId, skuId, quantity } = updateItemQuantityInput;
+    return this.cartService.updateQuantity({ user, clientCartId, skuId, quantity });
   }
 
-  @Mutation(() => CartSession)
-  async clearCart(@Args('id') id: string, @CurrentUser('userId') userId?: string) {
-    // Check if it's a guest cart
-    const guestCartKey = this.cartService.getGuestCartKey(id);
-    const guestCart = await this.redisService.getCart(guestCartKey);
+  @Mutation(() => CachedCart)
+  @UseGuards(OptionalGqlAuthGuard)
+  async removeItems(
+    @Args('removeItemsInput') removeItemsInput: RemoveItemsInput,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    const { clientCartId, skuIds } = removeItemsInput;
+    return this.cartService.removeItems({ user, clientCartId, skuIds });
+  }
 
-    if (guestCart) {
-      // Clear guest cart
-      await this.redisService.deleteCart(guestCartKey);
-      return {
-        id,
-        items: [],
-        user: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-    }
+  @Mutation(() => CachedCart)
+  @UseGuards(OptionalGqlAuthGuard)
+  async toggleItemSelection(
+    @Args('skuId') skuId: string,
+    @Args('selected') selected: boolean,
+    @Args('clientCartId', { nullable: true }) clientCartId?: string,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    return this.cartService.setItemSelection({ user, clientCartId, skuId, selected });
+  }
 
-    // If it's a user cart, verify ownership
-    const cart = await this.cartService.findOne(id);
-    if (!cart.user || !userId || cart.user.id !== userId) {
-      throw new Error('Unauthorized to clear this cart');
-    }
-
-    return this.cartService.clearCart(id);
+  @Mutation(() => CachedCart)
+  @UseGuards(OptionalGqlAuthGuard)
+  async clearCart(
+    @Args('clientCartId', { nullable: true }) clientCartId?: string,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    return this.cartService.clearCart({ user, clientCartId });
   }
 }

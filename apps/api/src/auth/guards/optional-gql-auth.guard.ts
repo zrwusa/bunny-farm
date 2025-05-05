@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtUser } from '../types/types';
+import { CurrentJwtUser } from '../types/types';
 import { Request } from 'express';
 import { GraphQLError } from 'graphql';
 
@@ -11,12 +11,12 @@ export class OptionalGqlAuthGuard extends AuthGuard('jwt') {
     return GqlExecutionContext.create(context).getContext().req;
   }
 
-  handleRequest<JwtUser>(
+  handleRequest<CurrentJwtUser>(
     err: GraphQLError,
-    user: JwtUser | null,
+    user: CurrentJwtUser | null,
     info: any,
     // context: ExecutionContext,
-  ): JwtUser | null {
+  ): CurrentJwtUser | null {
     if (err) {
       // If a token parsing error occurs, but anonymous users are allowed, the log is printed and ignored
       console.warn('Optional auth error:', err);

@@ -34,6 +34,102 @@ export const CREATE_PRODUCT = gql`
   }
 `;
 
+export const ADD_ITEM_TO_CART = gql`
+  mutation addItemToCart($addItemToCartInput: AddItemToCartInput!) {
+    addToCart(addItemToCartInput: $addItemToCartInput) {
+      id
+      items {
+        id
+        productId
+        skuId
+        quantity
+        selected
+        createdAt
+        updatedAt
+      }
+      user {
+        id
+        username
+        email
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const UPDATE_ITEM_QUANTITY = gql`
+  mutation updateItemQuantity($updateItemQuantityInput: UpdateItemQuantityInput!) {
+    updateItemQuantity(updateItemQuantityInput: $updateItemQuantityInput) {
+      id
+      items {
+        id
+        productId
+        skuId
+        quantity
+        selected
+        createdAt
+        updatedAt
+      }
+      user {
+        id
+        username
+        email
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const REMOVE_ITEM_FROM_CART = gql`
+  mutation removeItems($removeItemsInput: RemoveItemsInput!) {
+    removeItems(removeItemsInput: $removeItemsInput) {
+      id
+      items {
+        id
+        productId
+        skuId
+        quantity
+        selected
+        createdAt
+        updatedAt
+      }
+      user {
+        id
+        username
+        email
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const CLEAR_CART = gql`
+  mutation ClearCart($clientCartId: String) {
+    clearCart(clientCartId: $clientCartId) {
+      id
+      items {
+        id
+        productId
+        skuId
+        quantity
+        selected
+        createdAt
+        updatedAt
+      }
+      user {
+        id
+        username
+        email
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const CREATE_PRODUCT_CLIENT = gql`
   mutation CreateProductClient($createProductInput: CreateProductInput!) {
     createProduct(createProductInput: $createProductInput) {

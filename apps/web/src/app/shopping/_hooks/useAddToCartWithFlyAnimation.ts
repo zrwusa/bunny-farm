@@ -34,7 +34,8 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
         event: MouseEvent,
         variant: ProductVariant,
         price: ProductPrice,
-        index: number
+        index: number,
+        productId: string,
     ) => {
         const item = getFlyingItem(event, variant, price, index);
         if (!item) return;
@@ -42,7 +43,7 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
         setFlyingItem(item);
 
         setTimeout(async () => {
-            await addToCart(variant.id, variant.id, 1);
+            await addToCart({skuId: variant.id, productId, quantity: 1, selected: true});
             setFlyingItem(null);
         }, 600);
     };

@@ -1,51 +1,36 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+// apps/api/src/cart/cart.sync.service.ts
+import { Injectable } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { RedisService } from '../redis/redis.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
-export class CartSyncService implements OnModuleInit {
-  private readonly SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
-  private syncTimer: NodeJS.Timeout;
-
+export class CartSyncService {
   constructor(
-    private cartService: CartService,
-    private redisService: RedisService,
+    private readonly cartService: CartService,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
-  onModuleInit() {
-    this.startSync();
-  }
-
-  private startSync() {
-    this.syncTimer = setInterval(async () => {
-      await this.syncAllCarts();
-    }, this.SYNC_INTERVAL);
-  }
-
-  private async syncAllCarts() {
-    try {
-      // Get all user cart keys
-      const keys = await this.redisService.getKeys('cart:user:*');
-
-      // Sync each cart
-      for (const key of keys) {
-        const userId = key.split(':')[2]; // Extract user ID from key
-        await this.cartService.syncToDatabase(userId);
-      }
-    } catch (error) {
-      console.error('Error syncing carts:', error);
-    }
-  }
-
-  // Manually trigger synchronization
+  // Single user synchronization
   async syncUserCart(userId: string) {
-    await this.cartService.syncToDatabase(userId);
+    try {
+      return this.cartService.syncRedisToDatabase(userId);
+    } catch (error) {
+      console.error(`Error syncing cart for user ${userId}:`, error);
+    }
   }
 
-  // Cleanup timer
-  onModuleDestroy() {
-    if (this.syncTimer) {
-      clearInterval(this.syncTimer);
+  // Cycle user shopping cart data in batches
+  async syncActiveUsers(): Promise<Map<string, boolean>> {
+    const activeUsers = await this.userRepo.find();
+    const userIds = activeUsers.map((user) => user.id);
+    const status = new Map<string, boolean>();
+    for (const userId of userIds) {
+      const isSuccess = await this.syncUserCart(userId);
+      status.set(userId, isSuccess ?? false);
     }
+    return status;
   }
 }

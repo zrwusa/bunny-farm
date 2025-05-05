@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CartService } from './cart.service';
 import { RedisService } from '../redis/redis.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CartSession } from './entities/cart-session.entity';
+import { CartSession } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';

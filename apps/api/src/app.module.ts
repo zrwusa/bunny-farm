@@ -32,10 +32,12 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { SearchModule } from './search/search.module';
 import { CartModule } from './cart/cart.module';
 import { AuthModule } from './auth/auth.module';
-import { CartSession } from './cart/entities/cart-session.entity';
+import { Cart } from './cart/entities/cart.entity';
 import { CartItem } from './cart/entities/cart-item.entity';
 import { VariantImage } from './product/entities/variant-image.entity';
 import { Request, Response } from 'express';
+import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -75,7 +77,7 @@ import { Request, Response } from 'express';
             Product,
             Brand,
             Category,
-            CartSession,
+            Cart,
             CartItem,
             Inventory,
             ProductImage,
@@ -98,6 +100,18 @@ import { Request, Response } from 'express';
       },
       inject: [ConfigService], // The useFactory of forRootAsync cannot directly access the global ConfigService, and must be explicitly injected
     }),
+    RedisModule.forRootAsync({
+      useFactory: (configService: ConfigService): RedisModuleOptions => ({
+        type: 'single',
+        options: {
+          host: configService.get('REDIS_HOST'),
+          port: parseInt(configService.get('REDIS_PORT') || '6379', 10),
+          password: configService.get('REDIS_PASSWORD'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    ScheduleModule.forRoot(), // Start a timing task
     UsersModule,
     ProductModule,
     OrderModule,

@@ -253,19 +253,28 @@ type CartItem {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  session: CartSession
+  session: Cart
   productId: String!
   skuId: String!
   quantity: Int!
   selected: Boolean!
 }
 
-type CartSession {
+type Cart {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
   user: User
+  clientCartId: String!
+  deviceType: DeviceType!
   items: [CartItem!]!
+}
+
+enum DeviceType {
+  WEB
+  MOBILE_WEB
+  APP
+  MOBILE_APP
 }
 
 type User {
@@ -282,7 +291,7 @@ type User {
   paymentMethods: [UserPaymentMethod!]
   orders: [Order!]
   reviews: [ProductReview!]
-  cartSessions: [CartSession!]
+  carts: [Cart!]
 }
 
 type App {
@@ -319,6 +328,16 @@ enum Carrier {
   LOCAL_COURIER
 }
 
+type CachedCart {
+  id: ID!
+  user: User
+  clientCartId: String
+  deviceType: DeviceType!
+  items: [CartItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type TokenOutput {
   accessToken: String!
   refreshToken: String!
@@ -338,8 +357,7 @@ type Query {
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
-  cart(id: String!): CartSession!
-  myCart(sessionId: String): CartSession!
+  cart(clientCartId: String): CachedCart!
 }
 
 input FilterOrderInput {
@@ -364,10 +382,11 @@ type Mutation {
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
   removeShipment(id: Int!): Shipment!
-  createCart(createCartInput: CreateCartInput!, sessionId: String): CartSession!
-  updateCart(updateCartInput: UpdateCartInput!): CartSession!
-  removeCart(id: String!): CartSession!
-  clearCart(id: String!): CartSession!
+  addToCart(addItemToCartInput: AddItemToCartInput!): CachedCart!
+  updateItemQuantity(updateItemQuantityInput: UpdateItemQuantityInput!): CachedCart!
+  removeItems(removeItemsInput: RemoveItemsInput!): CachedCart!
+  toggleItemSelection(skuId: String!, selected: Boolean!, clientCartId: String): CachedCart!
+  clearCart(clientCartId: String): CachedCart!
   login(input: LoginInput!): TokenOutput!
   refreshToken(userId: String!, refreshToken: String!): TokenOutput!
   logout: Boolean!
@@ -489,20 +508,27 @@ input UpdateShipmentInput {
   id: Int!
 }
 
-input CreateCartInput {
-  userId: String
-  items: [CartItemInput!]!
+input AddItemToCartInput {
+  item: CartItemInput!
+  clientCartId: String
 }
 
 input CartItemInput {
-  productId: String!
   skuId: String!
+  productId: String!
   quantity: Int!
+  selected: Boolean! = true
 }
 
-input UpdateCartInput {
-  id: String!
-  items: [CartItemInput!]
+input UpdateItemQuantityInput {
+  skuId: String!
+  quantity: Int!
+  clientCartId: String
+}
+
+input RemoveItemsInput {
+  skuIds: [String!]!
+  clientCartId: String
 }
 
 input LoginInput {

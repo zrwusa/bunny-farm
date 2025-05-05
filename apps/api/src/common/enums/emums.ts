@@ -72,3 +72,10 @@ export enum CategoryType {
   DIGITAL = 'DIGITAL',
   SERVICE = 'SERVICE',
 }
+
+export enum DeviceType {
+  WEB = 'WEB',
+  MOBILE_WEB = 'MOBILE_WEB',
+  APP = 'APP',
+  MOBILE_APP = 'MOBILE_APP',
+}

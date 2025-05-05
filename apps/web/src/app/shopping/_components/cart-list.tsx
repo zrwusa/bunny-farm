@@ -5,7 +5,7 @@ import { CartItem } from './cart-item';
 import Link from 'next/link';
 import { CartItem as CartItemType } from '@/types/generated/graphql';
 export const CartList = () => {
-  const { cartSession, loading, error, clearCartItems } = useCart();
+  const { cart, loading, error, clearCartItems } = useCart();
 
   if (loading) {
     return <div className="p-4">Loading...</div>;
@@ -15,7 +15,7 @@ export const CartList = () => {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
 
-  if (!cartSession?.items.length) {
+  if (!cart?.items.length) {
     return (
       <div className="p-4 text-center" data-testid="empty-cart-message">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
@@ -30,14 +30,14 @@ export const CartList = () => {
         <h2 className="text-2xl font-bold">Shopping Cart</h2>
         <button
           data-testid="clear-cart"
-          onClick={() => clearCartItems(cartSession.id)}
+          onClick={() => clearCartItems(cart.id)}
           className="text-red-500 hover:text-red-700"
         >
           Clear Cart
         </button>
       </div>
       <div className="divide-y" data-testid="cart-items">
-        {cartSession.items.map((item: CartItemType) => (
+        {cart.items.map((item: CartItemType) => (
           <CartItem key={item.id} item={item} />
         ))}
       </div>

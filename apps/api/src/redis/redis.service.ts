@@ -14,8 +14,16 @@ export class RedisService {
     });
   }
 
+  getUserCartKey(userId: string): string {
+    return `user:${userId}:cart`;
+  }
+
+  getGuestCartKey(guestId: string): string {
+    return `guest:${guestId}:cart`;
+  }
+
   // Get cart from Redis
-  async getCart(key: string): Promise<any> {
+  async getCart(key: string) {
     const data = await this.redis.get(key);
     if (!data) return null;
 
@@ -34,7 +42,7 @@ export class RedisService {
   }
 
   // Set cart to Redis
-  async setCart(key: string, data: any, ttl?: number): Promise<void> {
+  async setCart(key: string, data: any, ttl?: number) {
     // Convert Date objects to ISO strings for storage
     const cart = {
       ...data,
@@ -53,15 +61,88 @@ export class RedisService {
     } else {
       await this.redis.set(key, serializedData);
     }
+    return cart;
+  }
+
+  async getAllCarts() {
+    const keys = await this.getKeys('user:*:cart');
+    const guestKeys = await this.getKeys('guest:*:cart');
+    const allKeys = [...keys, ...guestKeys];
+
+    const carts: Record<string, any> = {};
+
+    for (const key of allKeys) {
+      const cart = await this.getCart(key);
+      if (cart) {
+        carts[key] = cart;
+      }
+    }
+
+    return carts;
+  }
+
+  async addItemToCart(key: string, item: any): Promise<void> {
+    const cart = (await this.getCart(key)) ?? {
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      items: [],
+    };
+
+    const existingItem = cart.items.find(
+      (i: any) => i.productId === item.productId && i.skuId === item.skuId,
+    );
+
+    if (existingItem) {
+      existingItem.quantity += item.quantity;
+      existingItem.updatedAt = new Date();
+    } else {
+      cart.items.push({
+        ...item,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    cart.updatedAt = new Date();
+    await this.setCart(key, cart);
+  }
+
+  async updateItemInCart(
+    key: string,
+    productId: string,
+    skuId: string,
+    updates: Partial<{ quantity: number; [key: string]: any }>,
+  ): Promise<void> {
+    const cart = await this.getCart(key);
+    if (!cart) return;
+
+    const item = cart.items.find((i: any) => i.productId === productId && i.skuId === skuId);
+
+    if (!item) return;
+
+    Object.assign(item, updates, { updatedAt: new Date() });
+    cart.updatedAt = new Date();
+
+    await this.setCart(key, cart);
+  }
+
+  async removeItemFromCart(key: string, productId: string, skuId: string): Promise<void> {
+    const cart = await this.getCart(key);
+    if (!cart) return;
+
+    cart.items = cart.items.filter((i: any) => !(i.productId === productId && i.skuId === skuId));
+
+    cart.updatedAt = new Date();
+    await this.setCart(key, cart);
   }
 
   // Delete cart from Redis
-  async deleteCart(key: string): Promise<void> {
+  async deleteCart(key: string) {
     await this.redis.del(key);
   }
 
   // Merge carts in Redis
-  async mergeCarts(sourceKey: string, targetKey: string): Promise<void> {
+  async mergeCarts(sourceKey: string, targetKey: string) {
     const sourceCart = await this.getCart(sourceKey);
     const targetCart = await this.getCart(targetKey);
 

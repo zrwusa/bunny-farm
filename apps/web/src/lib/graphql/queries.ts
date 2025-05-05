@@ -1,5 +1,4 @@
 import {gql} from '@apollo/client';
-import {LoginInput} from '@/types/generated/graphql';
 
 export const GET_USERS = gql`
   query GetUsers {
@@ -87,8 +86,8 @@ export const GET_PRODUCT_IDS = gql`
 `;
 
 export const GET_MY_CART = gql`
-  query GetMyCart($sessionId: String) {
-    myCart(sessionId: $sessionId) {
+  query cart($clientCartId: String) {
+    cart(clientCartId: $clientCartId) {
       id
       items {
         id
@@ -101,7 +100,6 @@ export const GET_MY_CART = gql`
       }
       user {
         id
-        username
         email
       }
       createdAt
@@ -110,77 +108,6 @@ export const GET_MY_CART = gql`
   }
 `;
 
-export const CREATE_CART = gql`
-  mutation CreateCart($createCartInput: CreateCartInput!, $sessionId: String) {
-    createCart(createCartInput: $createCartInput, sessionId: $sessionId) {
-      id
-      items {
-        id
-        productId
-        skuId
-        quantity
-        selected
-        createdAt
-        updatedAt
-      }
-      user {
-        id
-        username
-        email
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const UPDATE_CART = gql`
-  mutation UpdateCart($updateCartInput: UpdateCartInput!) {
-    updateCart(updateCartInput: $updateCartInput) {
-      id
-      items {
-        id
-        productId
-        skuId
-        quantity
-        selected
-        createdAt
-        updatedAt
-      }
-      user {
-        id
-        username
-        email
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-export const CLEAR_CART = gql`
-  mutation ClearCart($id: String!) {
-    clearCart(id: $id) {
-      id
-      items {
-        id
-        productId
-        skuId
-        quantity
-        selected
-        createdAt
-        updatedAt
-      }
-      user {
-        id
-        username
-        email
-      }
-      createdAt
-      updatedAt
-    }
-  }
-`;
 
 export const SUGGEST_PRODUCT_NAMES = gql`
   query SuggestProductNames($input: String!) {
@@ -226,15 +153,6 @@ export const ME_QUERY = gql`
         avatarUrl
         displayName
       }
-    }
-  }
-`;
-
-export const GOOGLE_LOGIN = gql`
-  mutation GoogleLogin($input: LoginInput!) {
-    login(input: $input) {
-      accessToken
-      refreshToken
     }
   }
 `;

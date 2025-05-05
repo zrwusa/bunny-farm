@@ -1,341 +1,203 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+// apps/api/src/cart/cart.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Redis } from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { CartItemInput } from './dto/cart-item.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateCartInput } from './dto/create-cart.input';
-import { UpdateCartInput } from './dto/update-cart.input';
-import { CartSession } from './entities/cart-session.entity';
+import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
+import { DeviceType } from '../common/enums';
+import { CachedCart } from './dto/cached-cart.object';
 import { User } from '../user/entities/user.entity';
-import { RedisService } from '../redis/redis.service';
-
-interface CartItemData {
-  productId: string;
-  skuId: string;
-  quantity: number;
-}
+import { CurrentJwtUser } from '../auth/types/types';
 
 @Injectable()
 export class CartService {
   constructor(
-    @InjectRepository(CartSession)
-    private readonly cartSessionRepository: Repository<CartSession>,
+    @InjectRedis() private readonly redis: Redis,
+    @InjectRepository(Cart)
+    private readonly cartRepo: Repository<Cart>,
     @InjectRepository(CartItem)
-    private readonly cartItemRepository: Repository<CartItem>,
+    private readonly cartItemRepo: Repository<CartItem>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-    private readonly redisService: RedisService,
+    private readonly userRepo: Repository<User>,
   ) {}
 
-  private getUserCartKey(userId: string): string {
-    return `user:${userId}:cart`;
+  private getRedisKey(userId?: string, clientCartId?: string): string {
+    if (userId) return `cart:user:${userId}`;
+    if (clientCartId) return `cart:guest:${clientCartId}`;
+    throw new Error('Either userId or clientCartId must be provided');
   }
 
-  public getGuestCartKey(sessionId: string): string {
-    return `guest:${sessionId}:cart`;
-  }
+  async getCart({
+    user,
+    clientCartId,
+  }: {
+    user?: CurrentJwtUser;
+    clientCartId?: string;
+  }): Promise<CachedCart> {
+    const key = this.getRedisKey(user?.id, clientCartId);
+    const entries = await this.redis.hgetall(key);
 
-  async getGuestCart(sessionId: string) {
-    const guestCartKey = this.getGuestCartKey(sessionId);
-    let cart = await this.redisService.getCart(guestCartKey);
+    const cart = new CachedCart();
+    cart.id = key;
+    cart.items = Object.entries(entries).map(([skuId, json]) => ({
+      skuId,
+      ...JSON.parse(json),
+    })) as CartItem[];
 
-    if (!cart) {
-      // Create a new guest cart if it doesn't exist
-      cart = {
-        id: sessionId,
-        items: [],
-        user: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      await this.redisService.setCart(guestCartKey, cart);
-    }
-
-    return cart;
-  }
-
-  async getCart(userId: string, sessionId?: string) {
-    // Prioritize fetching from Redis
-    const userCartKey = this.getUserCartKey(userId);
-    let cart = await this.redisService.getCart(userCartKey);
-
-    if (!cart) {
-      // If not in Redis, load from database
-      cart = await this.findOne(userId);
-      if (cart) {
-        // Cache to Redis
-        await this.redisService.setCart(userCartKey, cart);
-      }
-    }
-
-    // If logged-in user has sessionId, try to merge anonymous cart
-    if (sessionId) {
-      const guestCartKey = this.getGuestCartKey(sessionId);
-      const guestCart = await this.redisService.getCart(guestCartKey);
-
-      if (guestCart) {
-        await this.redisService.mergeCarts(guestCartKey, userCartKey);
-        cart = await this.redisService.getCart(userCartKey);
-      }
-    }
-
-    return cart;
-  }
-
-  async create(createCartInput: CreateCartInput, sessionId?: string) {
-    const { userId, items } = createCartInput;
-
-    if (userId) {
-      // Check if user exists
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
-      // Create cart session
-      const cartSession = this.cartSessionRepository.create({ user });
-      await this.cartSessionRepository.save(cartSession);
-
-      // Add cart items
-      if (items && items.length > 0) {
-        const cartItems = items.map((item: CartItemData) =>
-          this.cartItemRepository.create({
-            session: cartSession,
-            productId: item.productId,
-            skuId: item.skuId,
-            quantity: item.quantity,
-          }),
-        );
-        await this.cartItemRepository.save(cartItems);
-      }
-
-      const cart = await this.findOne(cartSession.id);
-
-      // Cache to Redis
-      const userCartKey = this.getUserCartKey(userId);
-      await this.redisService.setCart(userCartKey, cart);
-
-      // If logged-in user has sessionId, try to merge anonymous cart
-      if (sessionId) {
-        const guestCartKey = this.getGuestCartKey(sessionId);
-        const guestCart = await this.redisService.getCart(guestCartKey);
-
-        if (guestCart) {
-          await this.redisService.mergeCarts(guestCartKey, userCartKey);
-          return await this.redisService.getCart(userCartKey);
-        }
-      }
-
-      return cart;
-    } else if (sessionId) {
-      // Create guest cart
-      const guestCartKey = this.getGuestCartKey(sessionId);
-      const cart = {
-        id: sessionId,
-        items: (items || []).map((item) => ({
-          id: `${sessionId}-${item.productId}-${item.skuId}-${Date.now()}`,
-          productId: item.productId,
-          skuId: item.skuId,
-          quantity: item.quantity,
-          selected: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        })),
-        user: null,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      await this.redisService.setCart(guestCartKey, cart);
-      return cart;
-    }
-
-    throw new BadRequestException('Either userId or sessionId must be provided');
-  }
-
-  async findAll() {
-    return this.cartSessionRepository.find({
-      relations: ['items', 'user'],
-    });
-  }
-
-  async findOne(id: string) {
-    // First check if it's a guest cart
-    const guestCartKey = this.getGuestCartKey(id);
-    const guestCart = await this.redisService.getCart(guestCartKey);
-
-    if (guestCart) {
-      return guestCart;
-    }
-
-    // If not a guest cart, try to find in database
-    try {
-      const cart = await this.cartSessionRepository.findOne({
-        where: { id },
-        relations: ['items', 'user'],
+    if (user?.id) {
+      cart.user = await this.userRepo.findOne({
+        where: { id: user.id },
       });
-      if (!cart) {
-        throw new NotFoundException('Cart not found');
-      }
-      return cart;
-    } catch {
-      // If database query fails (e.g., because ID is not bigint), return null
-      return null;
+    }
+    cart.deviceType = DeviceType.WEB;
+    cart.clientCartId = clientCartId;
+    cart.createdAt = new Date();
+    cart.updatedAt = new Date();
+
+    return cart;
+  }
+
+  async addOrUpdateItem(item: CartItemInput, user?: CurrentJwtUser, clientCartId?: string) {
+    const key = this.getRedisKey(user?.id, clientCartId);
+    const value = JSON.stringify(item);
+    await this.redis.hset(key, item.skuId, value);
+
+    if (clientCartId) {
+      await this.redis.expire(key, 60 * 60 * 24 * 30);
     }
   }
 
-  async findByUserId(userId: string) {
-    const userCartKey = this.getUserCartKey(userId);
-    const userCart = await this.redisService.getCart(userCartKey);
-    const cartSession = await this.cartSessionRepository.findOne({
+  async addItem({
+    user,
+    clientCartId,
+    item,
+  }: {
+    user?: CurrentJwtUser;
+    clientCartId?: string;
+    item: CartItemInput;
+  }) {
+    const existing = await this.getItem(item.skuId, user?.id, clientCartId);
+    const newItem = existing ? { ...existing, quantity: existing.quantity + item.quantity } : item;
+
+    await this.addOrUpdateItem(newItem, user, clientCartId);
+    return this.getCart({ user, clientCartId });
+  }
+
+  async updateQuantity({
+    skuId,
+    quantity,
+    user,
+    clientCartId,
+  }: {
+    skuId: string;
+    quantity: number;
+    user?: CurrentJwtUser;
+    clientCartId?: string;
+  }): Promise<any> {
+    const existing = await this.getItem(skuId, user?.id, clientCartId);
+    if (!existing) {
+      throw new Error(`Item with skuId "${skuId}" not found in cart`);
+    }
+
+    const updatedItem = { ...existing, quantity };
+    await this.addOrUpdateItem(updatedItem, user, clientCartId);
+    return this.getCart({ user, clientCartId });
+  }
+
+  async removeItems({
+    skuIds,
+    user,
+    clientCartId,
+  }: {
+    skuIds: string[];
+    user?: CurrentJwtUser;
+    clientCartId?: string;
+  }) {
+    const key = this.getRedisKey(user?.id, clientCartId);
+    if (skuIds.length > 0) {
+      await this.redis.hdel(key, ...skuIds);
+    }
+    return this.getCart({ user, clientCartId });
+  }
+
+  async setItemSelection({
+    skuId,
+    selected,
+    user,
+    clientCartId,
+  }: {
+    skuId: string;
+    selected: boolean;
+    user?: CurrentJwtUser;
+    clientCartId?: string;
+  }) {
+    const key = this.getRedisKey(user?.id, clientCartId);
+    const json = await this.redis.hget(key, skuId);
+    if (!json) throw new NotFoundException(`Not exist json for key ${key}`);
+    const item = JSON.parse(json);
+    item.selected = selected;
+    await this.redis.hset(key, skuId, JSON.stringify(item));
+    return this.getCart({ user, clientCartId });
+  }
+
+  async clearCart({ user, clientCartId }: { user?: CurrentJwtUser; clientCartId?: string }) {
+    const key = this.getRedisKey(user?.id, clientCartId);
+    await this.redis.del(key);
+    return this.getCart({ user, clientCartId });
+  }
+
+  // TODO When a guest user login we need to call this method
+  async mergeGuestCart(clientCartId: string, userId: string) {
+    const guestKey = this.getRedisKey(undefined, clientCartId);
+    const userKey = this.getRedisKey(userId);
+
+    const guestItems = await this.redis.hgetall(guestKey);
+    const userItems = await this.redis.hgetall(userKey);
+
+    for (const [skuId, guestJson] of Object.entries(guestItems)) {
+      const guestItem = JSON.parse(guestJson);
+      if (userItems[skuId]) {
+        const userItem = JSON.parse(userItems[skuId]);
+        guestItem.quantity += userItem.quantity;
+      }
+      await this.redis.hset(userKey, skuId, JSON.stringify(guestItem));
+    }
+
+    await this.redis.del(guestKey);
+  }
+
+  async getItem(skuId: string, userId?: string, clientCartId?: string) {
+    const key = this.getRedisKey(userId, clientCartId);
+    const json = await this.redis.hget(key, skuId);
+    return json ? JSON.parse(json) : null;
+  }
+
+  async syncRedisToDatabase(userId: string) {
+    const redisKey = this.getRedisKey(userId);
+    const redisCart = await this.redis.hgetall(redisKey);
+    if (!redisCart || Object.keys(redisCart).length === 0) return;
+
+    let cart = await this.cartRepo.findOne({
       where: { user: { id: userId } },
       relations: ['items', 'user'],
     });
-    console.log('userCart', userCart);
-    console.log('cartSession', cartSession);
-    return userCart;
-  }
-
-  async update(id: string, updateCartInput: UpdateCartInput) {
-    const cart = await this.findOne(id);
     if (!cart) {
-      throw new NotFoundException('Cart not found');
+      const user = await this.userRepo.findOneOrFail({ where: { id: userId } });
+      cart = this.cartRepo.create({ user, deviceType: DeviceType.WEB, items: [] });
     }
 
-    if (updateCartInput.items) {
-      // If it's a guest cart, update Redis directly
-      if (!cart.user) {
-        const guestCartKey = this.getGuestCartKey(id);
-        const updatedCart = {
-          ...cart,
-          items: updateCartInput.items.map((item) => ({
-            id: `${id}-${item.productId}-${item.skuId}-${Date.now()}`,
-            productId: item.productId,
-            skuId: item.skuId,
-            quantity: item.quantity,
-            selected: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })),
-          updatedAt: new Date(),
-        };
-        await this.redisService.setCart(guestCartKey, updatedCart);
-        return updatedCart;
-      }
-
-      // If it's a user cart, update database
-      await this.cartItemRepository.delete({ session: { id } });
-      const cartItems = updateCartInput.items.map((item: CartItemData) =>
-        this.cartItemRepository.create({
-          session: cart,
-          productId: item.productId,
-          skuId: item.skuId,
-          quantity: item.quantity,
-        }),
-      );
-      await this.cartItemRepository.save(cartItems);
+    const items: CartItem[] = [];
+    for (const [skuId, json] of Object.entries(redisCart)) {
+      const { productId, quantity, selected } = JSON.parse(json);
+      const item = this.cartItemRepo.create({ skuId, productId, quantity, selected });
+      items.push(item);
     }
 
-    const updatedCart = await this.findOne(id);
-
-    // Update Redis cache
-    const cartKey = this.getUserCartKey(cart.user.id);
-    await this.redisService.setCart(cartKey, updatedCart);
-
-    return updatedCart;
-  }
-
-  async remove(id: string) {
-    const cart = await this.findOne(id);
-    await this.cartSessionRepository.remove(cart);
-    return cart;
-  }
-
-  async clearCart(id: string) {
-    // Check if this is a guest cart (Redis cart)
-    const guestCartKey = this.getGuestCartKey(id);
-    const guestCart = await this.redisService.getCart(guestCartKey);
-
-    if (guestCart) {
-      // Clear guest cart in Redis
-      await this.redisService.deleteCart(guestCartKey);
-      return;
-    }
-
-    // If not a guest cart, try to find user cart by user ID
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    // Delete Redis cache
-    const userCartKey = this.getUserCartKey(user.id);
-    await this.redisService.deleteCart(userCartKey);
-
-    // Asynchronously delete cart records from database
-    this.asyncDeleteCartFromDatabase(user.id);
-  }
-
-  // Asynchronously delete cart records from database
-  private async asyncDeleteCartFromDatabase(userId: string) {
-    try {
-      // Find all user's carts
-      const userCarts = await this.cartSessionRepository.find({
-        where: { user: { id: userId } },
-        relations: ['items'],
-      });
-
-      // Delete all cart items
-      for (const cart of userCarts) {
-        await this.cartItemRepository.delete({ session: { id: cart.id } });
-      }
-
-      // Delete all cart sessions
-      await this.cartSessionRepository.delete({ user: { id: userId } });
-    } catch (error) {
-      console.error('Error deleting cart from database:', error);
-    }
-  }
-
-  // Asynchronously sync to database
-  async syncToDatabase(userId: string) {
-    const userCartKey = this.getUserCartKey(userId);
-    const cart = await this.redisService.getCart(userCartKey);
-
-    if (cart) {
-      const existingCart = await this.cartSessionRepository.findOne({
-        where: { user: { id: userId } },
-        relations: ['items'],
-      });
-
-      if (existingCart) {
-        // Update existing cart
-        await this.cartItemRepository.delete({ session: { id: existingCart.id } });
-        const cartItems = cart.items.map((item: CartItemData) =>
-          this.cartItemRepository.create({
-            session: existingCart,
-            productId: item.productId,
-            skuId: item.skuId,
-            quantity: item.quantity,
-          }),
-        );
-        await this.cartItemRepository.save(cartItems);
-      } else {
-        // Create new cart
-        const user = await this.userRepository.findOne({ where: { id: userId } });
-        if (user) {
-          const newCart = this.cartSessionRepository.create({ user });
-          await this.cartSessionRepository.save(newCart);
-
-          const cartItems = cart.items.map((item: CartItemData) =>
-            this.cartItemRepository.create({
-              session: newCart,
-              productId: item.productId,
-              skuId: item.skuId,
-              quantity: item.quantity,
-            }),
-          );
-          await this.cartItemRepository.save(cartItems);
-        }
-      }
-    }
+    cart.items = items;
+    await this.cartRepo.save(cart);
+    return true;
   }
 }

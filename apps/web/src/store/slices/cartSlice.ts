@@ -1,14 +1,14 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import { CartSession } from '@/types/generated/graphql';
+import { CachedCart } from '@/types/generated/graphql';
 
 interface CartState {
-    cartSession: CartSession | null;
+    cart: CachedCart | null;
     loading: boolean;
     error: string | null;
 }
 
 const initialState: CartState = {
-    cartSession: null,
+    cart: null,
     loading: false,
     error: null,
 };
@@ -17,8 +17,8 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
-        setCartSession: (state, action: PayloadAction<CartSession>) => {
-            state.cartSession = action.payload;
+        setCartSession: (state, action: PayloadAction<CachedCart>) => {
+            state.cart = action.payload;
             state.loading = false;
             state.error = null;
         },
@@ -30,7 +30,7 @@ const cartSlice = createSlice({
             state.loading = false;
         },
         clearCart: (state) => {
-            state.cartSession = null;
+            state.cart = null;
             state.loading = false;
             state.error = null;
         },
