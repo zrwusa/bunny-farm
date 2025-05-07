@@ -20,7 +20,7 @@ const handleError = (error: unknown, dispatch: any) => {
 
   if (error instanceof Error) {
     if (error.message.includes('Either userId or clientCartId must be provided')) {
-      errorMessage = 'Please provide a session ID for guest cart';
+      errorMessage = 'Please provide a cart ID for guest cart';
     } else {
       errorMessage = error.message;
     }
@@ -37,7 +37,7 @@ export const useCart = () => {
   const [clientCartId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Generate or retrieve session ID
+    // Generate or retrieve cart ID
     let storedSessionId = localStorage.getItem('clientCartId');
     if (!storedSessionId) {
       storedSessionId = Math.random().toString(36).substring(2);

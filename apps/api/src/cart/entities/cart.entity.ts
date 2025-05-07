@@ -27,6 +27,6 @@ export class Cart extends BaseEntity {
   deviceType: DeviceType;
 
   @Field(() => [CartItem])
-  @OneToMany(() => CartItem, (item) => item.session, { cascade: true, eager: true })
+  @OneToMany(() => CartItem, (item) => item.cart, { cascade: true, eager: true })
   items: CartItem[];
 }

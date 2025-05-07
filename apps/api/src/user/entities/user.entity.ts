@@ -67,6 +67,6 @@ export class User extends BaseEntity {
   reviews?: ProductReview[];
 
   @Field(() => [Cart], { nullable: true })
-  @OneToMany(() => Cart, (session) => session.user)
+  @OneToMany(() => Cart, (cart) => cart.user)
   carts?: Cart[];
 }

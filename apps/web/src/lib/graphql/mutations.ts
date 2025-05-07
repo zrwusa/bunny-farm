@@ -16,7 +16,6 @@ export const CREATE_PRODUCT = gql`
       }
       skus {
         id
-        sku
         color
         size
         prices {
@@ -142,7 +141,6 @@ export const CREATE_PRODUCT_CLIENT = gql`
       }
       skus {
         id
-        sku
         color
         size
         prices {

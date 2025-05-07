@@ -2,10 +2,11 @@
 
 import {FC, ChangeEvent} from 'react';
 import {useCart} from '../_hooks/useCart';
-import {CartItem as CartItemType} from '@/types/generated/graphql';
+import {EnrichedCartItem} from '@/types/generated/graphql';
+import Image from 'next/image'
 
 interface CartItemProps {
-    item: CartItemType;
+    item: EnrichedCartItem;
 }
 
 export const CartItem: FC<CartItemProps> = ({item}) => {
@@ -25,10 +26,10 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
             <div className="flex items-center space-x-4">
                 <div>
                     <h3 className="text-lg font-medium">
-                        Product ID: {item.productId}
+                        {item.product?.name}
                     </h3>
                     <p className="text-sm text-gray-500">
-                        SKU: {item.skuId}
+                        <Image src={item.product?.images[0]?.url || '/avatar.svg'} width={100} height={100} alt={item.product?.name ?? item.productId}/>
                     </p>
                 </div>
             </div>

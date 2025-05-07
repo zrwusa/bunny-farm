@@ -4,13 +4,16 @@ import { Redis } from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { CartItemInput } from './dto/cart-item.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { DeviceType } from '../common/enums';
 import { CachedCart } from './dto/cached-cart.object';
 import { User } from '../user/entities/user.entity';
 import { CurrentJwtUser } from '../auth/types/types';
+import { Product } from '../product/entities/product.entity';
+import { EnrichedCartItem } from './dto/enriched-cart-item.object';
+import { SKU } from '../product/entities/sku.entity';
 
 @Injectable()
 export class CartService {
@@ -22,6 +25,8 @@ export class CartService {
     private readonly cartItemRepo: Repository<CartItem>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
   ) {}
 
   private getRedisKey(userId?: string, clientCartId?: string): string {
@@ -44,9 +49,7 @@ export class CartService {
     const metaJson = await this.redis.get(metaKey);
     const meta = metaJson ? JSON.parse(metaJson) : null;
 
-    const cart = new CachedCart();
-    cart.id = key;
-    cart.items = Object.entries(entries).map(([skuId, json]) => {
+    const itemsRaw = Object.entries(entries).map(([skuId, json]) => {
       const parsed = JSON.parse(json);
       return {
         skuId,
@@ -54,16 +57,38 @@ export class CartService {
         createdAt: parsed.createdAt ? new Date(parsed.createdAt) : new Date(),
         updatedAt: parsed.updatedAt ? new Date(parsed.updatedAt) : new Date(),
       };
-    }) as CartItem[];
+    });
 
-    if (user?.id) {
-      cart.user = await this.userRepo.findOne({ where: { id: user.id } });
-    }
+    const productIds = Array.from(new Set(itemsRaw.map((i) => i.productId).filter(Boolean)));
+    const skuIds = Array.from(new Set(itemsRaw.map((i) => i.skuId).filter(Boolean)));
 
+    const [products, skus] = await Promise.all([
+      this.productRepo.find({ where: { id: In(productIds) } }),
+      this.productRepo.manager.getRepository(SKU).find({ where: { id: In(skuIds) } }),
+    ]);
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const skuMap = new Map(skus.map((s) => [s.id, s]));
+
+    const items: EnrichedCartItem[] = itemsRaw.map((item) => {
+      const enriched = new EnrichedCartItem();
+      Object.assign(enriched, item);
+      enriched.product = productMap.get(item.productId);
+      enriched.sku = skuMap.get(item.skuId);
+      return enriched;
+    });
+
+    const cart = new CachedCart();
+    cart.id = key;
+    cart.items = items;
     cart.deviceType = DeviceType.WEB;
     cart.clientCartId = clientCartId;
     cart.createdAt = meta?.createdAt ? new Date(meta.createdAt) : new Date();
     cart.updatedAt = meta?.updatedAt ? new Date(meta.updatedAt) : new Date();
+
+    if (user?.id) {
+      cart.user = await this.userRepo.findOne({ where: { id: user.id } });
+    }
 
     return cart;
   }

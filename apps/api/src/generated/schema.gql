@@ -253,7 +253,7 @@ type CartItem {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  session: Cart
+  cart: Cart
   productId: String!
   skuId: String!
   quantity: Int!
@@ -328,12 +328,25 @@ enum Carrier {
   LOCAL_COURIER
 }
 
+type EnrichedCartItem {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  cart: Cart
+  productId: String!
+  skuId: String!
+  quantity: Int!
+  selected: Boolean!
+  product: Product
+  sku: SKU
+}
+
 type CachedCart {
   id: ID!
   user: User
   clientCartId: String
   deviceType: DeviceType!
-  items: [CartItem!]!
+  items: [EnrichedCartItem!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

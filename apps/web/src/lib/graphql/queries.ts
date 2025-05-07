@@ -95,6 +95,21 @@ export const GET_MY_CART = gql`
         skuId
         quantity
         selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
         createdAt
         updatedAt
       }

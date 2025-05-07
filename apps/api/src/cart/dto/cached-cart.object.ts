@@ -1,8 +1,8 @@
 // dto/redis-cart.object.ts
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { CartItem } from '../entities/cart-item.entity';
 import { DeviceType } from '../../common/enums';
 import { User } from '../../user/entities/user.entity';
+import { EnrichedCartItem } from './enriched-cart-item.object';
 
 @ObjectType('CachedCart')
 export class CachedCart {
@@ -18,8 +18,8 @@ export class CachedCart {
   @Field(() => DeviceType)
   deviceType: DeviceType;
 
-  @Field(() => [CartItem])
-  items: CartItem[];
+  @Field(() => [EnrichedCartItem])
+  items: EnrichedCartItem[];
 
   @Field(() => Date)
   createdAt: Date;

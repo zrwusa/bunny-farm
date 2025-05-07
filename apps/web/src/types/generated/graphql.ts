@@ -47,7 +47,7 @@ export type CachedCart = {
   createdAt: Scalars['DateTime']['output'];
   deviceType: DeviceType;
   id: Scalars['ID']['output'];
-  items: Array<CartItem>;
+  items: Array<EnrichedCartItem>;
   updatedAt: Scalars['DateTime']['output'];
   user?: Maybe<User>;
 };
@@ -72,12 +72,12 @@ export type Cart = {
 };
 
 export type CartItem = {
+  cart?: Maybe<Cart>;
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   productId: Scalars['String']['output'];
   quantity: Scalars['Int']['output'];
   selected: Scalars['Boolean']['output'];
-  session?: Maybe<Cart>;
   skuId: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -147,6 +147,19 @@ export enum DeviceType {
   Web = 'WEB'
 }
 
+export type EnrichedCartItem = {
+  cart?: Maybe<Cart>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  product?: Maybe<Product>;
+  productId: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  selected: Scalars['Boolean']['output'];
+  sku?: Maybe<Sku>;
+  skuId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type FilterOrderInput = {
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   page?: Scalars['Float']['input'];
@@ -164,8 +177,8 @@ export type Inventory = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   quantity: Scalars['Float']['output'];
+  sku: Sku;
   updatedAt: Scalars['DateTime']['output'];
-  sku: SKU;
   warehouse: Warehouse;
 };
 
@@ -180,9 +193,9 @@ export type InventoryRecord = {
   id: Scalars['String']['output'];
   order?: Maybe<Order>;
   reason?: Maybe<Scalars['String']['output']>;
+  sku: Sku;
   type: InventoryType;
   updatedAt: Scalars['DateTime']['output'];
-  sku: SKU;
 };
 
 export type InventoryRecordInput = {
@@ -348,8 +361,8 @@ export type OrderItem = {
   /** The total price of the current quantity of products */
   price: Scalars['Float']['output'];
   quantity: Scalars['Int']['output'];
+  sku: Sku;
   updatedAt: Scalars['DateTime']['output'];
-  sku: SKU;
 };
 
 export type OrderItemInput = {
@@ -413,8 +426,8 @@ export type Product = {
   images: Array<ProductImage>;
   name: Scalars['String']['output'];
   reviews: Array<ProductReview>;
+  skus: Array<Sku>;
   updatedAt: Scalars['DateTime']['output'];
-  skus: Array<SKU>;
 };
 
 export type ProductImage = {
@@ -430,10 +443,10 @@ export type ProductPrice = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   price: Scalars['Float']['output'];
+  sku: Sku;
   updatedAt: Scalars['DateTime']['output'];
   validFrom?: Maybe<Scalars['DateTime']['output']>;
   validTo?: Maybe<Scalars['DateTime']['output']>;
-  sku: SKU;
 };
 
 export type ProductReview = {
@@ -442,24 +455,9 @@ export type ProductReview = {
   id: Scalars['String']['output'];
   product?: Maybe<Product>;
   rating: Scalars['Int']['output'];
+  sku?: Maybe<Sku>;
   updatedAt: Scalars['DateTime']['output'];
   user: User;
-  sku?: Maybe<SKU>;
-};
-
-export type SKU = {
-  color: Scalars['String']['output'];
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['String']['output'];
-  images: Array<SkuImage>;
-  inventories: Array<Inventory>;
-  inventoryRecords: Array<InventoryRecord>;
-  prices: Array<ProductPrice>;
-  product: Product;
-  reviews: Array<ProductReview>;
-  size: Scalars['String']['output'];
-  sku: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PublishProductInput = {
@@ -533,6 +531,21 @@ export type RemoveItemsInput = {
   skuIds: Array<Scalars['String']['input']>;
 };
 
+export type Sku = {
+  color: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  images: Array<SkuImage>;
+  inventories: Array<Inventory>;
+  inventoryRecords: Array<InventoryRecord>;
+  prices: Array<ProductPrice>;
+  product: Product;
+  reviews: Array<ProductReview>;
+  size: Scalars['String']['output'];
+  skuCode?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type Shipment = {
   carrier: Carrier;
   createdAt: Scalars['DateTime']['output'];
@@ -559,6 +572,30 @@ export enum ShippingStatus {
   Pending = 'PENDING',
   Shipped = 'SHIPPED'
 }
+
+export type SkuImage = {
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  position?: Maybe<Scalars['Float']['output']>;
+  sku: Sku;
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type SkuImageInput = {
+  position: Scalars['Float']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type SkuInput = {
+  color: Scalars['String']['input'];
+  images?: InputMaybe<Array<SkuImageInput>>;
+  inventories?: InputMaybe<Array<InventoryInput>>;
+  inventoryRecords?: InputMaybe<Array<InventoryRecordInput>>;
+  prices?: InputMaybe<Array<PriceInput>>;
+  size: Scalars['String']['input'];
+  sku: Scalars['String']['input'];
+};
 
 export type TokenOutput = {
   accessToken: Scalars['String']['output'];
@@ -643,30 +680,6 @@ export type UserProfile = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type SkuImage = {
-  createdAt: Scalars['DateTime']['output'];
-  id: Scalars['String']['output'];
-  position?: Maybe<Scalars['Float']['output']>;
-  updatedAt: Scalars['DateTime']['output'];
-  url: Scalars['String']['output'];
-  sku: SKU;
-};
-
-export type SkuImageInput = {
-  position: Scalars['Float']['input'];
-  url: Scalars['String']['input'];
-};
-
-export type SkuInput = {
-  color: Scalars['String']['input'];
-  images?: InputMaybe<Array<SkuImageInput>>;
-  inventories?: InputMaybe<Array<InventoryInput>>;
-  inventoryRecords?: InputMaybe<Array<InventoryRecordInput>>;
-  prices?: InputMaybe<Array<PriceInput>>;
-  size: Scalars['String']['input'];
-  sku: Scalars['String']['input'];
-};
-
 export type Warehouse = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
@@ -687,7 +700,7 @@ export type CreateProductMutationVariables = Exact<{
 }>;
 
 
-export type CreateProductMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, category?: { id: string, name: string } | null, skus: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }>, images: Array<{ id: string, url: string }> } };
+export type CreateProductMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, category?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }>, images: Array<{ id: string, url: string }> } };
 
 export type AddItemToCartMutationVariables = Exact<{
   addItemToCartInput: AddItemToCartInput;
@@ -722,7 +735,7 @@ export type CreateProductClientMutationVariables = Exact<{
 }>;
 
 
-export type CreateProductClientMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, skus: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> } };
+export type CreateProductClientMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> } };
 
 export type GoogleLoginMutationVariables = Exact<{
   input: LoginInput;
@@ -777,7 +790,7 @@ export type CartQueryVariables = Exact<{
 }>;
 
 
-export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, email: string } | null } };
+export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type SuggestProductNamesQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -815,7 +828,6 @@ export const CreateProductDocument = gql`
     }
     skus {
       id
-      sku
       color
       size
       prices {
@@ -1066,7 +1078,6 @@ export const CreateProductClientDocument = gql`
     }
     skus {
       id
-      sku
       color
       size
       prices {
@@ -1458,6 +1469,12 @@ export const CartDocument = gql`
       skuId
       quantity
       selected
+      product {
+        name
+        images {
+          url
+        }
+      }
       createdAt
       updatedAt
     }

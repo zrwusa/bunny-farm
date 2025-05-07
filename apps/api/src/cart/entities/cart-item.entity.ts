@@ -7,8 +7,8 @@ import { BaseEntity } from '../../common/entities/base.entity';
 @Entity('cart_items')
 export class CartItem extends BaseEntity {
   @Field(() => Cart, { nullable: true })
-  @ManyToOne(() => Cart, (session) => session.items, { onDelete: 'CASCADE' })
-  session?: Cart;
+  @ManyToOne(() => Cart, (cart) => cart.items, { onDelete: 'CASCADE' })
+  cart?: Cart;
 
   @Field(() => String)
   @Column()

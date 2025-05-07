@@ -8,9 +8,10 @@ import { User } from '../user/entities/user.entity';
 import { RedisModule } from '../redis/redis.module';
 import { CartSyncService } from './cart.sync.service';
 import { CartSyncTask } from './cart.sync.task';
+import { Product } from '../product/entities/product.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cart, CartItem, User]), RedisModule],
+  imports: [TypeOrmModule.forFeature([Cart, CartItem, User, Product]), RedisModule],
   providers: [CartResolver, CartService, CartSyncService, CartSyncTask],
   exports: [CartSyncService],
 })
