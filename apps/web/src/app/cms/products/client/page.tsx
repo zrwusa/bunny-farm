@@ -28,7 +28,7 @@ export default function ProductsPage() {
                                 id
                                 name
                             }
-                            variants {
+                            skus {
                                 id
                                 prices {
                                     id

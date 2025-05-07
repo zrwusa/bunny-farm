@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from '../../common/entities/base.entity';
-import { ProductVariant } from './product-variant.entity';
+import { SKU } from './sku.entity';
 
 @ObjectType()
 @Entity('product_prices')
@@ -18,9 +18,9 @@ export class ProductPrice extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   validTo?: Date; // Price expiration time
 
-  @Field(() => ProductVariant)
-  @ManyToOne(() => ProductVariant, (variant) => variant.prices, {
+  @Field(() => SKU)
+  @ManyToOne(() => SKU, (sku) => sku.prices, {
     onDelete: 'CASCADE',
   })
-  variant!: ProductVariant; // Related product variants
+  sku!: SKU; // Related product skus
 }

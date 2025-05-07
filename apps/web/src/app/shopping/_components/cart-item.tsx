@@ -13,7 +13,7 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
 
     const handleQuantityChange = (e: ChangeEvent<HTMLSelectElement>) => {
         const newQuantity = parseInt(e.target.value);
-        updateCartItemQuantity(item.id, newQuantity).then();
+        updateCartItemQuantity(item.skuId, newQuantity).then();
     };
 
     const handleRemove = () => {

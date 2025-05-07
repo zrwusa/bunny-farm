@@ -1,6 +1,6 @@
 import {MouseEvent, useState} from 'react';
 import {useCart} from './useCart';
-import {ProductPrice, ProductVariant} from '@/types/generated/graphql';
+import {ProductPrice, SKU} from '@/types/generated/graphql';
 
 export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jpg') {
     const {addToCart} = useCart();
@@ -8,7 +8,7 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
 
     function getFlyingItem(
         event: MouseEvent,
-        variant: ProductVariant,
+        sku: SKU,
         price: ProductPrice,
         index: number
     ) {
@@ -18,9 +18,9 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
         const cartRect = cartElement.getBoundingClientRect();
 
         return {
-            id: `${variant.id}-${index}`,
-            color: variant.color,
-            size: variant.size,
+            id: `${sku.id}-${index}`,
+            color: sku.color,
+            size: sku.size,
             price: price.price,
             imageUrl,
             startX: buttonRect.left,
@@ -32,18 +32,18 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
 
     const handleAddToCart = async (
         event: MouseEvent,
-        variant: ProductVariant,
+        sku: SKU,
         price: ProductPrice,
         index: number,
         productId: string,
     ) => {
-        const item = getFlyingItem(event, variant, price, index);
+        const item = getFlyingItem(event, sku, price, index);
         if (!item) return;
 
         setFlyingItem(item);
 
         setTimeout(async () => {
-            await addToCart({skuId: variant.id, productId, quantity: 1, selected: true});
+            await addToCart({skuId: sku.id, productId, quantity: 1, selected: true});
             setFlyingItem(null);
         }, 600);
     };

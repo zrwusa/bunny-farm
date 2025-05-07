@@ -7,18 +7,18 @@ import { ProductReview } from '../entities/product-review.entity';
 @Injectable({ scope: Scope.REQUEST })
 export class ProductReviewLoader {
   public readonly batchReviews = new DataLoader(
-    async (keys: { type: 'product' | 'variant'; id: string }[]) => {
-      // Step 1: Separate the IDs of Product and ProductVariant
+    async (keys: { type: 'product' | 'sku'; id: string }[]) => {
+      // Step 1: Separate the IDs of Product and SKU
       const productIds = keys.filter((k) => k.type === 'product').map((k) => k.id);
-      const variantIds = keys.filter((k) => k.type === 'variant').map((k) => k.id);
+      const skuIds = keys.filter((k) => k.type === 'sku').map((k) => k.id);
 
-      // Step 2: Batch query Product and ProductVariant related Reviews
+      // Step 2: Batch query Product and SKU related Reviews
       const reviews = await this.reviewRepository.find({
         where: [
           ...(productIds.length ? [{ product: { id: In(productIds) } }] : []),
-          ...(variantIds.length ? [{ variant: { id: In(variantIds) } }] : []),
+          ...(skuIds.length ? [{ sku: { id: In(skuIds) } }] : []),
         ],
-        relations: ['product', 'variant'],
+        relations: ['product', 'sku'],
       });
 
       // Step 3: Create Map to store query results
@@ -31,8 +31,8 @@ export class ProductReviewLoader {
       reviews.forEach((review) => {
         if (review.product) {
           reviewMap[`product:${review.product.id}`].push(review);
-        } else if (review.variant) {
-          reviewMap[`variant:${review.variant.id}`].push(review);
+        } else if (review.sku) {
+          reviewMap[`sku:${review.sku.id}`].push(review);
         }
       });
 
@@ -54,9 +54,9 @@ export class ProductReviewLoader {
   }
 
   /**
-   * Helper function to load ProductVariant reviews
+   * Helper function to load SKU reviews
    */
-  public loadVariantReviews(variantId: string) {
-    return this.batchReviews.load({ type: 'variant', id: variantId });
+  public loadSkuReviews(skuId: string) {
+    return this.batchReviews.load({ type: 'sku', id: skuId });
   }
 }

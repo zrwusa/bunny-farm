@@ -165,7 +165,7 @@ export type Inventory = {
   id: Scalars['String']['output'];
   quantity: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  variant: ProductVariant;
+  sku: SKU;
   warehouse: Warehouse;
 };
 
@@ -182,7 +182,7 @@ export type InventoryRecord = {
   reason?: Maybe<Scalars['String']['output']>;
   type: InventoryType;
   updatedAt: Scalars['DateTime']['output'];
-  variant: ProductVariant;
+  sku: SKU;
 };
 
 export type InventoryRecordInput = {
@@ -349,14 +349,14 @@ export type OrderItem = {
   price: Scalars['Float']['output'];
   quantity: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
-  variant: ProductVariant;
+  sku: SKU;
 };
 
 export type OrderItemInput = {
   /** Quantity of the product(s) */
   quantity: Scalars['Int']['input'];
-  /** Variant Ids */
-  variantId: Scalars['String']['input'];
+  /** Sku Ids */
+  skuId: Scalars['String']['input'];
 };
 
 export enum OrderStatus {
@@ -414,7 +414,7 @@ export type Product = {
   name: Scalars['String']['output'];
   reviews: Array<ProductReview>;
   updatedAt: Scalars['DateTime']['output'];
-  variants: Array<ProductVariant>;
+  skus: Array<SKU>;
 };
 
 export type ProductImage = {
@@ -433,7 +433,7 @@ export type ProductPrice = {
   updatedAt: Scalars['DateTime']['output'];
   validFrom?: Maybe<Scalars['DateTime']['output']>;
   validTo?: Maybe<Scalars['DateTime']['output']>;
-  variant: ProductVariant;
+  sku: SKU;
 };
 
 export type ProductReview = {
@@ -444,14 +444,14 @@ export type ProductReview = {
   rating: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
   user: User;
-  variant?: Maybe<ProductVariant>;
+  sku?: Maybe<SKU>;
 };
 
-export type ProductVariant = {
+export type SKU = {
   color: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
-  images: Array<VariantImage>;
+  images: Array<SkuImage>;
   inventories: Array<Inventory>;
   inventoryRecords: Array<InventoryRecord>;
   prices: Array<ProductPrice>;
@@ -468,7 +468,7 @@ export type PublishProductInput = {
   description?: InputMaybe<Scalars['JSONObject']['input']>;
   images: Array<ImageInput>;
   name: Scalars['String']['input'];
-  variants: Array<VariantInput>;
+  skus: Array<SkuInput>;
 };
 
 export type Query = {
@@ -643,23 +643,23 @@ export type UserProfile = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type VariantImage = {
+export type SkuImage = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
   position?: Maybe<Scalars['Float']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   url: Scalars['String']['output'];
-  variant: ProductVariant;
+  sku: SKU;
 };
 
-export type VariantImageInput = {
+export type SkuImageInput = {
   position: Scalars['Float']['input'];
   url: Scalars['String']['input'];
 };
 
-export type VariantInput = {
+export type SkuInput = {
   color: Scalars['String']['input'];
-  images?: InputMaybe<Array<VariantImageInput>>;
+  images?: InputMaybe<Array<SkuImageInput>>;
   inventories?: InputMaybe<Array<InventoryInput>>;
   inventoryRecords?: InputMaybe<Array<InventoryRecordInput>>;
   prices?: InputMaybe<Array<PriceInput>>;
@@ -687,7 +687,7 @@ export type CreateProductMutationVariables = Exact<{
 }>;
 
 
-export type CreateProductMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, category?: { id: string, name: string } | null, variants: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }>, images: Array<{ id: string, url: string }> } };
+export type CreateProductMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, category?: { id: string, name: string } | null, skus: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }>, images: Array<{ id: string, url: string }> } };
 
 export type AddItemToCartMutationVariables = Exact<{
   addItemToCartInput: AddItemToCartInput;
@@ -722,7 +722,7 @@ export type CreateProductClientMutationVariables = Exact<{
 }>;
 
 
-export type CreateProductClientMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, variants: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> } };
+export type CreateProductClientMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, skus: Array<{ id: string, sku: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> } };
 
 export type GoogleLoginMutationVariables = Exact<{
   input: LoginInput;
@@ -758,14 +758,14 @@ export type GetUsersQuery = { users: Array<{ id: string, username: string, email
 export type GetProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetProductsQuery = { products: Array<{ id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, variants: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> }> };
+export type GetProductsQuery = { products: Array<{ id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> }> };
 
 export type GetProductQueryVariables = Exact<{
   id: Scalars['String']['input'];
 }>;
 
 
-export type GetProductQuery = { product?: { id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, variants: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }>, inventories: Array<{ id: string, quantity: number, warehouse: { id: string, name: string } }> }> } | null };
+export type GetProductQuery = { product?: { id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }>, inventories: Array<{ id: string, quantity: number, warehouse: { id: string, name: string } }> }> } | null };
 
 export type GetProductIdsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -791,7 +791,7 @@ export type SearchProductsQueryVariables = Exact<{
 }>;
 
 
-export type SearchProductsQuery = { searchProducts: Array<{ id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, variants: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> }> };
+export type SearchProductsQuery = { searchProducts: Array<{ id: string, name: string, description?: any | null, images: Array<{ id: string, url: string }>, brand?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> }> };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -813,7 +813,7 @@ export const CreateProductDocument = gql`
       id
       name
     }
-    variants {
+    skus {
       id
       sku
       color
@@ -1064,7 +1064,7 @@ export const CreateProductClientDocument = gql`
       id
       name
     }
-    variants {
+    skus {
       id
       sku
       color
@@ -1294,7 +1294,7 @@ export const GetProductsDocument = gql`
       id
       name
     }
-    variants {
+    skus {
       id
       color
       size
@@ -1354,7 +1354,7 @@ export const GetProductDocument = gql`
       id
       name
     }
-    variants {
+    skus {
       id
       color
       size
@@ -1555,7 +1555,7 @@ export const SearchProductsDocument = gql`
       id
       name
     }
-    variants {
+    skus {
       id
       color
       size

@@ -14,7 +14,7 @@ export const CREATE_PRODUCT = gql`
         id
         name
       }
-      variants {
+      skus {
         id
         sku
         color
@@ -140,7 +140,7 @@ export const CREATE_PRODUCT_CLIENT = gql`
         id
         name
       }
-      variants {
+      skus {
         id
         sku
         color

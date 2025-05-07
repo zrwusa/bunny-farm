@@ -5,7 +5,7 @@ import { Product } from './entities/product.entity';
 import { ProductService } from './product.service';
 // import { InventoryRecordResolver } from './inventory-record.resolver';
 // import { InventoryService } from './inventory.service';
-// import { ProductVariantResolver } from './product-variant.resolver';
+// import { SKUResolver } from './product-sku.resolver';
 import { ProductReviewLoader } from './loaders/product-review.loader';
 import { ProductReview } from './entities/product-review.entity';
 import { SearchModule } from '../search/search.module';
@@ -27,7 +27,7 @@ import { SearchService } from '../search/search.service';
     ProductService,
     // InventoryService,
     // InventoryRecordResolver,
-    // ProductVariantResolver,
+    // SKUResolver,
     ProductReviewLoader,
     SearchService,
   ],

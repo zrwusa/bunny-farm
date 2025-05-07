@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { InventoryType } from '../../common/enums';
 import { Order } from '../../order/entities/order.entity';
-import { ProductVariant } from './product-variant.entity';
+import { SKU } from './sku.entity';
 
 registerEnumType(InventoryType, {
   name: 'InventoryType',
@@ -12,12 +12,12 @@ registerEnumType(InventoryType, {
 @Entity({ name: 'inventory_records' })
 @ObjectType()
 export class InventoryRecord extends BaseEntity {
-  // TODO many to one relationship needs to be reconsidered, should it be with Inventory or with Variant.
-  @Field(() => ProductVariant)
-  @ManyToOne(() => ProductVariant, (variant) => variant.inventoryRecords, {
+  // TODO many to one relationship needs to be reconsidered, should it be with Inventory or with Sku.
+  @Field(() => SKU)
+  @ManyToOne(() => SKU, (sku) => sku.inventoryRecords, {
     onDelete: 'CASCADE',
   })
-  variant: ProductVariant;
+  sku: SKU;
 
   @Field(() => Int)
   @Column({ type: 'int' })

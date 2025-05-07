@@ -2,7 +2,7 @@ import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { Order } from './order.entity';
 import { BaseEntity } from '../../common/entities/base.entity';
-import { ProductVariant } from '../../product/entities/product-variant.entity';
+import { SKU } from '../../product/entities/sku.entity';
 
 @Entity('order_items')
 @ObjectType()
@@ -11,9 +11,9 @@ export class OrderItem extends BaseEntity {
   @Field(() => Order)
   order: Order;
 
-  @Field(() => ProductVariant)
-  @ManyToOne(() => ProductVariant, { eager: true, onDelete: 'CASCADE' })
-  variant: ProductVariant;
+  @Field(() => SKU)
+  @ManyToOne(() => SKU, { eager: true, onDelete: 'CASCADE' })
+  sku: SKU;
 
   @Column()
   @Field(() => Int)

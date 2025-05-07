@@ -40,7 +40,7 @@ class PriceInput {
 }
 
 @InputType()
-class VariantImageInput {
+class SkuImageInput {
   @Field()
   @IsString()
   url: string;
@@ -72,7 +72,7 @@ class WarehouseInput {
 }
 
 @InputType()
-class VariantInput {
+class SkuInput {
   @Field()
   @IsString()
   size: string;
@@ -92,12 +92,12 @@ class VariantInput {
   @IsOptional()
   prices?: PriceInput[];
 
-  @Field(() => [VariantImageInput], { nullable: true })
+  @Field(() => [SkuImageInput], { nullable: true })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => VariantImageInput)
+  @Type(() => SkuImageInput)
   @IsOptional()
-  images?: VariantImageInput[];
+  images?: SkuImageInput[];
 
   @Field(() => [InventoryInput], { nullable: true })
   @IsArray()
@@ -212,11 +212,11 @@ export class PublishProductInput {
   @Type(() => ImageInput)
   images: ImageInput[];
 
-  @Field(() => [VariantInput])
+  @Field(() => [SkuInput])
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => VariantInput)
-  variants: VariantInput[];
+  @Type(() => SkuInput)
+  skus: SkuInput[];
 
   // @Field(() => [ReviewInput])
   // @IsArray()

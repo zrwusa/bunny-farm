@@ -25,7 +25,7 @@ import { Inventory } from './product/entities/inventory.entity';
 import { ProductImage } from './product/entities/product-image.entity';
 import { ProductPrice } from './product/entities/product-price.entity';
 import { ProductReview } from './product/entities/product-review.entity';
-import { ProductVariant } from './product/entities/product-variant.entity';
+import { SKU } from './product/entities/sku.entity';
 import { Warehouse } from './product/entities/warehouse.entity';
 import { Brand } from './product/entities/brand.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -34,7 +34,7 @@ import { CartModule } from './cart/cart.module';
 import { AuthModule } from './auth/auth.module';
 import { Cart } from './cart/entities/cart.entity';
 import { CartItem } from './cart/entities/cart-item.entity';
-import { VariantImage } from './product/entities/variant-image.entity';
+import { SkuImage } from './product/entities/sku-image.entity';
 import { Request, Response } from 'express';
 import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -83,8 +83,8 @@ import { ScheduleModule } from '@nestjs/schedule';
             ProductImage,
             ProductPrice,
             ProductReview,
-            ProductVariant,
-            VariantImage,
+            SKU,
+            SkuImage,
             Warehouse,
             Order,
             OrderItem,

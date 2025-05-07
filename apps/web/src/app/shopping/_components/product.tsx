@@ -1,6 +1,6 @@
 'use client';
 
-import {Product as ProductType} from '@/types/generated/graphql';
+import {Query} from '@/types/generated/graphql';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from '@/components/ui/carousel';
 import {Badge} from '@/components/ui/badge';
@@ -13,13 +13,13 @@ import {FlyingItemAnimation} from '@/app/shopping/_components/flyingItem-animati
 import {useAddToCartWithFlyAnimation} from '@/app/shopping/_hooks/useAddToCartWithFlyAnimation';
 
 export interface ProductProps {
-    product: ProductType;
+    product: Query["product"];
 }
 
 export const Product: FC<ProductProps> = ({product}) => {
     const {flyingItem, handleAddToCart} = useAddToCartWithFlyAnimation(product?.images[0]?.url);
     if (!product) return <p className="text-center text-gray-500">Product not found</p>;
-    const {images, variants, name, brand, category, description} = product;
+    const {images, skus, name, brand, category, description} = product;
 
     return (
         <div className="max-w-4xl mx-auto p-6">
@@ -82,7 +82,7 @@ export const Product: FC<ProductProps> = ({product}) => {
 
             <Card className="mb-6">
                 <CardHeader>
-                    <CardTitle className="text-lg font-semibold">Product Variants</CardTitle>
+                    <CardTitle className="text-lg font-semibold">Product Skus</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -97,30 +97,30 @@ export const Product: FC<ProductProps> = ({product}) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {variants.map((variant) =>
-                                variant.prices.map((price, index) =>
-                                    <TableRow key={`${variant.id}-${index}`}>
+                            {skus.map((sku) =>
+                                sku.prices.map((price, index) =>
+                                    <TableRow key={`${sku.id}-${index}`}>
                                         <TableCell>
-                                            <Badge variant="outline">{variant.color}</Badge>
+                                            <Badge variant="outline">{sku.color}</Badge>
                                         </TableCell>
-                                        <TableCell>{variant.size}</TableCell>
+                                        <TableCell>{sku.size}</TableCell>
                                         <TableCell>${price.price.toFixed(2)}</TableCell>
                                         <TableCell>
-                                            {variant.inventories && variant.inventories.length > 0
-                                                ? variant.inventories[0].warehouse?.name ?? 'N/A'
+                                            {sku.inventories && sku.inventories.length > 0
+                                                ? sku.inventories[0].warehouse?.name ?? 'N/A'
                                                 : 'N/A'
                                             }
                                         </TableCell>
                                         <TableCell>
-                                            {variant.inventories && variant.inventories.length > 0
-                                                ? variant.inventories[0].quantity ?? 0
+                                            {sku.inventories && sku.inventories.length > 0
+                                                ? sku.inventories[0].quantity ?? 0
                                                 : 0
                                             }
                                         </TableCell>
                                         <TableCell>
                                             <Button
                                                 data-testid="add-to-cart"
-                                                onClick={(event) => handleAddToCart(event, variant, price, index, product.id)}
+                                                onClick={(event) => handleAddToCart(event, sku, price, index, product.id)}
                                                 size="sm">
                                                 Add to Cart
                                             </Button>

@@ -24,7 +24,7 @@ export class ProductService {
     description,
     category,
     brand,
-    variants,
+    skus,
   }: Product): SearchProductDto {
     return {
       id: id.toString(),
@@ -32,7 +32,7 @@ export class ProductService {
       description: description || {},
       category: category?.name || '',
       brand: brand?.name || '',
-      variants: variants?.map((v) => v.size) || [],
+      skus: skus?.map((v) => v.size) || [],
       suggest: {
         input: [name],
         weight: 1,
@@ -45,7 +45,7 @@ export class ProductService {
       order: {
         images: { position: 'ASC' },
         // TODO doesn't really work for deep nested order
-        // variants: { images: { position: 'ASC' } }
+        // skus: { images: { position: 'ASC' } }
       },
     });
   }
@@ -110,11 +110,11 @@ export class ProductService {
           categoryRepo.create({ name: categoryName });
       }
 
-      // Handle Variants & Inventories
-      const variants = await Promise.all(
-        publishProductInput.variants.map(async (variantInput) => {
+      // Handle Skus & Inventories
+      const skus = await Promise.all(
+        publishProductInput.skus.map(async (skuInput) => {
           const inventories = await Promise.all(
-            (variantInput.inventories ?? []).map(async (inventoryInput) => {
+            (skuInput.inventories ?? []).map(async (inventoryInput) => {
               const { warehouse: warehouseInput } = inventoryInput;
               let warehouse: Warehouse | null = null;
 
@@ -151,7 +151,7 @@ export class ProductService {
           );
 
           return {
-            ...variantInput,
+            ...skuInput,
             inventories,
           };
         }),
@@ -162,7 +162,7 @@ export class ProductService {
         ...publishProductInput,
         brand,
         category,
-        variants,
+        skus,
       });
 
       return productRepo.save(product);

@@ -19,9 +19,9 @@ export const ProductList = async ({searchParams = {}}: { searchParams?: { q?: st
         <section className="container mx-auto px-4 py-8">
             {title ? <h2 className="text-2xl font-bold mb-4">{title}</h2> : null}
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.slice(0, size).map(({id, name, brand, category, images, variants}, index) => {
+                {products.slice(0, size).map(({id, name, brand, category, images, skus}, index) => {
                     const imageUrl = images?.[0]?.url || '/placeholder.jpg';
-                    const price = variants?.[0]?.prices?.[0]?.price ?? 'N/A';
+                    const price = skus?.[0]?.prices?.[0]?.price ?? 'N/A';
                     const priorityOrLazy = {
                         priority: index < aboveTheFold,
                         loading: index >= aboveTheFold ? 'lazy' : undefined as 'lazy' | 'eager' | undefined

@@ -7,8 +7,8 @@ import Link from 'next/link';
 import {motion} from 'framer-motion';
 
 export default function FloatingCart() {
-    const {cartSession} = useCart();
-    const count = useCartItemsCount(cartSession);
+    const {cart} = useCart();
+    const count = useCartItemsCount(cart);
 
     return (
         <Link href="/shopping/cart">

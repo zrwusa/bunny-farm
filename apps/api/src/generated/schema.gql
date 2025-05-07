@@ -52,7 +52,7 @@ type ProductReview {
   rating: Int!
   comment: String
   product: Product
-  variant: ProductVariant
+  sku: SKU
 }
 
 type Product {
@@ -63,7 +63,7 @@ type Product {
   description: JSONObject
   category: Category
   brand: Brand
-  variants: [ProductVariant!]!
+  skus: [SKU!]!
   images: [ProductImage!]!
   reviews: [ProductReview!]!
 }
@@ -87,7 +87,7 @@ type Inventory {
   createdAt: DateTime!
   updatedAt: DateTime!
   quantity: Float!
-  variant: ProductVariant!
+  sku: SKU!
   warehouse: Warehouse!
 }
 
@@ -98,14 +98,14 @@ type ProductPrice {
   price: Float!
   validFrom: DateTime
   validTo: DateTime
-  variant: ProductVariant!
+  sku: SKU!
 }
 
 type InventoryRecord {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  variant: ProductVariant!
+  sku: SKU!
   changeQuantity: Int!
   type: InventoryType!
   reason: String
@@ -119,24 +119,24 @@ enum InventoryType {
   ADJUSTMENT
 }
 
-type VariantImage {
+type SkuImage {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
   url: String!
   position: Float
-  variant: ProductVariant!
+  sku: SKU!
 }
 
-type ProductVariant {
+type SKU {
   id: String!
   createdAt: DateTime!
   updatedAt: DateTime!
-  sku: String!
   color: String!
   size: String!
+  skuCode: String
   prices: [ProductPrice!]!
-  images: [VariantImage!]!
+  images: [SkuImage!]!
   product: Product!
   inventories: [Inventory!]!
   inventoryRecords: [InventoryRecord!]!
@@ -148,7 +148,7 @@ type OrderItem {
   createdAt: DateTime!
   updatedAt: DateTime!
   order: Order!
-  variant: ProductVariant!
+  sku: SKU!
   quantity: Int!
 
   """The total price of the current quantity of products"""
@@ -417,7 +417,7 @@ input PublishProductInput {
   brand: BrandInput!
   category: CategoryInput!
   images: [ImageInput!]!
-  variants: [VariantInput!]!
+  skus: [SkuInput!]!
 }
 
 input BrandInput {
@@ -435,12 +435,12 @@ input ImageInput {
   position: Float!
 }
 
-input VariantInput {
+input SkuInput {
   size: String!
   sku: String!
   color: String!
   prices: [PriceInput!]
-  images: [VariantImageInput!]
+  images: [SkuImageInput!]
   inventories: [InventoryInput!]
   inventoryRecords: [InventoryRecordInput!]
 }
@@ -451,7 +451,7 @@ input PriceInput {
   validTo: DateTime!
 }
 
-input VariantImageInput {
+input SkuImageInput {
   url: String!
   position: Float!
 }
@@ -479,8 +479,8 @@ input CreateOrderInput {
 }
 
 input OrderItemInput {
-  """Variant Ids"""
-  variantId: String!
+  """Sku Ids"""
+  skuId: String!
 
   """Quantity of the product(s)"""
   quantity: Int!

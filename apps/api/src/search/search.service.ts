@@ -90,7 +90,7 @@ export class SearchService {
           name: { type: 'text' },
           category: { type: 'keyword' },
           brand: { type: 'keyword' },
-          variants: { type: 'keyword' },
+          skus: { type: 'keyword' },
           description: {
             type: 'object',
             properties: {

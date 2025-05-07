@@ -9,7 +9,7 @@ import { OrderItem } from './entities/order-item.entity';
 import { InventoryRecord } from '../product/entities/inventory-record.entity';
 import { InventoryType, OrderStatus } from '../common/enums';
 import { PaymentService } from '../payment/payment.service';
-import { ProductVariant } from '../product/entities/product-variant.entity';
+import { SKU } from '../product/entities/sku.entity';
 
 // TODO 7. Order Fulfillment
 //  The seller or warehouse processes the order:
@@ -49,32 +49,32 @@ export class OrderService {
         totalPrice: 0,
         items: [] as OrderItem[],
       });
-      for (const { variantId, quantity } of createOrderInput.items) {
-        const variant = await manager.findOneBy(ProductVariant, {
-          id: variantId,
+      for (const { skuId, quantity } of createOrderInput.items) {
+        const sku = await manager.findOneBy(SKU, {
+          id: skuId,
         });
 
-        if (!variant) throw new NotFoundException(`Product variant ID ${variantId} not found`);
+        if (!sku) throw new NotFoundException(`Product sku ID ${skuId} not found`);
 
         // Calculate the current inventory
         const totalStock = await manager
           .createQueryBuilder(InventoryRecord, 'inventory_records')
-          .where('inventory_records.variant_id = :variantId', {
-            variantId,
+          .where('inventory_records.sku_id = :skuId', {
+            skuId,
           })
           .select('SUM(inventory_records.change_quantity)', 'totalStock')
           .getRawOne<{ totalStock: string }>();
 
         if (Number(totalStock?.totalStock ?? 0) < quantity) {
-          throw new BadRequestException(`Product variant ${variant.product.name} is out of stock`);
+          throw new BadRequestException(`Product sku ${sku.product.name} is out of stock`);
         }
-        const price = variant.prices[0].price;
+        const price = sku.prices[0].price;
         const subtotal = price * quantity;
         order.totalPrice += subtotal;
 
         // Create an order product item
         const orderItem = manager.create(OrderItem, {
-          variant,
+          sku,
           quantity,
           price,
         });
@@ -82,7 +82,7 @@ export class OrderService {
 
         // Create inventory exit record
         const inventoryRecord = manager.create(InventoryRecord, {
-          variant,
+          sku,
           changeQuantity: -quantity, // Negative number indicates the warehouse
           type: InventoryType.SALE,
           order,

@@ -3,7 +3,7 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Product } from './product.entity';
 import { User } from '../../user/entities/user.entity';
-import { ProductVariant } from './product-variant.entity';
+import { SKU } from './sku.entity';
 
 @ObjectType()
 @Entity('product_reviews')
@@ -27,10 +27,10 @@ export class ProductReview extends BaseEntity {
   })
   product?: Product; // Related Product
 
-  @Field(() => ProductVariant, { nullable: true })
-  @ManyToOne(() => ProductVariant, (variant) => variant.reviews, {
+  @Field(() => SKU, { nullable: true })
+  @ManyToOne(() => SKU, (sku) => sku.reviews, {
     nullable: true,
     onDelete: 'CASCADE',
   })
-  variant?: ProductVariant; // Related Variant
+  sku?: SKU; // Related Sku
 }

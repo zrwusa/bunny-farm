@@ -52,7 +52,7 @@ export class SearchProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  variants?: string[];
+  skus?: string[];
 
   @Field(() => SuggestDto, { nullable: true })
   @IsOptional()

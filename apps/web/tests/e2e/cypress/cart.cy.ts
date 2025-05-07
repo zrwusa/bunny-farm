@@ -21,7 +21,7 @@ describe('Cart Flow Test', () => {
     // Verify we're on a product detail page
     cy.url().should('match', /\/shopping\/products\/[^/]+$/);
 
-    // Add two different variants to cart
+    // Add two different skus to cart
     cy.get('[data-testid="add-to-cart"]').first().click();
     cy.wait(1000);
     cy.get('[data-testid="add-to-cart"]').last().click();
@@ -32,7 +32,7 @@ describe('Cart Flow Test', () => {
     cy.wait(1000);
     cy.url().should('include', '/shopping/cart');
 
-    // Remove one variant
+    // Remove one sku
     cy.get('[data-testid="remove-item"]').first().click();
     cy.wait(1000);
 
@@ -61,7 +61,7 @@ describe('Cart Flow Test', () => {
     cy.get('[data-testid="avatar-button"]').click();
     cy.get('[data-testid="logout-button"]').should('exist');
 
-    // Visit cart page to check variant count
+    // Visit cart page to check sku count
     cy.visit('http://localhost:3000/shopping/cart');
     cy.wait(1000);
     cy.get('[data-testid="cart-item"]').should('have.length', 1);

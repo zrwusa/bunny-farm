@@ -1,23 +1,23 @@
 import { Column, Entity, ManyToOne, Unique } from 'typeorm';
 import { Field, ObjectType } from '@nestjs/graphql';
 import { BaseEntity } from '../../common/entities/base.entity';
-import { ProductVariant } from './product-variant.entity';
+import { SKU } from './sku.entity';
 import { Warehouse } from './warehouse.entity';
 
 @ObjectType()
 @Entity('inventories')
-@Unique(['variant', 'warehouse']) // sku warehouse only
-// In addition to saving information, inventories table also plays the role of a junction table, connecting product_variants (product variants) and warehouses (warehouses), thus establishing a many-to-many relationship.
+@Unique(['sku', 'warehouse']) // sku warehouse only
+// In addition to saving information, inventories table also plays the role of a junction table, connecting product_skus (product skus) and warehouses (warehouses), thus establishing a many-to-many relationship.
 export class Inventory extends BaseEntity {
   @Field()
   @Column({ type: 'int', default: 0 })
   quantity!: number; // Current inventory quantity
 
-  @Field(() => ProductVariant)
-  @ManyToOne(() => ProductVariant, (variant) => variant.inventories, {
+  @Field(() => SKU)
+  @ManyToOne(() => SKU, (sku) => sku.inventories, {
     onDelete: 'CASCADE',
   })
-  variant!: ProductVariant; // Related product variants
+  sku!: SKU; // Related product skus
 
   @Field(() => Warehouse)
   @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories, {

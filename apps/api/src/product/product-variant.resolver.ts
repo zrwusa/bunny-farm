@@ -1,14 +1,14 @@
 import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
-import { ProductVariant } from './entities/product-variant.entity';
+import { SKU } from './entities/sku.entity';
 import { ProductReview } from './entities/product-review.entity';
 import { ProductReviewLoader } from './loaders/product-review.loader';
 
-@Resolver(() => ProductVariant)
-export class ProductVariantResolver {
+@Resolver(() => SKU)
+export class SKUResolver {
   constructor(private readonly productReviewLoader: ProductReviewLoader) {}
 
   @ResolveField(() => [ProductReview])
-  async reviews(@Parent() variant: ProductVariant) {
-    return this.productReviewLoader.loadVariantReviews(variant.id);
+  async reviews(@Parent() sku: SKU) {
+    return this.productReviewLoader.loadSkuReviews(sku.id);
   }
 }

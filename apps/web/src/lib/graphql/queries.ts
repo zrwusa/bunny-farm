@@ -25,7 +25,7 @@ export const GET_PRODUCTS = gql`
         id
         name
       }
-      variants {
+      skus {
         id
         color
         size
@@ -54,7 +54,7 @@ export const GET_PRODUCT = gql`
         id
         name
       }
-      variants {
+      skus {
         id
         color
         size
@@ -129,7 +129,7 @@ export const SEARCH_PRODUCTS = gql`
         id
         name
       }
-      variants {
+      skus {
         id
         color
         size

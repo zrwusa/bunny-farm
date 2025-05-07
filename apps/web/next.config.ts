@@ -42,6 +42,12 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'www.toolnation.com'
+            },
+            {
+                hostname: 'www.hilti.co.nz'
+            },
+            {
+                hostname: 'www.metabo.com'
             }
         ]
     }

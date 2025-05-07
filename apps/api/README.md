@@ -149,7 +149,7 @@ query {
             id
             name
         }
-        variants {
+        skus {
             id
             size
             sku
@@ -279,7 +279,7 @@ mutation {
                     position: 2
                 }
             ]
-            variants: [
+            skus: [
                 {
                     size: "30*36*60"
                     sku: "Rigid-Megamax-8600403B"
@@ -337,7 +337,7 @@ mutation {
             id
             name
         }
-        variants {
+        skus {
             id
             size
             sku
@@ -425,7 +425,7 @@ mutation {
                     position: 2
                 }
             ]
-            variants: [
+            skus: [
                 {
                     size: "Standard"
                     sku: "KitchenAid-KSM150BP"
@@ -483,7 +483,7 @@ mutation {
             id
             name
         }
-        variants {
+        skus {
             id
             size
             sku
@@ -532,7 +532,7 @@ query {
         items {
             price
             quantity
-            variant {
+            sku {
                 id
             }
         }

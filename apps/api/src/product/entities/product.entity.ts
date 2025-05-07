@@ -3,7 +3,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { Category } from './category.entity';
 import { Brand } from './brand.entity';
-import { ProductVariant } from './product-variant.entity';
+import { SKU } from './sku.entity';
 import { ProductImage } from './product-image.entity';
 import { ProductReview } from './product-review.entity';
 import { GraphQLJSONObject } from 'graphql-type-json';
@@ -37,12 +37,12 @@ export class Product extends BaseEntity {
   })
   brand?: Brand; // Product Brand
 
-  @Field(() => [ProductVariant])
-  @OneToMany(() => ProductVariant, (variant) => variant.product, {
+  @Field(() => [SKU])
+  @OneToMany(() => SKU, (sku) => sku.product, {
     eager: true,
     cascade: true,
   })
-  variants!: ProductVariant[]; // Variations of the product (color, size, etc.)
+  skus!: SKU[]; // Variations of the product (color, size, etc.)
 
   @Field(() => [ProductImage])
   @OneToMany(() => ProductImage, (image) => image.product, {
