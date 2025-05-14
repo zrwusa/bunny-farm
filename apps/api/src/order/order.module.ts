@@ -7,9 +7,10 @@ import { Product } from '../product/entities/product.entity';
 import { User } from '../user/entities/user.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { PaymentModule } from '../payment/payment.module';
+import { CartModule } from '../cart/cart.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, User, Product, OrderItem]), PaymentModule],
+  imports: [TypeOrmModule.forFeature([Order, User, Product, OrderItem]), CartModule, PaymentModule],
   providers: [OrderResolver, OrderService],
 })
 export class OrderModule {}

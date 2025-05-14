@@ -13,6 +13,6 @@ import { Product } from '../product/entities/product.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Cart, CartItem, User, Product]), RedisModule],
   providers: [CartResolver, CartService, CartSyncService, CartSyncTask],
-  exports: [CartSyncService],
+  exports: [CartSyncService, CartService],
 })
 export class CartModule {}

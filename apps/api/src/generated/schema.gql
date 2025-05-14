@@ -294,6 +294,36 @@ type User {
   carts: [Cart!]
 }
 
+type EnrichedCartItem {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  cart: Cart
+  productId: String!
+  skuId: String!
+  quantity: Int!
+  selected: Boolean!
+  product: Product
+  sku: SKU
+}
+
+type CachedCart {
+  id: ID!
+  user: User
+  clientCartId: String
+  deviceType: DeviceType!
+  items: [EnrichedCartItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SelectedCartItemOutput {
+  skuId: String!
+  productId: String!
+  quantity: Int!
+  selected: Boolean
+}
+
 type App {
   message: String!
 }
@@ -328,29 +358,6 @@ enum Carrier {
   LOCAL_COURIER
 }
 
-type EnrichedCartItem {
-  id: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  cart: Cart
-  productId: String!
-  skuId: String!
-  quantity: Int!
-  selected: Boolean!
-  product: Product
-  sku: SKU
-}
-
-type CachedCart {
-  id: ID!
-  user: User
-  clientCartId: String
-  deviceType: DeviceType!
-  items: [EnrichedCartItem!]!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
 type TokenOutput {
   accessToken: String!
   refreshToken: String!
@@ -366,11 +373,12 @@ type Query {
   searchProducts(keyword: String!): [Product!]!
   suggestProductNames(input: String!): [String!]!
   orders(filterOrderInput: FilterOrderInput!): [Order!]!
+  cart(clientCartId: String): CachedCart!
+  selectedCartItems(clientCartId: String): [SelectedCartItemOutput!]!
   payments: [Payment!]!
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
-  cart(clientCartId: String): CachedCart!
 }
 
 input FilterOrderInput {
@@ -388,6 +396,12 @@ type Mutation {
   publishProduct(publishProductInput: PublishProductInput!): Product!
   bulkIndexProducts: Boolean!
   createOrder(createOrderInput: CreateOrderInput!): Order!
+  placeOrder(input: PlaceOrderInput!): Order!
+  addToCart(addItemToCartInput: AddItemToCartInput!): CachedCart!
+  updateItemQuantity(updateItemQuantityInput: UpdateItemQuantityInput!): CachedCart!
+  removeItems(removeItemsInput: RemoveItemsInput!): CachedCart!
+  toggleItemSelection(skuId: String!, selected: Boolean!, clientCartId: String): CachedCart!
+  clearCart(clientCartId: String): CachedCart!
   createPayment(createPaymentInput: CreatePaymentInput!): Payment!
   confirmPayment(paymentId: String!, status: String!): Payment!
   updatePayment(updatePaymentInput: UpdatePaymentInput!): Payment!
@@ -395,11 +409,6 @@ type Mutation {
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
   removeShipment(id: Int!): Shipment!
-  addToCart(addItemToCartInput: AddItemToCartInput!): CachedCart!
-  updateItemQuantity(updateItemQuantityInput: UpdateItemQuantityInput!): CachedCart!
-  removeItems(removeItemsInput: RemoveItemsInput!): CachedCart!
-  toggleItemSelection(skuId: String!, selected: Boolean!, clientCartId: String): CachedCart!
-  clearCart(clientCartId: String): CachedCart!
   login(input: LoginInput!): TokenOutput!
   refreshToken(userId: String!, refreshToken: String!): TokenOutput!
   logout: Boolean!
@@ -499,6 +508,35 @@ input OrderItemInput {
   quantity: Int!
 }
 
+input PlaceOrderInput {
+  addressId: ID!
+  paymentMethod: PaymentMethod!
+  items: [CartItemInput!]!
+}
+
+input CartItemInput {
+  skuId: String!
+  productId: String!
+  quantity: Int!
+  selected: Boolean!
+}
+
+input AddItemToCartInput {
+  item: CartItemInput!
+  clientCartId: String
+}
+
+input UpdateItemQuantityInput {
+  skuId: String!
+  quantity: Int!
+  clientCartId: String
+}
+
+input RemoveItemsInput {
+  skuIds: [String!]!
+  clientCartId: String
+}
+
 input CreatePaymentInput {
   """Order ID"""
   orderId: String!
@@ -519,29 +557,6 @@ input UpdateShipmentInput {
   """Example field (placeholder)"""
   exampleField: Int
   id: Int!
-}
-
-input AddItemToCartInput {
-  item: CartItemInput!
-  clientCartId: String
-}
-
-input CartItemInput {
-  skuId: String!
-  productId: String!
-  quantity: Int!
-  selected: Boolean! = true
-}
-
-input UpdateItemQuantityInput {
-  skuId: String!
-  quantity: Int!
-  clientCartId: String
-}
-
-input RemoveItemsInput {
-  skuIds: [String!]!
-  clientCartId: String
 }
 
 input LoginInput {

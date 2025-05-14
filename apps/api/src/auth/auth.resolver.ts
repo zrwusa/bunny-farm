@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { TokenOutput } from './dto/token.output';
 import { UseGuards, UnauthorizedException } from '@nestjs/common';
-import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import {GqlAuthGuard} from './guards/gql-auth.guard';
 
 @Resolver()
 export class AuthResolver {

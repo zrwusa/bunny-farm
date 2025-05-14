@@ -43,12 +43,26 @@ export const ADD_ITEM_TO_CART = gql`
         skuId
         quantity
         selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
         createdAt
         updatedAt
       }
       user {
         id
-        username
         email
       }
       createdAt
@@ -67,12 +81,26 @@ export const UPDATE_ITEM_QUANTITY = gql`
         skuId
         quantity
         selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
         createdAt
         updatedAt
       }
       user {
         id
-        username
         email
       }
       createdAt
@@ -91,12 +119,26 @@ export const REMOVE_ITEM_FROM_CART = gql`
         skuId
         quantity
         selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
         createdAt
         updatedAt
       }
       user {
         id
-        username
         email
       }
       createdAt
@@ -115,12 +157,26 @@ export const CLEAR_CART = gql`
         skuId
         quantity
         selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
         createdAt
         updatedAt
       }
       user {
         id
-        username
         email
       }
       createdAt
@@ -148,6 +204,23 @@ export const CREATE_PRODUCT_CLIENT = gql`
           price
           validFrom
           validTo
+        }
+      }
+    }
+  }
+`;
+
+
+
+export const PLACE_ORDER = gql`
+  mutation PlaceOrder($placeOrderInput: PlaceOrderInput!) {
+    placeOrder(input: $placeOrderInput) {
+      items {
+        id
+        quantity
+        sku {
+          id
+          skuCode
         }
       }
     }

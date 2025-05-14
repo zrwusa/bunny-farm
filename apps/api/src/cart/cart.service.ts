@@ -10,10 +10,10 @@ import { CartItem } from './entities/cart-item.entity';
 import { DeviceType } from '../common/enums';
 import { CachedCart } from './dto/cached-cart.object';
 import { User } from '../user/entities/user.entity';
-import { CurrentJwtUser } from '../auth/types/types';
 import { Product } from '../product/entities/product.entity';
 import { EnrichedCartItem } from './dto/enriched-cart-item.object';
 import { SKU } from '../product/entities/sku.entity';
+import { SelectedCartItemOutput } from './dto/selected-cart-item.output';
 
 @Injectable()
 export class CartService {
@@ -35,14 +35,8 @@ export class CartService {
     throw new Error('Either userId or clientCartId must be provided');
   }
 
-  async getCart({
-    user,
-    clientCartId,
-  }: {
-    user?: CurrentJwtUser;
-    clientCartId?: string;
-  }): Promise<CachedCart> {
-    const key = this.getRedisKey(user?.id, clientCartId);
+  async getCart(userId?: string, clientCartId?: string): Promise<CachedCart> {
+    const key = this.getRedisKey(userId, clientCartId);
     const metaKey = `${key}:meta`;
 
     const entries = await this.redis.hgetall(key);
@@ -61,7 +55,6 @@ export class CartService {
 
     const productIds = Array.from(new Set(itemsRaw.map((i) => i.productId).filter(Boolean)));
     const skuIds = Array.from(new Set(itemsRaw.map((i) => i.skuId).filter(Boolean)));
-
     const [products, skus] = await Promise.all([
       this.productRepo.find({ where: { id: In(productIds) } }),
       this.productRepo.manager.getRepository(SKU).find({ where: { id: In(skuIds) } }),
@@ -86,19 +79,19 @@ export class CartService {
     cart.createdAt = meta?.createdAt ? new Date(meta.createdAt) : new Date();
     cart.updatedAt = meta?.updatedAt ? new Date(meta.updatedAt) : new Date();
 
-    if (user?.id) {
-      cart.user = await this.userRepo.findOne({ where: { id: user.id } });
+    if (userId) {
+      cart.user = await this.userRepo.findOne({ where: { id: userId } });
     }
 
     return cart;
   }
 
-  async addOrUpdateItem(item: CartItemInput, user?: CurrentJwtUser, clientCartId?: string) {
+  async addOrUpdateItem(item: CartItemInput, userId?: string, clientCartId?: string) {
     const now = new Date();
-    const key = this.getRedisKey(user?.id, clientCartId);
+    const key = this.getRedisKey(userId, clientCartId);
     const metaKey = `${key}:meta`;
 
-    const existing = await this.getItem(item.skuId, user?.id, clientCartId);
+    const existing = await this.getItem(item.skuId, userId, clientCartId);
     const finalItem = {
       ...existing,
       ...item,
@@ -123,16 +116,8 @@ export class CartService {
     }
   }
 
-  async addItem({
-    user,
-    clientCartId,
-    item,
-  }: {
-    user?: CurrentJwtUser;
-    clientCartId?: string;
-    item: CartItemInput;
-  }) {
-    const existing = await this.getItem(item.skuId, user?.id, clientCartId);
+  async addItem(item: CartItemInput, userId?: string, clientCartId?: string) {
+    const existing = await this.getItem(item.skuId, userId, clientCartId);
     const newItem = existing
       ? {
           ...existing,
@@ -148,72 +133,49 @@ export class CartService {
           updatedAt: new Date(),
         };
 
-    await this.addOrUpdateItem(newItem, user, clientCartId);
-    return this.getCart({ user, clientCartId });
+    await this.addOrUpdateItem(newItem, userId, clientCartId);
+    return this.getCart(userId, clientCartId);
   }
 
-  async updateQuantity({
-    skuId,
-    quantity,
-    user,
-    clientCartId,
-  }: {
-    skuId: string;
-    quantity: number;
-    user?: CurrentJwtUser;
-    clientCartId?: string;
-  }): Promise<any> {
-    const existing = await this.getItem(skuId, user?.id, clientCartId);
+  async updateQuantity(
+    skuId: string,
+    quantity: number,
+    userId?: string,
+    clientCartId?: string,
+  ): Promise<any> {
+    const existing = await this.getItem(skuId, userId, clientCartId);
     if (!existing) {
       throw new Error(`Item with skuId "${skuId}" not found in cart`);
     }
 
     const updatedItem = { ...existing, quantity };
-    await this.addOrUpdateItem(updatedItem, user, clientCartId);
-    return this.getCart({ user, clientCartId });
+    await this.addOrUpdateItem(updatedItem, userId, clientCartId);
+    return this.getCart(userId, clientCartId);
   }
 
-  async removeItems({
-    skuIds,
-    user,
-    clientCartId,
-  }: {
-    skuIds: string[];
-    user?: CurrentJwtUser;
-    clientCartId?: string;
-  }) {
-    const key = this.getRedisKey(user?.id, clientCartId);
+  async removeItems(skuIds: string[], userId?: string, clientCartId?: string) {
+    const key = this.getRedisKey(userId, clientCartId);
     if (skuIds.length > 0) {
       await this.redis.hdel(key, ...skuIds);
     }
-    return this.getCart({ user, clientCartId });
+    return this.getCart(userId, clientCartId);
   }
 
-  async setItemSelection({
-    skuId,
-    selected,
-    user,
-    clientCartId,
-  }: {
-    skuId: string;
-    selected: boolean;
-    user?: CurrentJwtUser;
-    clientCartId?: string;
-  }) {
-    const key = this.getRedisKey(user?.id, clientCartId);
+  async setItemSelection(skuId: string, selected: boolean, userId?: string, clientCartId?: string) {
+    const key = this.getRedisKey(userId, clientCartId);
     const json = await this.redis.hget(key, skuId);
     if (!json) throw new NotFoundException(`Not exist json for key ${key}`);
     const item = JSON.parse(json);
     item.selected = selected;
     await this.redis.hset(key, skuId, JSON.stringify(item));
-    return this.getCart({ user, clientCartId });
+    return this.getCart(userId, clientCartId);
   }
 
-  async clearCart({ user, clientCartId }: { user?: CurrentJwtUser; clientCartId?: string }) {
-    const key = this.getRedisKey(user?.id, clientCartId);
+  async clearCart(userId?: string, clientCartId?: string) {
+    const key = this.getRedisKey(userId, clientCartId);
     const metaKey = `${key}:meta`;
     await this.redis.del(key, metaKey);
-    return this.getCart({ user, clientCartId });
+    return this.getCart(userId, clientCartId);
   }
 
   // TODO When a guest user login we need to call this method
@@ -299,5 +261,21 @@ export class CartService {
     cart.items = items;
     await this.cartRepo.save(cart);
     return true;
+  }
+
+  // Before placing an order, the front-end can be used to automatically build PlaceOrderInput.
+  async getSelectedItems(
+    userId?: string,
+    clientCartId?: string,
+  ): Promise<SelectedCartItemOutput[]> {
+    const cart = await this.getCart(userId, clientCartId);
+    return cart.items
+      .filter((item) => item.selected)
+      .map((item) => ({
+        skuId: item.skuId,
+        productId: item.productId,
+        quantity: item.quantity,
+        selected: true,
+      }));
   }
 }

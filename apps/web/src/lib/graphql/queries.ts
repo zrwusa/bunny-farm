@@ -123,6 +123,16 @@ export const GET_MY_CART = gql`
   }
 `;
 
+export const GET_SELECTED_CART_ITEMS = gql`
+  query GetSelectedCartItems {
+    selectedCartItems {
+      skuId
+      productId
+      quantity
+      selected
+    }
+  }
+`;
 
 export const SUGGEST_PRODUCT_NAMES = gql`
   query SuggestProductNames($input: String!) {

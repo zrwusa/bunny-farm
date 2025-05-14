@@ -1,10 +1,10 @@
-import { objToGraphQLString } from '@/utils';
-import { Product } from '@/types/generated/graphql';
+import {PlaceOrderInput, Product} from '@/types/generated/graphql';
 import { fetchGraphQL } from './graphql-fetch';
 import { Mutation, Query, LoginInput, CreateUserInput } from '@/types/generated/graphql';
 import { ME_QUERY } from '@/lib/graphql';
-import { GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT, REGISTER, LOCAL_LOGIN } from '@/lib/graphql/mutations';
+import {GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT, REGISTER, LOCAL_LOGIN, PLACE_ORDER} from '@/lib/graphql/mutations';
 import { setStoredTokens } from './auth';
+import {GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
 
 export const createProductClient = async (prevState: Product, formData: FormData) => {
     const formEntries = Object.fromEntries(formData.entries());
@@ -68,7 +68,7 @@ export async function localLogin(email: string, password: string) {
     );
 
     if (data?.login) {
-      setStoredTokens(data.login.accessToken, data.login.refreshToken);
+      await setStoredTokens(data.login.accessToken, data.login.refreshToken);
       return data.login;
     }
 
@@ -77,4 +77,28 @@ export async function localLogin(email: string, password: string) {
   } catch (error) {
     throw error;
   }
+}
+
+export const getSelectedCartItems = async () => {
+    const response = await fetchGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
+        variables: {}
+    });
+    console.log('response', response);
+    if (!response?.data) {
+        console.error('Error getting selected cart items');
+        return [];
+    }
+    return response.data.selectedCartItems ?? [];
+}
+
+export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
+    const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
+        variables: {placeOrderInput: placeOrderInput}
+    });
+    console.log('response', response);
+    if (!response?.data) {
+        console.error('Error placing order');
+        return [];
+    }
+    return response.data.placeOrder ?? [];
 }

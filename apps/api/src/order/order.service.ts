@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { FilterOrderInput } from './dto/filter-order.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Order } from './entities/order.entity';
@@ -7,9 +12,14 @@ import { CreateOrderInput } from './dto/create-order.input';
 import { User } from '../user/entities/user.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { InventoryRecord } from '../product/entities/inventory-record.entity';
-import { InventoryType, OrderStatus } from '../common/enums';
+import { InventoryType, OrderStatus, PaymentStatus, ShippingStatus } from '../common/enums';
 import { PaymentService } from '../payment/payment.service';
 import { SKU } from '../product/entities/sku.entity';
+import { PlaceOrderInput } from './dto/place-order.input';
+import { UserAddress } from '../user/entities/user-address.entity';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Redis } from 'ioredis';
+import { CartService } from '../cart/cart.service';
 
 // TODO 7. Order Fulfillment
 //  The seller or warehouse processes the order:
@@ -33,6 +43,10 @@ export class OrderService {
     private readonly orderRepository: Repository<Order>,
     private readonly dataSource: DataSource,
     private readonly paymentService: PaymentService,
+    @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
+    @InjectRepository(OrderItem) private readonly orderItemRepo: Repository<OrderItem>,
+    @InjectRedis() private readonly redis: Redis,
+    private readonly cartService: CartService,
   ) {}
 
   async create(createOrderInput: CreateOrderInput) {
@@ -135,15 +149,97 @@ export class OrderService {
     });
   }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} order`;
-  // }
+  async placeOrder(userId: string, input: PlaceOrderInput): Promise<Order> {
+    const lockKey = `lock:order:${userId}`;
+    const LOCK_DURATION_MS = 5000;
 
-  // update(id: number, updateOrderInput: UpdateOrderInput) {
-  //   return `This action updates a #${id} order`;
-  // }
+    // Redis distributed lock (prevents users from repeatedly placing orders)
+    const lockResult = await this.redis.set(lockKey, 'locked', 'PX', LOCK_DURATION_MS, 'NX');
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} order`;
-  // }
+    if (lockResult !== 'OK') {
+      throw new BadRequestException('Please try again later');
+    }
+
+    // Use TypeORM's QueryRunner to start a manual transaction
+    // All database operations are completed within this transaction to ensure data consistency
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = await queryRunner.manager.findOneOrFail(User, {
+        where: { id: userId },
+      });
+
+      // Verify whether the address belongs to the user
+      await queryRunner.manager.findOneOrFail(UserAddress, {
+        where: { id: input.addressId, user: { id: userId } },
+      });
+
+      let totalPrice = 0;
+      const items: OrderItem[] = [];
+
+      for (const item of input.items) {
+        const sku = await queryRunner.manager.findOneOrFail(SKU, {
+          where: { id: item.skuId },
+          relations: ['product', 'inventories', 'prices'],
+        });
+
+        const product = sku.product;
+
+        // Accumulated inventory
+        const totalAvailable = sku.inventories.reduce((sum, inv) => sum + inv.quantity, 0);
+        if (totalAvailable < item.quantity) {
+          throw new BadRequestException(
+            `Insufficient stock for ${product.name} (${sku.color}/${sku.size})`,
+          );
+        }
+
+        // Deduct inventory from multiple inventory records one by one
+        let qtyToDeduct = item.quantity;
+        for (const inventory of sku.inventories) {
+          if (qtyToDeduct === 0) break;
+          const deduct = Math.min(qtyToDeduct, inventory.quantity);
+          inventory.quantity -= deduct;
+          qtyToDeduct -= deduct;
+          await queryRunner.manager.save(inventory);
+        }
+
+        const unitPrice = sku.prices[0]?.price || 0;
+        const orderItem = this.orderItemRepo.create({
+          sku,
+          quantity: item.quantity,
+          price: unitPrice,
+        });
+
+        items.push(orderItem);
+        totalPrice += Number(unitPrice) * item.quantity;
+      }
+
+      const order = this.orderRepo.create({
+        user,
+        items,
+        totalPrice,
+        status: OrderStatus.PENDING,
+        paymentStatus: PaymentStatus.PENDING,
+        shippingStatus: ShippingStatus.PENDING,
+        paymentMethod: input.paymentMethod,
+      });
+
+      await queryRunner.manager.save(order);
+      await queryRunner.commitTransaction();
+      await this.cartService.removeItems(
+        items.map((i) => i.sku.id),
+        userId,
+      );
+      return order;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException(err.message);
+    } finally {
+      // Release Redis Lock & Release Connection
+      await queryRunner.release();
+      await this.redis.del(lockKey);
+    }
+  }
 }

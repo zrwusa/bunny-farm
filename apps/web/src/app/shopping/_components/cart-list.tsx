@@ -4,6 +4,7 @@ import { useCart } from '../_hooks/useCart';
 import { CartItem } from './cart-item';
 import Link from 'next/link';
 import { CartItem as CartItemType } from '@/types/generated/graphql';
+import {Button} from '@/components/ui/button';
 export const CartList = () => {
   const { cart, loading, error, clearCartItems } = useCart();
 
@@ -42,11 +43,17 @@ export const CartList = () => {
         ))}
       </div>
       <div className="p-4 border-t">
+          <Link
+              href="/shopping/checkout"
+              className="block w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 text-center"
+          >
+              Proceed to Checkout
+          </Link>
         <Link
           href="/shopping/order"
           className="block w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 text-center"
         >
-          Proceed to Checkout
+          order
         </Link>
       </div>
     </div>

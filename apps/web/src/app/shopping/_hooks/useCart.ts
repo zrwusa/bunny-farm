@@ -66,7 +66,7 @@ export const useCart = () => {
 
   useEffect(() => {
     if (!cart && clientCartId) {
-      fetchCart();
+      fetchCart().then();
     }
   }, [cart, fetchCart, clientCartId]);
 

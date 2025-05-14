@@ -1,7 +1,6 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
-import { CurrentJwtUser } from '../types/types';
 import { Request } from 'express';
 import { GraphQLError } from 'graphql';
 

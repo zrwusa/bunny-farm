@@ -3,8 +3,8 @@ import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UserService } from './user.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { GqlAuthGuard } from '../common/guards/gql-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import {GqlAuthGuard} from '../auth/guards/gql-auth.guard';
 
 @Resolver(() => User)
 export class UserResolver {

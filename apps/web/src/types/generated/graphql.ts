@@ -85,7 +85,7 @@ export type CartItem = {
 export type CartItemInput = {
   productId: Scalars['String']['input'];
   quantity: Scalars['Int']['input'];
-  selected?: Scalars['Boolean']['input'];
+  selected: Scalars['Boolean']['input'];
   skuId: Scalars['String']['input'];
 };
 
@@ -230,6 +230,7 @@ export type Mutation = {
   createUserSettings: UserPreference;
   login: TokenOutput;
   logout: Scalars['Boolean']['output'];
+  placeOrder: Order;
   publishProduct: Product;
   refreshToken: TokenOutput;
   removeItems: CachedCart;
@@ -290,6 +291,11 @@ export type MutationCreateUserSettingsArgs = {
 
 export type MutationLoginArgs = {
   input: LoginInput;
+};
+
+
+export type MutationPlaceOrderArgs = {
+  input: PlaceOrderInput;
 };
 
 
@@ -411,6 +417,12 @@ export enum PaymentStatus {
   Refunded = 'REFUNDED'
 }
 
+export type PlaceOrderInput = {
+  addressId: Scalars['ID']['input'];
+  items: Array<CartItemInput>;
+  paymentMethod: PaymentMethod;
+};
+
 export type PriceInput = {
   price: Scalars['Float']['input'];
   validFrom: Scalars['DateTime']['input'];
@@ -479,6 +491,7 @@ export type Query = {
   product?: Maybe<Product>;
   products: Array<Product>;
   searchProducts: Array<Product>;
+  selectedCartItems: Array<SelectedCartItemOutput>;
   shipment: Shipment;
   shipments: Array<Shipment>;
   suggestProductNames: Array<Scalars['String']['output']>;
@@ -509,6 +522,11 @@ export type QueryProductArgs = {
 
 export type QuerySearchProductsArgs = {
   keyword: Scalars['String']['input'];
+};
+
+
+export type QuerySelectedCartItemsArgs = {
+  clientCartId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -544,6 +562,13 @@ export type Sku = {
   size: Scalars['String']['output'];
   skuCode?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SelectedCartItemOutput = {
+  productId: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  selected?: Maybe<Scalars['Boolean']['output']>;
+  skuId: Scalars['String']['output'];
 };
 
 export type Shipment = {
@@ -707,28 +732,28 @@ export type AddItemToCartMutationVariables = Exact<{
 }>;
 
 
-export type AddItemToCartMutation = { addToCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
+export type AddItemToCartMutation = { addToCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type UpdateItemQuantityMutationVariables = Exact<{
   updateItemQuantityInput: UpdateItemQuantityInput;
 }>;
 
 
-export type UpdateItemQuantityMutation = { updateItemQuantity: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
+export type UpdateItemQuantityMutation = { updateItemQuantity: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type RemoveItemsMutationVariables = Exact<{
   removeItemsInput: RemoveItemsInput;
 }>;
 
 
-export type RemoveItemsMutation = { removeItems: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
+export type RemoveItemsMutation = { removeItems: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type ClearCartMutationVariables = Exact<{
   clientCartId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type ClearCartMutation = { clearCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any }>, user?: { id: string, username: string, email: string } | null } };
+export type ClearCartMutation = { clearCart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type CreateProductClientMutationVariables = Exact<{
   createProductInput: CreateProductInput;
@@ -790,7 +815,12 @@ export type CartQueryVariables = Exact<{
 }>;
 
 
-export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ url: string }> } | null }>, user?: { id: string, email: string } | null } };
+export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
+
+export type GetSelectedCartItemsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSelectedCartItemsQuery = { selectedCartItems: Array<{ skuId: string, productId: string, quantity: number, selected?: boolean | null }> };
 
 export type SuggestProductNamesQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -880,12 +910,26 @@ export const AddItemToCartDocument = gql`
       skuId
       quantity
       selected
+      product {
+        name
+        images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
+          url
+        }
+      }
       createdAt
       updatedAt
     }
     user {
       id
-      username
       email
     }
     createdAt
@@ -929,12 +973,26 @@ export const UpdateItemQuantityDocument = gql`
       skuId
       quantity
       selected
+      product {
+        name
+        images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
+          url
+        }
+      }
       createdAt
       updatedAt
     }
     user {
       id
-      username
       email
     }
     createdAt
@@ -978,12 +1036,26 @@ export const RemoveItemsDocument = gql`
       skuId
       quantity
       selected
+      product {
+        name
+        images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
+          url
+        }
+      }
       createdAt
       updatedAt
     }
     user {
       id
-      username
       email
     }
     createdAt
@@ -1027,12 +1099,26 @@ export const ClearCartDocument = gql`
       skuId
       quantity
       selected
+      product {
+        name
+        images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
+          url
+        }
+      }
       createdAt
       updatedAt
     }
     user {
       id
-      username
       email
     }
     createdAt
@@ -1472,6 +1558,15 @@ export const CartDocument = gql`
       product {
         name
         images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
           url
         }
       }
@@ -1520,6 +1615,48 @@ export type CartQueryHookResult = ReturnType<typeof useCartQuery>;
 export type CartLazyQueryHookResult = ReturnType<typeof useCartLazyQuery>;
 export type CartSuspenseQueryHookResult = ReturnType<typeof useCartSuspenseQuery>;
 export type CartQueryResult = Apollo.QueryResult<CartQuery, CartQueryVariables>;
+export const GetSelectedCartItemsDocument = gql`
+    query GetSelectedCartItems {
+  selectedCartItems {
+    skuId
+    productId
+    quantity
+    selected
+  }
+}
+    `;
+
+/**
+ * __useGetSelectedCartItemsQuery__
+ *
+ * To run a query within a React component, call `useGetSelectedCartItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSelectedCartItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetSelectedCartItemsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetSelectedCartItemsQuery(baseOptions?: Apollo.QueryHookOptions<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>(GetSelectedCartItemsDocument, options);
+      }
+export function useGetSelectedCartItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>(GetSelectedCartItemsDocument, options);
+        }
+export function useGetSelectedCartItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>(GetSelectedCartItemsDocument, options);
+        }
+export type GetSelectedCartItemsQueryHookResult = ReturnType<typeof useGetSelectedCartItemsQuery>;
+export type GetSelectedCartItemsLazyQueryHookResult = ReturnType<typeof useGetSelectedCartItemsLazyQuery>;
+export type GetSelectedCartItemsSuspenseQueryHookResult = ReturnType<typeof useGetSelectedCartItemsSuspenseQuery>;
+export type GetSelectedCartItemsQueryResult = Apollo.QueryResult<GetSelectedCartItemsQuery, GetSelectedCartItemsQueryVariables>;
 export const SuggestProductNamesDocument = gql`
     query SuggestProductNames($input: String!) {
   suggestProductNames(input: $input)

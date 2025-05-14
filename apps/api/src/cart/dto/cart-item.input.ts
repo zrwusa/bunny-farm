@@ -1,17 +1,9 @@
 // apps/api/src/cart/dto/cart-item.input.ts
-import { InputType, Field, Int } from '@nestjs/graphql';
+import { Field, InputType} from '@nestjs/graphql';
+import { CartItemBase } from './cart-item.base';
 
 @InputType()
-export class CartItemInput {
+export class CartItemInput extends CartItemBase {
   @Field()
-  skuId: string;
-
-  @Field()
-  productId: string;
-
-  @Field(() => Int)
-  quantity: number;
-
-  @Field({ defaultValue: true })
-  selected?: boolean;
+  selected: boolean;
 }

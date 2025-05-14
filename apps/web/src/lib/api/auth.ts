@@ -1,4 +1,5 @@
 import { jwtDecode } from 'jwt-decode';
+// import { cookies } from 'next/headers';
 
 interface DecodedToken {
     sub: string;
@@ -6,14 +7,31 @@ interface DecodedToken {
     exp: number;
 }
 
-export const getStoredTokens = () => {
+export const getStoredTokens = async () => {
+    // const cookieStore = await cookies();
+    // const accessToken = cookieStore.get('accessToken')?.value;
+    // const refreshToken = cookieStore.get('refreshToken')?.value;
     if (typeof window === 'undefined') return null;
-    const accessToken = localStorage.getItem('access_token');
-    const refreshToken = localStorage.getItem('refresh_token');
+    const accessToken = localStorage.getItem('access_token') ?? undefined;
+    const refreshToken = localStorage.getItem('refresh_token') ?? undefined;
     return { accessToken, refreshToken };
 };
 
-export const setStoredTokens = (accessToken: string, refreshToken: string) => {
+export const setStoredTokens = async (accessToken: string, refreshToken: string) => {
+    // const cookieStore = await cookies()
+    // cookieStore.set('accessToken', accessToken, {
+    //     httpOnly: true,
+    //     secure: true,
+    //     path: '/',
+    //     maxAge: 60 * 15, // 15 minutes
+    // });
+    //
+    // cookieStore.set('refreshToken', refreshToken, {
+    //     httpOnly: true,
+    //     secure: true,
+    //     path: '/',
+    //     maxAge: 60 * 60 * 24 * 7, // 7 days
+    // });
     localStorage.setItem('access_token', accessToken);
     localStorage.setItem('refresh_token', refreshToken);
 };

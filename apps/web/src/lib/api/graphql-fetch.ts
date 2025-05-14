@@ -11,7 +11,7 @@ async function refreshTokens() {
     isRefreshing = true;
     refreshPromise = (async () => {
         try {
-            const tokens = getStoredTokens();
+            const tokens = await getStoredTokens();
             if (!tokens?.refreshToken) {
                 throw new Error('No refresh token available');
             }
@@ -48,7 +48,7 @@ async function refreshTokens() {
 
             const result = await response.json();
             const { accessToken, refreshToken } = result.data.refreshToken;
-            setStoredTokens(accessToken, refreshToken);
+            await setStoredTokens(accessToken, refreshToken);
         } catch (error) {
             console.error('Token refresh failed:', error);
             throw error;
@@ -60,54 +60,25 @@ async function refreshTokens() {
 
     return refreshPromise;
 }
+type GraphQLOptions = {
+    variables?: Record<string, unknown>;
+    revalidate?: number;
+    accessToken?: string;
+};
 
-export async function fetchGraphQL<T>(
+async function doFetchGraphQL<T>(
     query?: string,
-    options?: {
-        variables?: Record<string, unknown>;
-        revalidate?: number;
-    }
+    { variables, revalidate = 10, accessToken }: GraphQLOptions = {}
 ): Promise<{ data: T }> {
-    const revalidate = options?.revalidate ?? 10;
-    const variables = options?.variables;
-
-    let tokens = getStoredTokens();
-
-    // If token is expired or about to expire (within 1 minute), try to refresh
-    if (tokens?.accessToken && (isTokenExpired(tokens.accessToken) || isTokenExpiringSoon(tokens.accessToken))) {
-        try {
-            await refreshTokens();
-            tokens = getStoredTokens();
-        } catch (error) {
-            console.error('Failed to refresh token:', error);
-            // If refresh fails, continue with current token
-            // Server will return 401, and we'll try to refresh again
-        }
-    }
-
     const res = await fetch('http://localhost:8080/graphql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(tokens?.accessToken ? { Authorization: `Bearer ${tokens.accessToken}` } : {}),
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
         body: JSON.stringify({ query, variables }),
         next: { revalidate },
     });
-
-    // If server returns 401, token is invalid, try to refresh
-    if (res.status === 401) {
-        try {
-            await refreshTokens();
-            tokens = getStoredTokens();
-            // Retry the request with new token
-            return fetchGraphQL(query, options);
-        } catch (error) {
-            console.error('Failed to refresh token after 401:', error);
-            // If refresh fails, throw original error
-            throw new Error(`GraphQL Error: ${res.status} ${res.statusText}`);
-        }
-    }
 
     if (!res.ok) {
         throw new Error(`GraphQL Error: ${res.status} ${res.statusText}`);
@@ -115,3 +86,57 @@ export async function fetchGraphQL<T>(
 
     return await res.json();
 }
+
+// fetchGraphQLPure: without token
+export async function fetchGraphQLPure<T>(
+    query?: string,
+    options?: {
+        variables?: Record<string, unknown>;
+        revalidate?: number;
+    }
+): Promise<{ data: T }> {
+    return doFetchGraphQL<T>(query, options);
+}
+
+// fetchGraphQL: Automatically handle tokens
+export async function fetchGraphQL<T>(
+    query?: string,
+    options?: {
+        variables?: Record<string, unknown>;
+        revalidate?: number;
+    }
+): Promise<{ data: T }> {
+    let tokens = await getStoredTokens();
+
+    if (tokens?.accessToken && (isTokenExpired(tokens.accessToken) || isTokenExpiringSoon(tokens.accessToken))) {
+        try {
+            await refreshTokens();
+            tokens = await getStoredTokens();
+        } catch (error) {
+            console.error('Failed to refresh token:', error);
+        }
+    }
+
+    try {
+        return await doFetchGraphQL<T>(query, {
+            ...options,
+            accessToken: tokens?.accessToken,
+        });
+    } catch (error: unknown) {
+        if (error instanceof Error && error.message.includes('401')) {
+            try {
+                await refreshTokens();
+                tokens = await getStoredTokens();
+                return await doFetchGraphQL<T>(query, {
+                    ...options,
+                    accessToken: tokens?.accessToken,
+                });
+            } catch (refreshError) {
+                console.error('Failed to refresh token after 401:', refreshError);
+            }
+        }
+
+        throw error;
+    }
+}
+

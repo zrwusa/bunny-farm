@@ -10,6 +10,8 @@ import { CachedCart } from './dto/cached-cart.object';
 import { UseGuards } from '@nestjs/common';
 import { OptionalGqlAuthGuard } from '../auth/guards/optional-gql-auth.guard';
 import { CurrentJwtUser } from '../auth/types/types';
+import { CartItemInput } from './dto/cart-item.input';
+import {SelectedCartItemOutput} from './dto/selected-cart-item.output';
 
 @Resolver(() => Cart)
 export class CartResolver {
@@ -21,7 +23,7 @@ export class CartResolver {
     @Args('clientCartId', { nullable: true }) clientCartId?: string,
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
-    return this.cartService.getCart({ user, clientCartId });
+    return this.cartService.getCart(user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -31,7 +33,7 @@ export class CartResolver {
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
     const { clientCartId, item } = addItemToCartInput;
-    return this.cartService.addItem({ user, clientCartId, item });
+    return this.cartService.addItem(item, user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -41,7 +43,7 @@ export class CartResolver {
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
     const { clientCartId, skuId, quantity } = updateItemQuantityInput;
-    return this.cartService.updateQuantity({ user, clientCartId, skuId, quantity });
+    return this.cartService.updateQuantity(skuId, quantity, user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -51,7 +53,7 @@ export class CartResolver {
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
     const { clientCartId, skuIds } = removeItemsInput;
-    return this.cartService.removeItems({ user, clientCartId, skuIds });
+    return this.cartService.removeItems(skuIds, user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -62,7 +64,7 @@ export class CartResolver {
     @Args('clientCartId', { nullable: true }) clientCartId?: string,
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
-    return this.cartService.setItemSelection({ user, clientCartId, skuId, selected });
+    return this.cartService.setItemSelection(skuId, selected, user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -71,6 +73,15 @@ export class CartResolver {
     @Args('clientCartId', { nullable: true }) clientCartId?: string,
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
-    return this.cartService.clearCart({ user, clientCartId });
+    return this.cartService.clearCart(user?.id, clientCartId);
+  }
+
+  @Query(() => [SelectedCartItemOutput])
+  @UseGuards(OptionalGqlAuthGuard)
+  async selectedCartItems(
+    @Args('clientCartId', { nullable: true }) clientCartId?: string,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<SelectedCartItemOutput[]> {
+    return this.cartService.getSelectedItems(user?.id, clientCartId);
   }
 }

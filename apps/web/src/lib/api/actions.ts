@@ -1,9 +1,16 @@
 'use server'
 
-import { fetchGraphQL } from './graphql-fetch';
+import {fetchGraphQL, fetchGraphQLPure} from './graphql-fetch';
 import { Product } from '@/types/generated/graphql';
 import { Mutation, Query, User } from '@/types/generated/graphql';
-import { GET_PRODUCT, GET_PRODUCTS, GET_PRODUCT_IDS, GET_USERS, SEARCH_PRODUCTS } from '@/lib/graphql/queries';
+import {
+    GET_PRODUCT,
+    GET_PRODUCTS,
+    GET_PRODUCT_IDS,
+    GET_USERS,
+    SEARCH_PRODUCTS,
+    GET_SELECTED_CART_ITEMS
+} from '@/lib/graphql/queries';
 import { CREATE_PRODUCT } from '@/lib/graphql/mutations';
 
 export const createProduct = async (formData: FormData) => {
@@ -74,7 +81,7 @@ export const getUsers = async () => {
 }
 
 export const searchProducts = async (keyword: string) => {
-    const response = await fetchGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
+    const response = await fetchGraphQLPure<Query>(SEARCH_PRODUCTS.loc?.source.body, {
         variables: { keyword }
     });
 
