@@ -227,6 +227,12 @@ export const PLACE_ORDER = gql`
   }
 `;
 
+export const CREATE_PAYMENT_INTENT = gql`
+  mutation PlaceOrder($createPaymentIntentInput: CreatePaymentIntentInput!) {
+    createPaymentIntent(createPaymentIntentInput: $createPaymentIntentInput)
+  }
+`;
+
 export const GOOGLE_LOGIN = gql`
   mutation GoogleLogin($input: LoginInput!) {
     login(input: $input) {

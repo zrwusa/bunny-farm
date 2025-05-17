@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react';
 import {CartItemInput, PaymentMethod} from '@/types/generated/graphql';
 import {getSelectedCartItems, placeOrder} from '@/lib/api/client-actions';
 import {Button} from '@/components/ui/button';
+import Checkout from '@/components/features/payment';
 
 export default function CheckoutPage() {
     const [items, setItems] = useState<CartItemInput[]>([])
@@ -37,6 +38,7 @@ export default function CheckoutPage() {
             <Button onClick={async ()=> {
                 await placeOrder({items, addressId: '1', paymentMethod: PaymentMethod.CreditCard})
             }}>Place Order</Button>
+            <Checkout />
         </div>
     );
 }

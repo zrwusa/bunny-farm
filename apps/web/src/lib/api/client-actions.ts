@@ -1,8 +1,16 @@
-import {PlaceOrderInput, Product} from '@/types/generated/graphql';
+import {CreatePaymentIntentInput, PlaceOrderInput, Product} from '@/types/generated/graphql';
 import { fetchGraphQL } from './graphql-fetch';
 import { Mutation, Query, LoginInput, CreateUserInput } from '@/types/generated/graphql';
 import { ME_QUERY } from '@/lib/graphql';
-import {GOOGLE_LOGIN, LOGOUT, CREATE_PRODUCT_CLIENT, REGISTER, LOCAL_LOGIN, PLACE_ORDER} from '@/lib/graphql/mutations';
+import {
+    GOOGLE_LOGIN,
+    LOGOUT,
+    CREATE_PRODUCT_CLIENT,
+    REGISTER,
+    LOCAL_LOGIN,
+    PLACE_ORDER,
+    CREATE_PAYMENT_INTENT
+} from '@/lib/graphql/mutations';
 import { setStoredTokens } from './auth';
 import {GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
 
@@ -95,10 +103,21 @@ export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
     const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
         variables: {placeOrderInput: placeOrderInput}
     });
-    console.log('response', response);
     if (!response?.data) {
         console.error('Error placing order');
         return [];
     }
     return response.data.placeOrder ?? [];
+}
+
+export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymentIntentInput) => {
+    const response = await fetchGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
+        variables: {createPaymentIntentInput: createPaymentIntentInput}
+    });
+    console.log('response', response);
+    if (!response?.data) {
+        console.error('Error creating payment intent');
+        return '';
+    }
+    return response.data.createPaymentIntent ?? '';
 }

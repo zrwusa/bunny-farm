@@ -116,6 +116,13 @@ export type CreatePaymentInput = {
   orderId: Scalars['String']['input'];
 };
 
+export type CreatePaymentIntentInput = {
+  /** amount of cents */
+  amountOfCents: Scalars['Int']['input'];
+  /** currency type, eg. NZD */
+  currency: Scalars['String']['input'];
+};
+
 export type CreateProductInput = {
   brandId: Scalars['String']['input'];
   description?: InputMaybe<Scalars['JSONObject']['input']>;
@@ -222,8 +229,10 @@ export type Mutation = {
   bulkIndexProducts: Scalars['Boolean']['output'];
   clearCart: CachedCart;
   confirmPayment: Payment;
+  createCheckoutSession: Scalars['String']['output'];
   createOrder: Order;
   createPayment: Payment;
+  createPaymentIntent: Scalars['String']['output'];
   createProduct: Product;
   createShipment: Shipment;
   createUser: User;
@@ -266,6 +275,11 @@ export type MutationCreateOrderArgs = {
 
 export type MutationCreatePaymentArgs = {
   createPaymentInput: CreatePaymentInput;
+};
+
+
+export type MutationCreatePaymentIntentArgs = {
+  createPaymentIntentInput: CreatePaymentIntentInput;
 };
 
 
@@ -762,6 +776,13 @@ export type CreateProductClientMutationVariables = Exact<{
 
 export type CreateProductClientMutation = { createProduct: { id: string, name: string, description?: any | null, brand?: { id: string, name: string } | null, skus: Array<{ id: string, color: string, size: string, prices: Array<{ id: string, price: number, validFrom?: any | null, validTo?: any | null }> }> } };
 
+export type PlaceOrderMutationVariables = Exact<{
+  placeOrderInput: PlaceOrderInput;
+}>;
+
+
+export type PlaceOrderMutation = { placeOrder: { items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
+
 export type GoogleLoginMutationVariables = Exact<{
   input: LoginInput;
 }>;
@@ -1202,6 +1223,46 @@ export function useCreateProductClientMutation(baseOptions?: Apollo.MutationHook
 export type CreateProductClientMutationHookResult = ReturnType<typeof useCreateProductClientMutation>;
 export type CreateProductClientMutationResult = Apollo.MutationResult<CreateProductClientMutation>;
 export type CreateProductClientMutationOptions = Apollo.BaseMutationOptions<CreateProductClientMutation, CreateProductClientMutationVariables>;
+export const PlaceOrderDocument = gql`
+    mutation PlaceOrder($placeOrderInput: PlaceOrderInput!) {
+  placeOrder(input: $placeOrderInput) {
+    items {
+      id
+      quantity
+      sku {
+        id
+        skuCode
+      }
+    }
+  }
+}
+    `;
+export type PlaceOrderMutationFn = Apollo.MutationFunction<PlaceOrderMutation, PlaceOrderMutationVariables>;
+
+/**
+ * __usePlaceOrderMutation__
+ *
+ * To run a mutation, you first call `usePlaceOrderMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePlaceOrderMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [placeOrderMutation, { data, loading, error }] = usePlaceOrderMutation({
+ *   variables: {
+ *      placeOrderInput: // value for 'placeOrderInput'
+ *   },
+ * });
+ */
+export function usePlaceOrderMutation(baseOptions?: Apollo.MutationHookOptions<PlaceOrderMutation, PlaceOrderMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<PlaceOrderMutation, PlaceOrderMutationVariables>(PlaceOrderDocument, options);
+      }
+export type PlaceOrderMutationHookResult = ReturnType<typeof usePlaceOrderMutation>;
+export type PlaceOrderMutationResult = Apollo.MutationResult<PlaceOrderMutation>;
+export type PlaceOrderMutationOptions = Apollo.BaseMutationOptions<PlaceOrderMutation, PlaceOrderMutationVariables>;
 export const GoogleLoginDocument = gql`
     mutation GoogleLogin($input: LoginInput!) {
   login(input: $input) {

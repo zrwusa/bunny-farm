@@ -406,6 +406,8 @@ type Mutation {
   confirmPayment(paymentId: String!, status: String!): Payment!
   updatePayment(updatePaymentInput: UpdatePaymentInput!): Payment!
   removePayment(id: Int!): Payment!
+  createPaymentIntent(createPaymentIntentInput: CreatePaymentIntentInput!): String!
+  createCheckoutSession: String!
   createShipment(createShipmentInput: CreateShipmentInput!): Shipment!
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
   removeShipment(id: Int!): Shipment!
@@ -546,6 +548,14 @@ input UpdatePaymentInput {
   """Order ID"""
   orderId: String
   id: Int!
+}
+
+input CreatePaymentIntentInput {
+  """amount of cents"""
+  amountOfCents: Int!
+
+  """currency type, eg. NZD"""
+  currency: String!
 }
 
 input CreateShipmentInput {
