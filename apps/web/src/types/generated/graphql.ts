@@ -341,8 +341,7 @@ export type MutationRemoveShipmentArgs = {
 
 export type MutationToggleItemSelectionArgs = {
   clientCartId?: InputMaybe<Scalars['String']['input']>;
-  selected: Scalars['Boolean']['input'];
-  skuId: Scalars['String']['input'];
+  toggleItemSelection: ToggleItemSelectionInput;
 };
 
 
@@ -505,7 +504,7 @@ export type Query = {
   product?: Maybe<Product>;
   products: Array<Product>;
   searchProducts: Array<Product>;
-  selectedCartItems: Array<SelectedCartItemOutput>;
+  selectedCartItems: Array<EnrichedCartItem>;
   shipment: Shipment;
   shipments: Array<Shipment>;
   suggestProductNames: Array<Scalars['String']['output']>;
@@ -578,13 +577,6 @@ export type Sku = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type SelectedCartItemOutput = {
-  productId: Scalars['String']['output'];
-  quantity: Scalars['Int']['output'];
-  selected?: Maybe<Scalars['Boolean']['output']>;
-  skuId: Scalars['String']['output'];
-};
-
 export type Shipment = {
   carrier: Carrier;
   createdAt: Scalars['DateTime']['output'];
@@ -634,6 +626,12 @@ export type SkuInput = {
   prices?: InputMaybe<Array<PriceInput>>;
   size: Scalars['String']['input'];
   sku: Scalars['String']['input'];
+};
+
+export type ToggleItemSelectionInput = {
+  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  selected: Scalars['Boolean']['input'];
+  skuId: Scalars['String']['input'];
 };
 
 export type TokenOutput = {
@@ -755,6 +753,13 @@ export type UpdateItemQuantityMutationVariables = Exact<{
 
 export type UpdateItemQuantityMutation = { updateItemQuantity: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
+export type ToggleItemSelectionMutationVariables = Exact<{
+  toggleItemSelectionInput: ToggleItemSelectionInput;
+}>;
+
+
+export type ToggleItemSelectionMutation = { toggleItemSelection: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
+
 export type RemoveItemsMutationVariables = Exact<{
   removeItemsInput: RemoveItemsInput;
 }>;
@@ -782,6 +787,13 @@ export type PlaceOrderMutationVariables = Exact<{
 
 
 export type PlaceOrderMutation = { placeOrder: { items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
+
+export type CreatePaymentIntentMutationVariables = Exact<{
+  createPaymentIntentInput: CreatePaymentIntentInput;
+}>;
+
+
+export type CreatePaymentIntentMutation = { createPaymentIntent: string };
 
 export type GoogleLoginMutationVariables = Exact<{
   input: LoginInput;
@@ -841,7 +853,7 @@ export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, it
 export type GetSelectedCartItemsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetSelectedCartItemsQuery = { selectedCartItems: Array<{ skuId: string, productId: string, quantity: number, selected?: boolean | null }> };
+export type GetSelectedCartItemsQuery = { selectedCartItems: Array<{ skuId: string, productId: string, quantity: number, selected: boolean, product?: { name: string, images: Array<{ url: string }> } | null }> };
 
 export type SuggestProductNamesQueryVariables = Exact<{
   input: Scalars['String']['input'];
@@ -1047,8 +1059,71 @@ export function useUpdateItemQuantityMutation(baseOptions?: Apollo.MutationHookO
 export type UpdateItemQuantityMutationHookResult = ReturnType<typeof useUpdateItemQuantityMutation>;
 export type UpdateItemQuantityMutationResult = Apollo.MutationResult<UpdateItemQuantityMutation>;
 export type UpdateItemQuantityMutationOptions = Apollo.BaseMutationOptions<UpdateItemQuantityMutation, UpdateItemQuantityMutationVariables>;
+export const ToggleItemSelectionDocument = gql`
+    mutation ToggleItemSelection($toggleItemSelectionInput: ToggleItemSelectionInput!) {
+  toggleItemSelection(toggleItemSelection: $toggleItemSelectionInput) {
+    id
+    items {
+      id
+      productId
+      skuId
+      quantity
+      selected
+      product {
+        name
+        images {
+          position
+          url
+        }
+      }
+      sku {
+        size
+        color
+        images {
+          position
+          url
+        }
+      }
+      createdAt
+      updatedAt
+    }
+    user {
+      id
+      email
+    }
+    createdAt
+    updatedAt
+  }
+}
+    `;
+export type ToggleItemSelectionMutationFn = Apollo.MutationFunction<ToggleItemSelectionMutation, ToggleItemSelectionMutationVariables>;
+
+/**
+ * __useToggleItemSelectionMutation__
+ *
+ * To run a mutation, you first call `useToggleItemSelectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useToggleItemSelectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [toggleItemSelectionMutation, { data, loading, error }] = useToggleItemSelectionMutation({
+ *   variables: {
+ *      toggleItemSelectionInput: // value for 'toggleItemSelectionInput'
+ *   },
+ * });
+ */
+export function useToggleItemSelectionMutation(baseOptions?: Apollo.MutationHookOptions<ToggleItemSelectionMutation, ToggleItemSelectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ToggleItemSelectionMutation, ToggleItemSelectionMutationVariables>(ToggleItemSelectionDocument, options);
+      }
+export type ToggleItemSelectionMutationHookResult = ReturnType<typeof useToggleItemSelectionMutation>;
+export type ToggleItemSelectionMutationResult = Apollo.MutationResult<ToggleItemSelectionMutation>;
+export type ToggleItemSelectionMutationOptions = Apollo.BaseMutationOptions<ToggleItemSelectionMutation, ToggleItemSelectionMutationVariables>;
 export const RemoveItemsDocument = gql`
-    mutation removeItems($removeItemsInput: RemoveItemsInput!) {
+    mutation RemoveItems($removeItemsInput: RemoveItemsInput!) {
   removeItems(removeItemsInput: $removeItemsInput) {
     id
     items {
@@ -1263,6 +1338,37 @@ export function usePlaceOrderMutation(baseOptions?: Apollo.MutationHookOptions<P
 export type PlaceOrderMutationHookResult = ReturnType<typeof usePlaceOrderMutation>;
 export type PlaceOrderMutationResult = Apollo.MutationResult<PlaceOrderMutation>;
 export type PlaceOrderMutationOptions = Apollo.BaseMutationOptions<PlaceOrderMutation, PlaceOrderMutationVariables>;
+export const CreatePaymentIntentDocument = gql`
+    mutation CreatePaymentIntent($createPaymentIntentInput: CreatePaymentIntentInput!) {
+  createPaymentIntent(createPaymentIntentInput: $createPaymentIntentInput)
+}
+    `;
+export type CreatePaymentIntentMutationFn = Apollo.MutationFunction<CreatePaymentIntentMutation, CreatePaymentIntentMutationVariables>;
+
+/**
+ * __useCreatePaymentIntentMutation__
+ *
+ * To run a mutation, you first call `useCreatePaymentIntentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePaymentIntentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPaymentIntentMutation, { data, loading, error }] = useCreatePaymentIntentMutation({
+ *   variables: {
+ *      createPaymentIntentInput: // value for 'createPaymentIntentInput'
+ *   },
+ * });
+ */
+export function useCreatePaymentIntentMutation(baseOptions?: Apollo.MutationHookOptions<CreatePaymentIntentMutation, CreatePaymentIntentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePaymentIntentMutation, CreatePaymentIntentMutationVariables>(CreatePaymentIntentDocument, options);
+      }
+export type CreatePaymentIntentMutationHookResult = ReturnType<typeof useCreatePaymentIntentMutation>;
+export type CreatePaymentIntentMutationResult = Apollo.MutationResult<CreatePaymentIntentMutation>;
+export type CreatePaymentIntentMutationOptions = Apollo.BaseMutationOptions<CreatePaymentIntentMutation, CreatePaymentIntentMutationVariables>;
 export const GoogleLoginDocument = gql`
     mutation GoogleLogin($input: LoginInput!) {
   login(input: $input) {
@@ -1683,6 +1789,12 @@ export const GetSelectedCartItemsDocument = gql`
     productId
     quantity
     selected
+    product {
+      name
+      images {
+        url
+      }
+    }
   }
 }
     `;

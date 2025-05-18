@@ -13,7 +13,6 @@ import { User } from '../user/entities/user.entity';
 import { Product } from '../product/entities/product.entity';
 import { EnrichedCartItem } from './dto/enriched-cart-item.object';
 import { SKU } from '../product/entities/sku.entity';
-import { SelectedCartItemOutput } from './dto/selected-cart-item.output';
 
 @Injectable()
 export class CartService {
@@ -264,18 +263,8 @@ export class CartService {
   }
 
   // Before placing an order, the front-end can be used to automatically build PlaceOrderInput.
-  async getSelectedItems(
-    userId?: string,
-    clientCartId?: string,
-  ): Promise<SelectedCartItemOutput[]> {
+  async getSelectedItems(userId?: string, clientCartId?: string): Promise<EnrichedCartItem[]> {
     const cart = await this.getCart(userId, clientCartId);
-    return cart.items
-      .filter((item) => item.selected)
-      .map((item) => ({
-        skuId: item.skuId,
-        productId: item.productId,
-        quantity: item.quantity,
-        selected: true,
-      }));
+    return cart.items.filter((item) => item.selected);
   }
 }

@@ -4,7 +4,6 @@ import { useCart } from '../_hooks/useCart';
 import { CartItem } from './cart-item';
 import Link from 'next/link';
 import { CartItem as CartItemType } from '@/types/generated/graphql';
-import {Button} from '@/components/ui/button';
 export const CartList = () => {
   const { cart, loading, error, clearCartItems } = useCart();
 

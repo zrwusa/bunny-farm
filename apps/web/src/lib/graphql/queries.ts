@@ -130,6 +130,12 @@ export const GET_SELECTED_CART_ITEMS = gql`
       productId
       quantity
       selected
+      product {
+        name
+        images {
+          url
+        }
+      }
     }
   }
 `;

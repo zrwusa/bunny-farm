@@ -11,3 +11,15 @@ export class UpdateItemQuantityInput {
   @Field(() => String, { nullable: true })
   clientCartId?: string;
 }
+
+@InputType()
+export class ToggleItemSelectionInput {
+  @Field(() => String)
+  skuId: string;
+
+  @Field(() => Boolean)
+  selected: boolean;
+
+  @Field(() => String, { nullable: true })
+  clientCartId?: string;
+}

@@ -317,13 +317,6 @@ type CachedCart {
   updatedAt: DateTime!
 }
 
-type SelectedCartItemOutput {
-  skuId: String!
-  productId: String!
-  quantity: Int!
-  selected: Boolean
-}
-
 type App {
   message: String!
 }
@@ -374,7 +367,7 @@ type Query {
   suggestProductNames(input: String!): [String!]!
   orders(filterOrderInput: FilterOrderInput!): [Order!]!
   cart(clientCartId: String): CachedCart!
-  selectedCartItems(clientCartId: String): [SelectedCartItemOutput!]!
+  selectedCartItems(clientCartId: String): [EnrichedCartItem!]!
   payments: [Payment!]!
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
@@ -399,8 +392,8 @@ type Mutation {
   placeOrder(input: PlaceOrderInput!): Order!
   addToCart(addItemToCartInput: AddItemToCartInput!): CachedCart!
   updateItemQuantity(updateItemQuantityInput: UpdateItemQuantityInput!): CachedCart!
+  toggleItemSelection(toggleItemSelection: ToggleItemSelectionInput!, clientCartId: String): CachedCart!
   removeItems(removeItemsInput: RemoveItemsInput!): CachedCart!
-  toggleItemSelection(skuId: String!, selected: Boolean!, clientCartId: String): CachedCart!
   clearCart(clientCartId: String): CachedCart!
   createPayment(createPaymentInput: CreatePaymentInput!): Payment!
   confirmPayment(paymentId: String!, status: String!): Payment!
@@ -531,6 +524,12 @@ input AddItemToCartInput {
 input UpdateItemQuantityInput {
   skuId: String!
   quantity: Int!
+  clientCartId: String
+}
+
+input ToggleItemSelectionInput {
+  skuId: String!
+  selected: Boolean!
   clientCartId: String
 }
 

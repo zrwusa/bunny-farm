@@ -3,15 +3,17 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { CartService } from './cart.service';
 import { Cart } from './entities/cart.entity';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { UpdateItemQuantityInput } from './dto/update-item-quantity.input';
+import {
+  ToggleItemSelectionInput,
+  UpdateItemQuantityInput,
+} from './dto/update-item-quantity.input';
 import { AddItemToCartInput } from './dto/add-item-to-cart.input';
-import { RemoveItemsInput } from './dto/remove-items.input';
 import { CachedCart } from './dto/cached-cart.object';
 import { UseGuards } from '@nestjs/common';
 import { OptionalGqlAuthGuard } from '../auth/guards/optional-gql-auth.guard';
 import { CurrentJwtUser } from '../auth/types/types';
-import { CartItemInput } from './dto/cart-item.input';
-import {SelectedCartItemOutput} from './dto/selected-cart-item.output';
+import { EnrichedCartItem } from './dto/enriched-cart-item.object';
+import { RemoveItemsInput } from './dto/remove-items.input';
 
 @Resolver(() => Cart)
 export class CartResolver {
@@ -48,23 +50,23 @@ export class CartResolver {
 
   @Mutation(() => CachedCart)
   @UseGuards(OptionalGqlAuthGuard)
+  async toggleItemSelection(
+    @Args('toggleItemSelection') toggleItemSelectionInput: ToggleItemSelectionInput,
+    @Args('clientCartId', { nullable: true }) clientCartId?: string,
+    @CurrentUser() user?: CurrentJwtUser,
+  ): Promise<CachedCart> {
+    const { skuId, selected } = toggleItemSelectionInput;
+    return this.cartService.setItemSelection(skuId, selected, user?.id, clientCartId);
+  }
+
+  @Mutation(() => CachedCart)
+  @UseGuards(OptionalGqlAuthGuard)
   async removeItems(
     @Args('removeItemsInput') removeItemsInput: RemoveItemsInput,
     @CurrentUser() user?: CurrentJwtUser,
   ): Promise<CachedCart> {
     const { clientCartId, skuIds } = removeItemsInput;
     return this.cartService.removeItems(skuIds, user?.id, clientCartId);
-  }
-
-  @Mutation(() => CachedCart)
-  @UseGuards(OptionalGqlAuthGuard)
-  async toggleItemSelection(
-    @Args('skuId') skuId: string,
-    @Args('selected') selected: boolean,
-    @Args('clientCartId', { nullable: true }) clientCartId?: string,
-    @CurrentUser() user?: CurrentJwtUser,
-  ): Promise<CachedCart> {
-    return this.cartService.setItemSelection(skuId, selected, user?.id, clientCartId);
   }
 
   @Mutation(() => CachedCart)
@@ -76,12 +78,12 @@ export class CartResolver {
     return this.cartService.clearCart(user?.id, clientCartId);
   }
 
-  @Query(() => [SelectedCartItemOutput])
+  @Query(() => [EnrichedCartItem])
   @UseGuards(OptionalGqlAuthGuard)
   async selectedCartItems(
     @Args('clientCartId', { nullable: true }) clientCartId?: string,
     @CurrentUser() user?: CurrentJwtUser,
-  ): Promise<SelectedCartItemOutput[]> {
+  ): Promise<EnrichedCartItem[]> {
     return this.cartService.getSelectedItems(user?.id, clientCartId);
   }
 }

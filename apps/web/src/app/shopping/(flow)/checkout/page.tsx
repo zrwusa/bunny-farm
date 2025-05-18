@@ -1,13 +1,14 @@
 'use client';
 
 import {useEffect, useState} from 'react';
-import {CartItemInput, PaymentMethod} from '@/types/generated/graphql';
+import {EnrichedCartItem, PaymentMethod} from '@/types/generated/graphql';
 import {getSelectedCartItems, placeOrder} from '@/lib/api/client-actions';
 import {Button} from '@/components/ui/button';
 import Checkout from '@/components/features/payment';
+import Image from 'next/image';
 
 export default function CheckoutPage() {
-    const [items, setItems] = useState<CartItemInput[]>([])
+    const [items, setItems] = useState<EnrichedCartItem[]>([])
 
     useEffect(() => {
         // TODO: Fetch order details
@@ -15,7 +16,7 @@ export default function CheckoutPage() {
 
         getSelectedCartItems().then((items) => {
             console.log('---items', items)
-            setItems(items as CartItemInput[])
+            setItems(items)
         });
 
     }, []);
@@ -27,11 +28,10 @@ export default function CheckoutPage() {
             {/* TODO: Add order details content */}
             <ul>
                 {
-                    items.map(({skuId, productId, quantity, selected}) => <li key={skuId}>
-                        <span>skuId: {skuId}</span>
-                        <span>productId: {productId}</span>
-                        <span>quantity: {quantity}</span>
-                        <span>selected: {selected}</span>
+                    items.map(({skuId, quantity, product}) => <li key={skuId}>
+                        <span> {product?.name}</span>
+                        <span><Image src={product?.images[0]?.url || '/avatar.svg'} width={200} height={200} alt={skuId}/></span>
+                        <span> X {quantity}</span>
                     </li>)
                 }
             </ul>

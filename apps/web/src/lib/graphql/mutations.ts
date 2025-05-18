@@ -109,8 +109,46 @@ export const UPDATE_ITEM_QUANTITY = gql`
   }
 `;
 
+export const TOGGLE_ITEM_SELECTION = gql`
+  mutation ToggleItemSelection($toggleItemSelectionInput: ToggleItemSelectionInput!) {
+    toggleItemSelection(toggleItemSelection: $toggleItemSelectionInput) {
+      id
+      items {
+        id
+        productId
+        skuId
+        quantity
+        selected
+        product {
+          name
+          images {
+            position
+            url
+          }
+        }
+        sku {
+          size
+          color
+          images {
+            position
+            url
+          }
+        }
+        createdAt
+        updatedAt
+      }
+      user {
+        id
+        email
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
 export const REMOVE_ITEM_FROM_CART = gql`
-  mutation removeItems($removeItemsInput: RemoveItemsInput!) {
+  mutation RemoveItems($removeItemsInput: RemoveItemsInput!) {
     removeItems(removeItemsInput: $removeItemsInput) {
       id
       items {
@@ -210,8 +248,6 @@ export const CREATE_PRODUCT_CLIENT = gql`
   }
 `;
 
-
-
 export const PLACE_ORDER = gql`
   mutation PlaceOrder($placeOrderInput: PlaceOrderInput!) {
     placeOrder(input: $placeOrderInput) {
@@ -228,7 +264,7 @@ export const PLACE_ORDER = gql`
 `;
 
 export const CREATE_PAYMENT_INTENT = gql`
-  mutation PlaceOrder($createPaymentIntentInput: CreatePaymentIntentInput!) {
+  mutation CreatePaymentIntent($createPaymentIntentInput: CreatePaymentIntentInput!) {
     createPaymentIntent(createPaymentIntentInput: $createPaymentIntentInput)
   }
 `;
