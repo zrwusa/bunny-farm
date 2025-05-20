@@ -17,3 +17,6 @@ Focus more on user input and operational processes
 ### Place Order page
 
 ### Order Success / Thank You
+
+## Order Process
+Cart Page → Checkout Page → Payment Page → Payment Success Page → Order Detail Page

@@ -1,14 +1,15 @@
 'use client';
 
-import {FormEvent, useState} from 'react';
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import {createPaymentIntent} from '@/lib/api/client-actions';
+import {FormEvent, useEffect, useState} from 'react';
+import {CardElement, Elements, useElements, useStripe} from '@stripe/react-stripe-js';
+import {createPaymentIntent, getOrder} from '@/lib/api/client-actions';
 import {Button} from '@/components/ui/button';
 import {stripePromise} from '@/lib/stripe';
+import {useParams} from 'next/navigation';
+import {Order} from '@/types/generated/graphql';
 
 
-const CheckoutForm = () => {
-    const [amountOfCents] = useState<number>(52);
+const PaymentForm = ({amountOfCents}: { amountOfCents: number }) => {
     const [currency] = useState<string>('NZD');
 
     const stripe = useStripe();
@@ -16,7 +17,7 @@ const CheckoutForm = () => {
     const [clientSecret, setClientSecret] = useState('');
 
     const handleCheckout = async () => {
-        const clientSecret = await createPaymentIntent({ amountOfCents: amountOfCents, currency: currency});
+        const clientSecret = await createPaymentIntent({amountOfCents: amountOfCents, currency: currency});
         setClientSecret(clientSecret);
     };
 
@@ -41,18 +42,44 @@ const CheckoutForm = () => {
     return (
         <form onSubmit={handleSubmit}>
             <p>Total amount: <span>{amountOfCents / 100}</span>
-            Currency: <span>{currency}</span></p>
-            <CardElement />
+                Currency: <span>{currency}</span></p>
+            <CardElement/>
             <Button type="button" onClick={handleCheckout}>Create Payment</Button>
             <Button type="submit" disabled={!stripe}>Pay</Button>
         </form>
     );
 };
 
-export default function Checkout() {
+export default function Payment() {
+    const params = useParams();
+    const orderId = params.id;
+
+    const [order, setOrder] = useState<Order>();
+
+    useEffect(() => {
+        if (typeof orderId === 'string')
+            getOrder(orderId).then((order) => setOrder(order));
+    }, [orderId]);
+
     return (
-        <Elements stripe={stripePromise}>
-            <CheckoutForm />
-        </Elements>
+        <div>
+            <h1 className="mb-8 text-3xl font-bold">Payment for order {orderId}</h1>
+            {
+                order
+                    ? <div><p>
+                        {order.status}
+                    </p>
+                        <p>
+
+                        </p>
+                        <Elements stripe={stripePromise}>
+                            <PaymentForm amountOfCents={order.totalPrice * 100}/>
+                        </Elements>
+                    </div>
+                    : null
+            }
+        </div>
+
+
     );
 }

@@ -48,6 +48,9 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'www.metabo.com'
+            },
+            {
+                hostname: 'images.makita.co.nz'
             }
         ]
     }

@@ -356,22 +356,87 @@ type TokenOutput {
   refreshToken: String!
 }
 
+type Geometry {
+  lat: Float!
+  lng: Float!
+}
+
+type Bounds {
+  northeast: Geometry!
+  southwest: Geometry!
+}
+
+type Components {
+  city: String
+  suburb: String
+  road: String
+  house_number: String
+  postcode: String
+  state: String
+  state_code: String
+  country: String
+  country_code: String
+  continent: String
+}
+
+type Timezone {
+  name: String!
+  offset_sec: Int!
+  offset_string: String!
+  short_name: String!
+}
+
+type Currency {
+  name: String!
+  iso_code: String!
+  symbol: String!
+  subunit_to_unit: Int!
+}
+
+type RoadInfo {
+  road: String!
+  drive_on: String!
+  speed_in: String!
+}
+
+type Annotations {
+  timezone: Timezone!
+  callingcode: Int!
+  currency: Currency!
+  roadinfo: RoadInfo!
+  flag: String!
+  geohash: String!
+  qibla: Float!
+}
+
+type PlaceGeoDetail {
+  formatted: String!
+  geometry: Geometry!
+  bounds: Bounds!
+  components: Components!
+  annotations: Annotations!
+  confidence: Int!
+}
+
 type Query {
   ping: App!
   user(id: String!): User
   users: [User!]!
   me: User!
+  myAddresses: [UserAddress!]!
   product(id: String!): Product
   products: [Product!]!
   searchProducts(keyword: String!): [Product!]!
   suggestProductNames(input: String!): [String!]!
   orders(filterOrderInput: FilterOrderInput!): [Order!]!
+  order(id: String!): Order!
   cart(clientCartId: String): CachedCart!
   selectedCartItems(clientCartId: String): [EnrichedCartItem!]!
   payments: [Payment!]!
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
+  placeDetail(address: String!): PlaceGeoDetail
 }
 
 input FilterOrderInput {

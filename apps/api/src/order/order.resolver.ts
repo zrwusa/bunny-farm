@@ -49,10 +49,10 @@ export class OrderResolver {
     return this.orderService.placeOrder(user.id, input);
   }
 
-  // @Query(() => Order, { name: 'order' })
-  // getOrderById(@Args('id', { type: () => Int }) id: number) {
-  //   return this.orderService.findOne(id);
-  // }
+  @Query(() => Order, { name: 'order' })
+  getOrderById(@Args('id') id: string) {
+    return this.orderService.findOne(id);
+  }
 
   // @Mutation(() => Order)
   // updateOrder(@Args('updateOrderInput') updateOrderInput: UpdateOrderInput) {

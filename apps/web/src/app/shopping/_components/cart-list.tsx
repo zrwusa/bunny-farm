@@ -48,12 +48,6 @@ export const CartList = () => {
           >
               Proceed to Checkout
           </Link>
-        <Link
-          href="/shopping/order"
-          className="block w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 text-center"
-        >
-          order
-        </Link>
       </div>
     </div>
   );

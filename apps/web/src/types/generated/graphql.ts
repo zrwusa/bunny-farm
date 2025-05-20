@@ -24,8 +24,23 @@ export type AddItemToCartInput = {
   item: CartItemInput;
 };
 
+export type Annotations = {
+  callingcode: Scalars['Int']['output'];
+  currency: Currency;
+  flag: Scalars['String']['output'];
+  geohash: Scalars['String']['output'];
+  qibla: Scalars['Float']['output'];
+  roadinfo: RoadInfo;
+  timezone: Timezone;
+};
+
 export type App = {
   message: Scalars['String']['output'];
+};
+
+export type Bounds = {
+  northeast: Geometry;
+  southwest: Geometry;
 };
 
 export type Brand = {
@@ -105,6 +120,19 @@ export type CategoryInput = {
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Components = {
+  city?: Maybe<Scalars['String']['output']>;
+  continent?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  country_code?: Maybe<Scalars['String']['output']>;
+  house_number?: Maybe<Scalars['String']['output']>;
+  postcode?: Maybe<Scalars['String']['output']>;
+  road?: Maybe<Scalars['String']['output']>;
+  state?: Maybe<Scalars['String']['output']>;
+  state_code?: Maybe<Scalars['String']['output']>;
+  suburb?: Maybe<Scalars['String']['output']>;
+};
+
 export type CreateOrderInput = {
   items: Array<OrderItemInput>;
   /** User Id */
@@ -147,6 +175,13 @@ export type CreateUserPreferenceInput = {
   userId: Scalars['String']['input'];
 };
 
+export type Currency = {
+  iso_code: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  subunit_to_unit: Scalars['Int']['output'];
+  symbol: Scalars['String']['output'];
+};
+
 export enum DeviceType {
   App = 'APP',
   MobileApp = 'MOBILE_APP',
@@ -173,6 +208,11 @@ export type FilterOrderInput = {
   pageSize?: Scalars['Float']['input'];
   startDate?: InputMaybe<Scalars['DateTime']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Geometry = {
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
 };
 
 export type ImageInput = {
@@ -430,6 +470,15 @@ export enum PaymentStatus {
   Refunded = 'REFUNDED'
 }
 
+export type PlaceGeoDetail = {
+  annotations: Annotations;
+  bounds: Bounds;
+  components: Components;
+  confidence: Scalars['Int']['output'];
+  formatted: Scalars['String']['output'];
+  geometry: Geometry;
+};
+
 export type PlaceOrderInput = {
   addressId: Scalars['ID']['input'];
   items: Array<CartItemInput>;
@@ -497,10 +546,13 @@ export type PublishProductInput = {
 export type Query = {
   cart: CachedCart;
   me: User;
+  myAddresses: Array<UserAddress>;
+  order: Order;
   orders: Array<Order>;
   payment: Payment;
   payments: Array<Payment>;
   ping: App;
+  placeDetail?: Maybe<PlaceGeoDetail>;
   product?: Maybe<Product>;
   products: Array<Product>;
   searchProducts: Array<Product>;
@@ -518,6 +570,11 @@ export type QueryCartArgs = {
 };
 
 
+export type QueryOrderArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type QueryOrdersArgs = {
   filterOrderInput: FilterOrderInput;
 };
@@ -525,6 +582,11 @@ export type QueryOrdersArgs = {
 
 export type QueryPaymentArgs = {
   id: Scalars['Int']['input'];
+};
+
+
+export type QueryPlaceDetailArgs = {
+  address: Scalars['String']['input'];
 };
 
 
@@ -560,6 +622,12 @@ export type QueryUserArgs = {
 export type RemoveItemsInput = {
   clientCartId?: InputMaybe<Scalars['String']['input']>;
   skuIds: Array<Scalars['String']['input']>;
+};
+
+export type RoadInfo = {
+  drive_on: Scalars['String']['output'];
+  road: Scalars['String']['output'];
+  speed_in: Scalars['String']['output'];
 };
 
 export type Sku = {
@@ -626,6 +694,13 @@ export type SkuInput = {
   prices?: InputMaybe<Array<PriceInput>>;
   size: Scalars['String']['input'];
   sku: Scalars['String']['input'];
+};
+
+export type Timezone = {
+  name: Scalars['String']['output'];
+  offset_sec: Scalars['Int']['output'];
+  offset_string: Scalars['String']['output'];
+  short_name: Scalars['String']['output'];
 };
 
 export type ToggleItemSelectionInput = {
@@ -786,7 +861,7 @@ export type PlaceOrderMutationVariables = Exact<{
 }>;
 
 
-export type PlaceOrderMutation = { placeOrder: { items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
+export type PlaceOrderMutation = { placeOrder: { id: string, totalPrice: number, paymentMethod: PaymentMethod, shippingStatus: ShippingStatus, items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
 
 export type CreatePaymentIntentMutationVariables = Exact<{
   createPaymentIntentInput: CreatePaymentIntentInput;
@@ -850,6 +925,18 @@ export type CartQueryVariables = Exact<{
 
 export type CartQuery = { cart: { id: string, createdAt: any, updatedAt: any, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: any, updatedAt: any, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
 
+export type GetMyAddressesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMyAddressesQuery = { myAddresses: Array<{ id: string, isDefault: boolean, addressLine1: string, addressLine2?: string | null, postalCode: string, city: string, country: string }> };
+
+export type PlaceDetailQueryVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type PlaceDetailQuery = { placeDetail?: { components: { suburb?: string | null, city?: string | null, country?: string | null, continent?: string | null, country_code?: string | null, postcode?: string | null, road?: string | null, state_code?: string | null } } | null };
+
 export type GetSelectedCartItemsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -873,6 +960,13 @@ export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { me: { id: string, email: string, profile?: { avatarUrl?: string | null, displayName?: string | null } | null } };
+
+export type GetOrderQueryVariables = Exact<{
+  orderId: Scalars['String']['input'];
+}>;
+
+
+export type GetOrderQuery = { order: { id: string, totalPrice: number, paymentMethod: PaymentMethod, shippingStatus: ShippingStatus, items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
 
 
 export const CreateProductDocument = gql`
@@ -1301,6 +1395,10 @@ export type CreateProductClientMutationOptions = Apollo.BaseMutationOptions<Crea
 export const PlaceOrderDocument = gql`
     mutation PlaceOrder($placeOrderInput: PlaceOrderInput!) {
   placeOrder(input: $placeOrderInput) {
+    id
+    totalPrice
+    paymentMethod
+    shippingStatus
     items {
       id
       quantity
@@ -1782,6 +1880,100 @@ export type CartQueryHookResult = ReturnType<typeof useCartQuery>;
 export type CartLazyQueryHookResult = ReturnType<typeof useCartLazyQuery>;
 export type CartSuspenseQueryHookResult = ReturnType<typeof useCartSuspenseQuery>;
 export type CartQueryResult = Apollo.QueryResult<CartQuery, CartQueryVariables>;
+export const GetMyAddressesDocument = gql`
+    query GetMyAddresses {
+  myAddresses {
+    id
+    isDefault
+    addressLine1
+    addressLine2
+    postalCode
+    city
+    country
+  }
+}
+    `;
+
+/**
+ * __useGetMyAddressesQuery__
+ *
+ * To run a query within a React component, call `useGetMyAddressesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMyAddressesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMyAddressesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetMyAddressesQuery(baseOptions?: Apollo.QueryHookOptions<GetMyAddressesQuery, GetMyAddressesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMyAddressesQuery, GetMyAddressesQueryVariables>(GetMyAddressesDocument, options);
+      }
+export function useGetMyAddressesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMyAddressesQuery, GetMyAddressesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMyAddressesQuery, GetMyAddressesQueryVariables>(GetMyAddressesDocument, options);
+        }
+export function useGetMyAddressesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMyAddressesQuery, GetMyAddressesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMyAddressesQuery, GetMyAddressesQueryVariables>(GetMyAddressesDocument, options);
+        }
+export type GetMyAddressesQueryHookResult = ReturnType<typeof useGetMyAddressesQuery>;
+export type GetMyAddressesLazyQueryHookResult = ReturnType<typeof useGetMyAddressesLazyQuery>;
+export type GetMyAddressesSuspenseQueryHookResult = ReturnType<typeof useGetMyAddressesSuspenseQuery>;
+export type GetMyAddressesQueryResult = Apollo.QueryResult<GetMyAddressesQuery, GetMyAddressesQueryVariables>;
+export const PlaceDetailDocument = gql`
+    query PlaceDetail($address: String!) {
+  placeDetail(address: $address) {
+    components {
+      suburb
+      city
+      country
+      continent
+      country_code
+      postcode
+      road
+      state_code
+    }
+  }
+}
+    `;
+
+/**
+ * __usePlaceDetailQuery__
+ *
+ * To run a query within a React component, call `usePlaceDetailQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlaceDetailQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlaceDetailQuery({
+ *   variables: {
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function usePlaceDetailQuery(baseOptions: Apollo.QueryHookOptions<PlaceDetailQuery, PlaceDetailQueryVariables> & ({ variables: PlaceDetailQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PlaceDetailQuery, PlaceDetailQueryVariables>(PlaceDetailDocument, options);
+      }
+export function usePlaceDetailLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PlaceDetailQuery, PlaceDetailQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PlaceDetailQuery, PlaceDetailQueryVariables>(PlaceDetailDocument, options);
+        }
+export function usePlaceDetailSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<PlaceDetailQuery, PlaceDetailQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<PlaceDetailQuery, PlaceDetailQueryVariables>(PlaceDetailDocument, options);
+        }
+export type PlaceDetailQueryHookResult = ReturnType<typeof usePlaceDetailQuery>;
+export type PlaceDetailLazyQueryHookResult = ReturnType<typeof usePlaceDetailLazyQuery>;
+export type PlaceDetailSuspenseQueryHookResult = ReturnType<typeof usePlaceDetailSuspenseQuery>;
+export type PlaceDetailQueryResult = Apollo.QueryResult<PlaceDetailQuery, PlaceDetailQueryVariables>;
 export const GetSelectedCartItemsDocument = gql`
     query GetSelectedCartItems {
   selectedCartItems {
@@ -1973,3 +2165,54 @@ export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeSuspenseQueryHookResult = ReturnType<typeof useMeSuspenseQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const GetOrderDocument = gql`
+    query GetOrder($orderId: String!) {
+  order(id: $orderId) {
+    id
+    totalPrice
+    paymentMethod
+    shippingStatus
+    items {
+      id
+      quantity
+      sku {
+        id
+        skuCode
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetOrderQuery__
+ *
+ * To run a query within a React component, call `useGetOrderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrderQuery({
+ *   variables: {
+ *      orderId: // value for 'orderId'
+ *   },
+ * });
+ */
+export function useGetOrderQuery(baseOptions: Apollo.QueryHookOptions<GetOrderQuery, GetOrderQueryVariables> & ({ variables: GetOrderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetOrderQuery, GetOrderQueryVariables>(GetOrderDocument, options);
+      }
+export function useGetOrderLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetOrderQuery, GetOrderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetOrderQuery, GetOrderQueryVariables>(GetOrderDocument, options);
+        }
+export function useGetOrderSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetOrderQuery, GetOrderQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetOrderQuery, GetOrderQueryVariables>(GetOrderDocument, options);
+        }
+export type GetOrderQueryHookResult = ReturnType<typeof useGetOrderQuery>;
+export type GetOrderLazyQueryHookResult = ReturnType<typeof useGetOrderLazyQuery>;
+export type GetOrderSuspenseQueryHookResult = ReturnType<typeof useGetOrderSuspenseQuery>;
+export type GetOrderQueryResult = Apollo.QueryResult<GetOrderQuery, GetOrderQueryVariables>;

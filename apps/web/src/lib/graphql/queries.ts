@@ -123,6 +123,36 @@ export const GET_MY_CART = gql`
   }
 `;
 
+export const GET_MY_ADDRESSES = gql`
+query GetMyAddresses {
+  myAddresses {
+    id
+    isDefault
+    addressLine1
+    addressLine2
+    postalCode
+    city
+    country
+  }
+}
+`
+
+export const GET_ADDRESS_DETAIL = gql`
+query PlaceDetail($address: String!) {
+  placeDetail(address: $address) {
+    components {
+      suburb
+      city
+      country
+      continent
+      country_code
+      postcode
+      road
+      state_code
+    }
+  }
+  }
+`
 export const GET_SELECTED_CART_ITEMS = gql`
   query GetSelectedCartItems {
     selectedCartItems {
@@ -183,6 +213,27 @@ export const ME_QUERY = gql`
       profile {
         avatarUrl
         displayName
+      }
+    }
+  }
+`;
+
+
+
+export const GET_ORDER = gql`
+  query GetOrder($id: String!) {
+    order(id: $id) {
+      id
+      totalPrice
+      paymentMethod
+      shippingStatus
+      items {
+        id
+        quantity
+        sku {
+          id
+          skuCode
+        }
       }
     }
   }

@@ -12,7 +12,7 @@ import {
     CREATE_PAYMENT_INTENT
 } from '@/lib/graphql/mutations';
 import { setStoredTokens } from './auth';
-import {GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
+import {GET_ADDRESS_DETAIL, GET_MY_ADDRESSES, GET_ORDER, GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
 
 export const createProductClient = async (prevState: Product, formData: FormData) => {
     const formEntries = Object.fromEntries(formData.entries());
@@ -91,33 +91,42 @@ export const getSelectedCartItems = async () => {
     const response = await fetchGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
         variables: {}
     });
-    console.log('response', response);
-    if (!response?.data) {
-        console.error('Error getting selected cart items');
-        return [];
-    }
-    return response.data.selectedCartItems ?? [];
+    return response.data.selectedCartItems;
+}
+
+export const getMyAddresses = async () => {
+    const response = await fetchGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
+        variables: {}
+    });
+    return response.data.myAddresses;
+}
+
+export const getAddressDetail = async (addressText: string) => {
+    const response = await fetchGraphQL<Query>(GET_ADDRESS_DETAIL.loc?.source.body, {
+        variables: {
+            address: addressText
+        }
+    });
+    return response.data.placeDetail;
 }
 
 export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
     const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
         variables: {placeOrderInput: placeOrderInput}
     });
-    if (!response?.data) {
-        console.error('Error placing order');
-        return [];
-    }
-    return response.data.placeOrder ?? [];
+    return response.data.placeOrder;
+}
+
+export const getOrder = async (id: string) => {
+    const response = await fetchGraphQL<Query>(GET_ORDER.loc?.source.body, {
+        variables: {id}
+    });
+    return response.data.order;
 }
 
 export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymentIntentInput) => {
     const response = await fetchGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
         variables: {createPaymentIntentInput: createPaymentIntentInput}
     });
-    console.log('response', response);
-    if (!response?.data) {
-        console.error('Error creating payment intent');
-        return '';
-    }
-    return response.data.createPaymentIntent ?? '';
+    return response.data.createPaymentIntent;
 }

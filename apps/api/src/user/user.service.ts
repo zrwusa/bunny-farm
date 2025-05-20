@@ -10,47 +10,47 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepo: Repository<User>,
   ) {}
 
   findAll() {
-    return this.usersRepository.find();
+    return this.userRepo.find();
   }
 
   findOne(id: string) {
-    return this.usersRepository.findOne({
+    return this.userRepo.findOne({
       where: { id },
     });
   }
 
   async create(createUserInput: CreateUserInput) {
     const hashedPassword = await bcrypt.hash(createUserInput.password, 10);
-    const newUser = this.usersRepository.create({
+    const newUser = this.userRepo.create({
       ...createUserInput,
       password: hashedPassword,
     });
-    return this.usersRepository.save(newUser);
+    return this.userRepo.save(newUser);
   }
 
   createOAuthUser(createOauthUserInput: CreateOauthUserInput) {
-    const newUser = this.usersRepository.create(createOauthUserInput);
-    return this.usersRepository.save(newUser);
+    const newUser = this.userRepo.create(createOauthUserInput);
+    return this.userRepo.save(newUser);
   }
 
   findById(id: string) {
-    return this.usersRepository.findOne({
+    return this.userRepo.findOne({
       where: { id },
     });
   }
 
   findByEmail(email: string) {
-    return this.usersRepository.findOne({
+    return this.userRepo.findOne({
       where: { email },
     });
   }
 
   findByProviderId(provider: string, providerId: string) {
-    return this.usersRepository.findOne({
+    return this.userRepo.findOne({
       where: { provider, providerId },
     });
   }

@@ -149,6 +149,12 @@ export class OrderService {
     });
   }
 
+  findOne(id: string) {
+    return this.orderRepository.findOne({
+      where: { id },
+    });
+  }
+
   async placeOrder(userId: string, input: PlaceOrderInput): Promise<Order> {
     const lockKey = `lock:order:${userId}`;
     const LOCK_DURATION_MS = 5000;

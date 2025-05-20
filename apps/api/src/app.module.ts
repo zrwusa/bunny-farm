@@ -38,6 +38,7 @@ import { SkuImage } from './product/entities/sku-image.entity';
 import { Request, Response } from 'express';
 import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
+import {PlaceModule} from './place/place.module';
 
 @Module({
   imports: [
@@ -120,6 +121,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     SearchModule,
     CartModule,
     AuthModule,
+    PlaceModule,
   ],
   controllers: [],
   providers: [AppResolver],

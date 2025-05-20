@@ -251,6 +251,10 @@ export const CREATE_PRODUCT_CLIENT = gql`
 export const PLACE_ORDER = gql`
   mutation PlaceOrder($placeOrderInput: PlaceOrderInput!) {
     placeOrder(input: $placeOrderInput) {
+      id
+      totalPrice
+      paymentMethod
+      shippingStatus
       items {
         id
         quantity

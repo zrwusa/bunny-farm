@@ -1,11 +1,6 @@
 'use client'
 
-import {useState} from 'react';
-import {useRouter} from 'next/navigation';
-import {Product} from '@/types/generated/graphql';
 import {createProductClient} from '@/lib/api/client-actions';
-import {objToGraphQLString} from '@/utils';
-import {createProduct} from '@/lib/api/actions';
 import {useActionState} from 'react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
