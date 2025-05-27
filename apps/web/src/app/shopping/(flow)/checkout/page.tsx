@@ -8,6 +8,7 @@ import Image from 'next/image';
 import {Combobox} from '@/components/features/combobox';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
+import {Textarea} from '@/components/ui/textarea';
 
 export default function CheckoutPage() {
     const router = useRouter();
@@ -45,12 +46,16 @@ export default function CheckoutPage() {
             <h1 className="mb-8 text-3xl font-bold">Items</h1>
             <ul>
                 {
-                    items.map(({skuId, quantity, product}) => <li key={skuId}>
-                        <span> {product?.name}</span>
-                        <span><Image src={product?.images[0]?.url || '/avatar.svg'} width={200} height={200}
-                                     alt={skuId}/></span>
-                        <span> X {quantity}</span>
-                    </li>)
+                    items.map(({skuId, quantity, product}) =>
+                        <li key={skuId} className="flex justify-between items-center">
+                            <div>
+                                <Image src={product?.images[0]?.url || '/avatar.svg'} width={200} height={200}
+                                       alt={skuId}/>
+                                <p> {product?.name}</p>
+                            </div>
+
+                            <span> X {quantity}</span>
+                        </li>)
                 }
             </ul>
             <Combobox
@@ -59,7 +64,7 @@ export default function CheckoutPage() {
                 onValueChange={setSelectedAddress}
                 placeholder="chose an address"
             />
-            <textarea className="border-4" onBlur={handleAddressCorrection} onChange={(e) => setInputAddress(e.target.value)}></textarea>
+            <Textarea className="border-4" placeholder="Paste or edit address..." onBlur={handleAddressCorrection} onChange={(e) => setInputAddress(e.target.value)}></Textarea>
             <Button onClick={handlePlaceOrder}>Place Order</Button>
 
             <Link

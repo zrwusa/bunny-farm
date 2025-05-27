@@ -12,9 +12,8 @@ interface ProductsTableProps {
 export function ProductsTable({products}: ProductsTableProps) {
     const router = useRouter()
 
-    const formatDescription = (description: any) => {
-        if (!description) return '-'
-        if (typeof description === 'string') return description
+    const formatDescription = (description?: Record<string, unknown> | null) => {
+       if (!description) return '';
         return Object.entries(description)
             .map(([key, value]) => `${key}: ${value}`)
             .join(', ')

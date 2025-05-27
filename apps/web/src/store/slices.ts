@@ -1,4 +1,4 @@
-import {createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {requestKeys} from '@/lib/constants/request-keys';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Product} from '@/types/generated/graphql';
@@ -15,8 +15,7 @@ export const authReducer = authSlice.reducer;
 
 export const fetchData = createAsyncThunk(
     'fetchData',
-    async ({url, requestInit, requestKey}: {
-        url?: string,
+    async ({requestInit, requestKey}: {
         requestInit: RequestInit & { body: string; },
         requestKey: string
     }, thunkAPI) => {

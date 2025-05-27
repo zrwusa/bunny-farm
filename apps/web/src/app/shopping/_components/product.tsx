@@ -11,6 +11,7 @@ import React, {FC} from 'react';
 import {RichTextEditor} from '@/app/shopping/_components/rich-text-editor';
 import {FlyingItemAnimation} from '@/app/shopping/_components/flyingItem-animation';
 import {useAddToCartWithFlyAnimation} from '@/app/shopping/_hooks/useAddToCartWithFlyAnimation';
+import Image from 'next/image';
 
 export interface ProductProps {
     product: Query["product"];
@@ -24,29 +25,26 @@ export const Product: FC<ProductProps> = ({product}) => {
     return (
         <div className="max-w-4xl mx-auto p-6">
             <FlyingItemAnimation flyingItem={flyingItem}/>
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle className="text-2xl font-bold">{name}</CardTitle>
-                    <p className="text-sm text-gray-500">
-                        <span className="font-medium">Brand:</span> {brand?.name} |
-                        <span className="font-medium ml-2">Category:</span> {category?.name}
-                    </p>
-                </CardHeader>
-            </Card>
 
             <Carousel className="w-full max-w-xl mx-auto mb-6">
                 <CarouselContent>
                     {images.length > 0 ? (
                         images.map((image) => (
                             <CarouselItem key={image.id}>
-                                <div className="p-1">
                                     <Card>
-                                        <CardContent className="flex aspect-square items-center justify-center p-4">
-                                            <img src={image.url} alt={`Image ${image.id}`}
-                                                 className="w-full h-full object-cover rounded-lg"/>
+                                        <CardContent className="flex aspect-square items-center justify-center p-4 relative w-full h-96 bg-white">
+                                            {/*<img src={image.url} alt={`Image ${image.id}`}*/}
+                                            {/*     className="w-full h-full object-cover rounded-lg"/>*/}
+                                            {/*<div className="relative w-full h-52 bg-white">*/}
+                                                <Image
+                                                    src={image.url}
+                                                    alt={`Image ${image.id}`}
+                                                    fill
+                                                    className="object-contain p-2"
+                                                />
+                                            {/*</div>*/}
                                         </CardContent>
                                     </Card>
-                                </div>
                             </CarouselItem>
                         ))
                     ) : (
@@ -54,7 +52,7 @@ export const Product: FC<ProductProps> = ({product}) => {
                             <div className="p-1">
                                 <Card>
                                     <CardContent className="flex aspect-square items-center justify-center p-6">
-                                        <span className="text-4xl font-semibold">No Image</span>
+                                    <span className="text-4xl font-semibold">No Image</span>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -65,6 +63,16 @@ export const Product: FC<ProductProps> = ({product}) => {
                 <CarouselNext/>
             </Carousel>
 
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle className="text-2xl font-bold">{name}</CardTitle>
+                    <p className="text-sm text-gray-500">
+                        <span className="font-medium">Brand:</span> {brand?.name} |
+                        <span className="font-medium ml-2">Category:</span> {category?.name}
+                    </p>
+                </CardHeader>
+            </Card>
+            
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle className="text-lg font-semibold">Product Description</CardTitle>

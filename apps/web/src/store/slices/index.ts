@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import cartReducer from './cartSlice';
-import { User } from '@/types/generated/graphql';
+import {Product, User} from '@/types/generated/graphql';
 
 // API State Slice
 interface ApiState {
@@ -58,8 +58,8 @@ export const authReducer = authSlice.reducer;
 
 // Product Slice
 interface ProductState {
-    products: any[];
-    selectedProduct: any | null;
+    products: Product[];
+    selectedProduct: Product | null;
 }
 
 const productInitialState: ProductState = {
@@ -71,10 +71,10 @@ const productSlice = createSlice({
     name: 'product',
     initialState: productInitialState,
     reducers: {
-        setProducts: (state, action: PayloadAction<any[]>) => {
+        setProducts: (state, action: PayloadAction<Product[]>) => {
             state.products = action.payload;
         },
-        setSelectedProduct: (state, action: PayloadAction<any>) => {
+        setSelectedProduct: (state, action: PayloadAction<Product>) => {
             state.selectedProduct = action.payload;
         },
     },

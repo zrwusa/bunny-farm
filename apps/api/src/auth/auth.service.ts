@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
@@ -6,6 +6,7 @@ import Redis from 'ioredis';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { GoogleOAuthService } from './google-oauth.service';
+import { ms } from '../utils';
 
 @Injectable()
 export class AuthService {
@@ -26,17 +27,22 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
-    if (user && user.password && (await bcrypt.compare(password, user.password))) {
-      return user;
+    if (user && user.password) {
+      const match = await bcrypt.compare(password, user.password);
+      if (match) {
+        return user;
+      }
     }
-    throw new UnauthorizedException('Invalid credentials');
+    // No more throwing 401 directly, return null
+    return null;
   }
 
-  async validateOAuthUser(provider: string, oauthToken: string): Promise<User> {
+  async validateOAuthUser(provider: string, oauthToken: string): Promise<User | null> {
     const googleUser = await this.googleOauthService.verifyIdToken(oauthToken);
     const { email, googleId, avatar: avatarUrl, name: displayName } = googleUser;
     if (!email) {
-      throw new UnauthorizedException('Email is required for OAuth login');
+      // It is more suitable to use BadRequest or custom exceptions here.
+      throw new BadRequestException('Email is required for OAuth login');
     }
     let user = await this.userService.findByProviderId(provider, googleId);
     if (!user) {
@@ -59,27 +65,34 @@ export class AuthService {
       expiresIn: this.config.get('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m'),
     });
 
+    const JWT_REFRESH_TOKEN_EXPIRES_IN = this.config.get('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d');
+
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: this.config.get('JWT_SECRET'),
-      expiresIn: this.config.get('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d'),
+      expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
 
-    await this.redis.set(`refresh:${user.id}`, refreshToken, 'EX', 7 * 24 * 3600);
+    await this.redis.set(
+      `refresh:${user.id}`,
+      refreshToken,
+      'EX',
+      ms(JWT_REFRESH_TOKEN_EXPIRES_IN) / 1000,
+    );
     return { accessToken, refreshToken };
   }
 
   async refreshToken(
     userId: string,
     token: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string } | null> {
     const stored = await this.redis.get(`refresh:${userId}`);
     if (!stored || stored !== token) {
-      throw new UnauthorizedException('Invalid refresh token');
+      return null;
     }
 
     const user = await this.userService.findById(userId);
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      return null;
     }
 
     return this.generateTokens(user);

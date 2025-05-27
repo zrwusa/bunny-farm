@@ -4,6 +4,7 @@ import { useCart } from '../_hooks/useCart';
 import { CartItem } from './cart-item';
 import Link from 'next/link';
 import { CartItem as CartItemType } from '@/types/generated/graphql';
+import {Button} from '@/components/ui/button';
 export const CartList = () => {
   const { cart, loading, error, clearCartItems } = useCart();
 
@@ -28,13 +29,12 @@ export const CartList = () => {
     <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center p-4 border-b">
         <h2 className="text-2xl font-bold">Shopping Cart</h2>
-        <button
+        <Button
           data-testid="clear-cart"
           onClick={() => clearCartItems(cart.id)}
-          className="text-red-500 hover:text-red-700"
         >
           Clear Cart
-        </button>
+        </Button>
       </div>
       <div className="divide-y" data-testid="cart-items">
         {cart.items.map((item: CartItemType) => (

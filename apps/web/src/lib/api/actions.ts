@@ -9,7 +9,6 @@ import {
     GET_PRODUCT_IDS,
     GET_USERS,
     SEARCH_PRODUCTS,
-    GET_SELECTED_CART_ITEMS
 } from '@/lib/graphql/queries';
 import { CREATE_PRODUCT } from '@/lib/graphql/mutations';
 

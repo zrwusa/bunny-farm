@@ -1,5 +1,6 @@
 import {AnimatePresence, motion} from 'framer-motion';
 import {FC} from 'react';
+import Image from 'next/image';
 
 interface FlyingItemProps {
     flyingItem: {
@@ -27,7 +28,7 @@ export const FlyingItemAnimation: FC<FlyingItemProps> = ({flyingItem}) => {
                     className="fixed flex items-center bg-white shadow-lg rounded-lg border p-2"
                     style={{width: '150px', height: '80px', zIndex: 1000}}
                 >
-                    <img src={flyingItem.imageUrl} alt={flyingItem.color}
+                    <Image width={100} height={100} src={flyingItem.imageUrl} alt={flyingItem.color}
                          className="w-10 h-10 rounded-md object-cover"/>
                     <div className="ml-2">
                         <p className="text-sm font-bold">{flyingItem.color}</p>

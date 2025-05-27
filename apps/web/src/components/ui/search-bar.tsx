@@ -27,7 +27,7 @@ export const SearchInput = ({
         console.log('SearchInput - isFocused:', isFocused);
         console.log('SearchInput - showSuggestions:', showSuggestions);
         onDebouncedChange(debounced);
-    }, [debounced, suggestions, isFocused, showSuggestions]);
+    }, [debounced, suggestions, isFocused, showSuggestions, onDebouncedChange]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!suggestions.length) return;

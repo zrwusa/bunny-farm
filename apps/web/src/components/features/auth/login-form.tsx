@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import {cn} from '../../../lib/utils'
+import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from '@/components/ui/card'
 import {Input} from '@/components/ui/input'
@@ -53,10 +53,10 @@ export function LoginForm({
                 router.replace(from);
                 onSuccess?.();
             }
-        } catch (err: any) {
-            if (err.message?.includes('Invalid credentials')) {
+        } catch (err: unknown) {
+            if (err instanceof Error && err.message?.includes('Invalid credentials')) {
                 setError('Invalid email or password. Please try again.');
-            } else if (err.message?.includes('User not found')) {
+            } else if (typeof err === 'string' && err.includes('User not found')) {
                 setError('Email not registered. Please sign up first.');
             } else {
                 setError('Login failed. Please try again later.');

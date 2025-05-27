@@ -108,7 +108,7 @@ export const useCart = () => {
         } catch (error) {
             return handleError(error, dispatch);
         }
-    }, [dispatch, clientCartId, cart]);
+    }, [dispatch, clientCartId]);
 
     const updateCartItemQuantity = useCallback(
         async (skuId: string, quantity: number) => {

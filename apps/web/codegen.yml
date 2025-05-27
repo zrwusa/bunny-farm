@@ -12,3 +12,6 @@ generates:
       withComponent: false
       skipTypename: true
       dedupeFragments: true
+      scalars:
+        DateTime: Date
+        JSONObject: Record<string, unknown>

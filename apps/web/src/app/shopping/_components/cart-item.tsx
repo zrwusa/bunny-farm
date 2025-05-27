@@ -6,6 +6,7 @@ import {EnrichedCartItem} from '@/types/generated/graphql';
 import Image from 'next/image'
 import {Checkbox} from '@/components/ui/checkbox';
 import {CheckedState} from '@radix-ui/react-checkbox';
+import {Button} from '@/components/ui/button';
 
 interface CartItemProps {
     item: EnrichedCartItem;
@@ -56,13 +57,12 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
                             </option>
                         ))}
                     </select>
-                    <button
+                    <Button
                         data-testid="remove-item"
                         onClick={handleRemove}
-                        className="text-red-500 hover:text-red-700"
                     >
                         Remove
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

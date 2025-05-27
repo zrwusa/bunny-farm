@@ -36,7 +36,7 @@ export const setStoredTokens = async (accessToken: string, refreshToken: string)
     localStorage.setItem('refresh_token', refreshToken);
 };
 
-export const removeStoredTokens = () => {
+export const removeStoredTokens = async () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 };

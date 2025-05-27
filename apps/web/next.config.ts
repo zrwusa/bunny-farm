@@ -51,6 +51,9 @@ const nextConfig: NextConfig = {
             },
             {
                 hostname: 'images.makita.co.nz'
+            },
+            {
+                hostname: 'cdn.makitatools.com'
             }
         ]
     }

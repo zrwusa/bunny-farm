@@ -1,6 +1,6 @@
 'use client'
 
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} from 'lucide-react'
+import {Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles, User} from 'lucide-react'
 import {usePathname, useRouter} from 'next/navigation'
 import {useAuth} from '@/contexts/auth-context'
 

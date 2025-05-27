@@ -91,14 +91,14 @@ export const getSelectedCartItems = async () => {
     const response = await fetchGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
         variables: {}
     });
-    return response.data.selectedCartItems;
+    return response.data?.selectedCartItems;
 }
 
 export const getMyAddresses = async () => {
     const response = await fetchGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
         variables: {}
     });
-    return response.data.myAddresses;
+    return response.data?.myAddresses;
 }
 
 export const getAddressDetail = async (addressText: string) => {
@@ -107,26 +107,26 @@ export const getAddressDetail = async (addressText: string) => {
             address: addressText
         }
     });
-    return response.data.placeDetail;
+    return response.data?.placeDetail;
 }
 
 export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
     const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
         variables: {placeOrderInput: placeOrderInput}
     });
-    return response.data.placeOrder;
+    return response.data?.placeOrder;
 }
 
 export const getOrder = async (id: string) => {
     const response = await fetchGraphQL<Query>(GET_ORDER.loc?.source.body, {
         variables: {id}
     });
-    return response.data.order;
+    return response.data?.order;
 }
 
 export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymentIntentInput) => {
     const response = await fetchGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
         variables: {createPaymentIntentInput: createPaymentIntentInput}
     });
-    return response.data.createPaymentIntent;
+    return response.data?.createPaymentIntent;
 }

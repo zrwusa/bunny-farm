@@ -13,7 +13,7 @@ export type GoogleLoginButtonProps = {
 export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => {
     const router = useRouter();
     const pathname = usePathname();
-    const { user, setUser } = useAuth();
+    const { setUser } = useAuth();
 
     return (
         <GoogleLogin
