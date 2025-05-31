@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {ListSizeContext} from '@/app/shopping/_hooks/list-size-context';
+import {ListSizeContext} from '@/contexts/list-size-context';
 
 export const useListSize = () => {
     const listSizeContext = useContext(ListSizeContext);

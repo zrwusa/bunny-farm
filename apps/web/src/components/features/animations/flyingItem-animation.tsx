@@ -29,7 +29,7 @@ export const FlyingItemAnimation: FC<FlyingItemProps> = ({flyingItem}) => {
                     style={{width: '150px', height: '80px', zIndex: 1000}}
                 >
                     <Image width={100} height={100} src={flyingItem.imageUrl} alt={flyingItem.color}
-                         className="w-10 h-10 rounded-md object-cover"/>
+                           className="w-10 h-10 rounded-md object-cover"/>
                     <div className="ml-2">
                         <p className="text-sm font-bold">{flyingItem.color}</p>
                         <p className="text-xs text-gray-500">Size: {flyingItem.size}</p>

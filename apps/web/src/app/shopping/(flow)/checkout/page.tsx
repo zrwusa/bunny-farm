@@ -5,7 +5,7 @@ import {EnrichedCartItem, PaymentMethod, UserAddress} from '@/types/generated/gr
 import {getAddressDetail, getMyAddresses, getSelectedCartItems, placeOrder} from '@/lib/api/client-actions';
 import {Button} from '@/components/ui/button';
 import Image from 'next/image';
-import {Combobox} from '@/components/features/combobox';
+import {Combobox} from '@/components/ui/combobox';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {Textarea} from '@/components/ui/textarea';
@@ -16,12 +16,12 @@ export default function CheckoutPage() {
     const [addresses, setAddresses] = useState<UserAddress[]>([]);
     const [inputAddress, setInputAddress] = useState<string>('');
 
-    const [selectedAddress, setSelectedAddress] = useState("");
+    const [selectedAddress, setSelectedAddress] = useState('');
 
     useEffect(() => {
         getMyAddresses().then((addresses) => {
             setAddresses(addresses);
-            if(addresses[0]) setSelectedAddress(addresses[0].id);
+            if (addresses[0]) setSelectedAddress(addresses[0].id);
             getSelectedCartItems().then((items) => setItems(items));
         })
     }, []);
@@ -39,7 +39,17 @@ export default function CheckoutPage() {
         const corrected = await getAddressDetail(inputAddress);
         console.log('---corrected', corrected);
     }
-    const options = addresses.map(({addressLine1, addressLine2, postalCode, city, country, id}) => ({label: `${addressLine1}, ${addressLine2}, ${city}, ${country}, ${postalCode} `, value: id}))
+    const options = addresses.map(({
+                                       addressLine1,
+                                       addressLine2,
+                                       postalCode,
+                                       city,
+                                       country,
+                                       id
+                                   }) => ({
+        label: `${addressLine1}, ${addressLine2}, ${city}, ${country}, ${postalCode} `,
+        value: id
+    }))
 
     return (
         <div className="mx-auto max-w-4xl">
@@ -64,7 +74,8 @@ export default function CheckoutPage() {
                 onValueChange={setSelectedAddress}
                 placeholder="chose an address"
             />
-            <Textarea className="border-4" placeholder="Paste or edit address..." onBlur={handleAddressCorrection} onChange={(e) => setInputAddress(e.target.value)}></Textarea>
+            <Textarea className="border-4" placeholder="Paste or edit address..." onBlur={handleAddressCorrection}
+                      onChange={(e) => setInputAddress(e.target.value)}></Textarea>
             <Button onClick={handlePlaceOrder}>Place Order</Button>
 
             <Link

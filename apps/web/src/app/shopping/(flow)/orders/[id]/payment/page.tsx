@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import Payment from '@/components/features/payment';
+import Payment from '@/components/features/shopping/payment/payment';
 
 export default function PaymentPage() {
 

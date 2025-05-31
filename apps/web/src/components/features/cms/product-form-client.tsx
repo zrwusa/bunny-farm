@@ -19,8 +19,15 @@ export const ProductFormClient = () => {
         },
         {
             name: 'Megamax Reciprocating saw head',
-            brand: {name: 'Ridgid' ,id: 'xxx', products:[], description:'', createdAt: new Date(), updatedAt: new Date()},
-            description: {type:'doc', text: 'Megamax Reciprocating saw head'}
+            brand: {
+                name: 'Ridgid',
+                id: 'xxx',
+                products: [],
+                description: '',
+                createdAt: new Date(),
+                updatedAt: new Date()
+            },
+            description: {type: 'doc', text: 'Megamax Reciprocating saw head'}
         } as unknown as Product
     );
 
@@ -29,7 +36,8 @@ export const ProductFormClient = () => {
             <form action={createProductAction}>
                 <Input type="text" defaultValue={state.name} name="name" id="name" placeholder="name"/>
                 <Input type="text" defaultValue={state.brand?.name} name="brand" id="brand" placeholder="brand"/>
-                <Input type="number" defaultValue={state.skus[0].prices[0].price} name="price" id="price" placeholder="price"/>
+                <Input type="number" defaultValue={state.skus[0].prices[0].price} name="price" id="price"
+                       placeholder="price"/>
                 <Input type="text" defaultValue={JSON.stringify(state.description)} name="description" id="description"
                        placeholder="description"/>
                 <Button type="submit" disabled={isPending}>Client Submit</Button>

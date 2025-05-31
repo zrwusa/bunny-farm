@@ -1,16 +1,8 @@
 'use server'
 
 import {fetchGraphQL, fetchGraphQLPure} from './graphql-fetch';
-import { Product } from '@/types/generated/graphql';
-import { Mutation, Query, User } from '@/types/generated/graphql';
-import {
-    GET_PRODUCT,
-    GET_PRODUCTS,
-    GET_PRODUCT_IDS,
-    GET_USERS,
-    SEARCH_PRODUCTS,
-} from '@/lib/graphql/queries';
-import { CREATE_PRODUCT } from '@/lib/graphql/mutations';
+import {Mutation, Product, Query, User} from '@/types/generated/graphql';
+import {CREATE_PRODUCT, GET_PRODUCT, GET_PRODUCT_IDS, GET_PRODUCTS, GET_USERS, SEARCH_PRODUCTS,} from '@/lib/graphql';
 
 export const createProduct = async (formData: FormData) => {
     const product = Object.fromEntries(formData.entries()) as unknown as Product;
@@ -48,7 +40,7 @@ export const getProductIds = async () => {
 }
 
 export const getProduct = async (id: string) => {
-    const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, { variables: { id } });
+    const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, {variables: {id}});
 
     if (!response?.data) {
         console.error('Error fetching product');
@@ -81,7 +73,7 @@ export const getUsers = async () => {
 
 export const searchProducts = async (keyword: string) => {
     const response = await fetchGraphQLPure<Query>(SEARCH_PRODUCTS.loc?.source.body, {
-        variables: { keyword }
+        variables: {keyword}
     });
 
     if (!response?.data) {

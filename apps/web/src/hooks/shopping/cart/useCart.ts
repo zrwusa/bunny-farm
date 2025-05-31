@@ -5,18 +5,18 @@ import {useDispatch, useSelector} from 'react-redux';
 import {AddItemToCartInput, Mutation, Query} from '@/types/generated/graphql';
 import {RootState} from '@/store/store';
 import {setCartSession, setError, setLoading,} from '@/store/slices/cartSlice';
-import {GET_MY_CART} from '@/lib/graphql/queries';
 import {
     ADD_ITEM_TO_CART,
     CLEAR_CART,
+    GET_MY_CART,
     REMOVE_ITEM_FROM_CART,
     TOGGLE_ITEM_SELECTION,
     UPDATE_ITEM_QUANTITY
-} from '@/lib/graphql/mutations';
+} from '@/lib/graphql';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
 import {Dispatch, PayloadAction} from '@reduxjs/toolkit';
 
-const handleError = (error: unknown, dispatch:  Dispatch<PayloadAction<string>>) => {
+const handleError = (error: unknown, dispatch: Dispatch<PayloadAction<string>>) => {
     let errorMessage = 'An unexpected error occurred';
 
     if (error instanceof Error) {

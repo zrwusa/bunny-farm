@@ -1,3 +1,3 @@
-export default function Order () {
+export default function Order() {
     return <div>Order</div>
 }

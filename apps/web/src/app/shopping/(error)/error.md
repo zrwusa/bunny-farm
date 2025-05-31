@@ -1,4 +1,5 @@
 # System status or error feedback page:
+
 ## Features:
 
 Special status display, generally no navigation is required, Recommended to provide:
@@ -9,9 +10,11 @@ Go back to the previous step ("Go Back")
 Strong prompt, center vision
 
 ## Pages:
+
 ### 404 Page not found (Not Found)
 
 ### 500 Server Error (Server Error)
+
 Recommended to provide:
 Back to homepage
 

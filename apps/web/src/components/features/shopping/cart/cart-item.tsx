@@ -1,7 +1,7 @@
 'use client';
 
-import {FC, ChangeEvent} from 'react';
-import {useCart} from '../_hooks/useCart';
+import {ChangeEvent, FC} from 'react';
+import {useCart} from '@/hooks/shopping/cart/useCart';
 import {EnrichedCartItem} from '@/types/generated/graphql';
 import Image from 'next/image'
 import {Checkbox} from '@/components/ui/checkbox';
@@ -20,7 +20,7 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
         updateCartItemQuantity(item.skuId, newQuantity).then();
     };
 
-    const handleSelectionToggle = (isChecked:  CheckedState) => {
+    const handleSelectionToggle = (isChecked: CheckedState) => {
         if (isChecked !== 'indeterminate') toggleItemSelection(item.skuId, isChecked).then()
     }
     const handleRemove = () => {

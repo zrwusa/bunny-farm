@@ -1,5 +1,5 @@
-import ProductFormClient from '@/app/cms/_components/product-form-client';
-import ProductForm from '@/app/cms/_components/product-form';
+import ProductFormClient from '@/components/features/cms/product-form-client';
+import ProductForm from '@/components/features/cms/product-form';
 
 
 const Product = async ({params}: {

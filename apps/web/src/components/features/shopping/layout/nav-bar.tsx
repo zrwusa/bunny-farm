@@ -1,7 +1,7 @@
 'use client';
 
 import {useRouter} from 'next/navigation';
-import Me from '@/app/shopping/_components/me';
+import Me from '@/components/features/auth/me';
 import {SearchInput} from '@/components/ui/search-bar';
 import {useEffect, useState} from 'react';
 import {SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';

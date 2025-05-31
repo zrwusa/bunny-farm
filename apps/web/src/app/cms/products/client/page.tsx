@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState} from 'react'
-import {ProductsTable} from '@/app/cms/_components/product-table'
+import {ProductsTable} from '@/components/features/cms/product-table'
 import {Product} from '@/types/generated/graphql'
 import {fetchGraphQL} from '@/lib/api/graphql-fetch'
 
@@ -64,7 +64,7 @@ export default function ProductsPage() {
     return (
         <div className="container mx-auto py-10">
             <h1 className="text-2xl font-bold mb-5">Products</h1>
-            <ProductsTable products={products} />
+            <ProductsTable products={products}/>
         </div>
     )
 }

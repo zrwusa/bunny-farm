@@ -8,13 +8,13 @@ import {Separator} from '@/components/ui/separator';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Button} from '@/components/ui/button';
 import React, {FC} from 'react';
-import {RichTextEditor} from '@/app/shopping/_components/rich-text-editor';
-import {FlyingItemAnimation} from '@/app/shopping/_components/flyingItem-animation';
-import {useAddToCartWithFlyAnimation} from '@/app/shopping/_hooks/useAddToCartWithFlyAnimation';
+import {RichTextEditor} from '@/components/features/shopping/shop/rich-text-editor';
+import {FlyingItemAnimation} from '@/components/features/animations/flyingItem-animation';
+import {useAddToCartWithFlyAnimation} from '@/hooks/shopping/cart/useAddToCartWithFlyAnimation';
 import Image from 'next/image';
 
 export interface ProductProps {
-    product: Query["product"];
+    product: Query['product'];
 }
 
 export const Product: FC<ProductProps> = ({product}) => {
@@ -31,20 +31,21 @@ export const Product: FC<ProductProps> = ({product}) => {
                     {images.length > 0 ? (
                         images.map((image) => (
                             <CarouselItem key={image.id}>
-                                    <Card>
-                                        <CardContent className="flex aspect-square items-center justify-center p-4 relative w-full h-96 bg-white">
-                                            {/*<img src={image.url} alt={`Image ${image.id}`}*/}
-                                            {/*     className="w-full h-full object-cover rounded-lg"/>*/}
-                                            {/*<div className="relative w-full h-52 bg-white">*/}
-                                                <Image
-                                                    src={image.url}
-                                                    alt={`Image ${image.id}`}
-                                                    fill
-                                                    className="object-contain p-2"
-                                                />
-                                            {/*</div>*/}
-                                        </CardContent>
-                                    </Card>
+                                <Card>
+                                    <CardContent
+                                        className="flex aspect-square items-center justify-center p-4 relative w-full h-96 bg-white">
+                                        {/*<img src={image.url} alt={`Image ${image.id}`}*/}
+                                        {/*     className="w-full h-full object-cover rounded-lg"/>*/}
+                                        {/*<div className="relative w-full h-52 bg-white">*/}
+                                        <Image
+                                            src={image.url}
+                                            alt={`Image ${image.id}`}
+                                            fill
+                                            className="object-contain p-2"
+                                        />
+                                        {/*</div>*/}
+                                    </CardContent>
+                                </Card>
                             </CarouselItem>
                         ))
                     ) : (
@@ -52,7 +53,7 @@ export const Product: FC<ProductProps> = ({product}) => {
                             <div className="p-1">
                                 <Card>
                                     <CardContent className="flex aspect-square items-center justify-center p-6">
-                                    <span className="text-4xl font-semibold">No Image</span>
+                                        <span className="text-4xl font-semibold">No Image</span>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -72,7 +73,7 @@ export const Product: FC<ProductProps> = ({product}) => {
                     </p>
                 </CardHeader>
             </Card>
-            
+
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle className="text-lg font-semibold">Product Description</CardTitle>

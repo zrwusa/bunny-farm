@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import useDebounce from '@/hooks/use-debounce';
 
 interface SearchInputProps {

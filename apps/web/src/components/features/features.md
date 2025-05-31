@@ -1,0 +1,1 @@
+Components and logic organized by business modules (LoginForm, CartPanel)

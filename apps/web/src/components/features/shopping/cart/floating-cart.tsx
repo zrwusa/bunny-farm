@@ -1,7 +1,7 @@
 'use client'
 
-import {useCart} from '@/app/shopping/_hooks/useCart';
-import {useCartItemsCount} from '@/app/shopping/_hooks/useCartItemsCount';
+import {useCart} from '@/hooks/shopping/cart/useCart';
+import {useCartItemsCount} from '@/hooks/shopping/cart/useCartItemsCount';
 import {ShoppingCart} from 'lucide-react';
 import Link from 'next/link';
 import {motion} from 'framer-motion';
@@ -21,7 +21,8 @@ export default function FloatingCart() {
             >
                 <ShoppingCart size={24}/>
                 {count > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                    <span
+                        className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                         {count}
                     </span>
                 )}

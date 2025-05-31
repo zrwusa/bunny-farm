@@ -1,10 +1,10 @@
 import {
     getStoredTokens,
+    getUserIdFromToken,
     isTokenExpired,
     isTokenExpiringSoon,
-    setStoredTokens,
-    getUserIdFromToken,
-    removeStoredTokens
+    removeStoredTokens,
+    setStoredTokens
 } from './auth';
 import {GraphQLError} from 'graphql/error';
 import {AuthError, NetworkError} from '@/lib/errors';
@@ -59,7 +59,7 @@ async function refreshTokens() {
             if (!response.ok) throw new NetworkError('Failed to refresh token');
 
             const result = await response.json();
-            const { accessToken, refreshToken } = result.data.refreshToken;
+            const {accessToken, refreshToken} = result.data.refreshToken;
             await setStoredTokens(accessToken, refreshToken);
         } catch (error) {
             console.error('Token refresh failed:', error);
@@ -76,16 +76,16 @@ async function refreshTokens() {
 
 export async function doFetchGraphQL<T>(
     query?: string,
-    { variables, revalidate = 10, accessToken }: GraphQLOptions = {}
+    {variables, revalidate = 10, accessToken}: GraphQLOptions = {}
 ): Promise<GraphQLResponse<T>> {
     const res = await fetch('http://localhost:8080/graphql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+            ...(accessToken ? {Authorization: `Bearer ${accessToken}`} : {}),
         },
-        body: JSON.stringify({ query, variables }),
-        next: { revalidate },
+        body: JSON.stringify({query, variables}),
+        next: {revalidate},
     });
 
     if (!res.ok) {

@@ -1,27 +1,26 @@
 'use client'
 
-import { useState } from 'react';
+import {ComponentPropsWithoutRef, useState} from 'react';
 import {cn} from '@/lib/utils'
 import {Button} from '@/components/ui/button'
 import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from '@/components/ui/card'
 import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
-import {GoogleLoginButton} from '@/components/features/google-login';
-import {ComponentPropsWithoutRef} from 'react';
-import {useSearchParams, useRouter} from 'next/navigation';
+import {GoogleLoginButton} from '@/components/features/auth/google-login';
+import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import { localLogin, getMe } from '@/lib/api/client-actions';
-import { useAuth } from '@/contexts/auth-context';
+import {getMe, localLogin} from '@/lib/api/client-actions';
+import {useAuth} from '@/contexts/auth-context';
 
 export type LoginFormProps = ComponentPropsWithoutRef<'div'> & {
     onSuccess?: () => void;
 }
 
 export function LoginForm({
-    className,
-    onSuccess,
-    ...props
-}: LoginFormProps) {
+                              className,
+                              onSuccess,
+                              ...props
+                          }: LoginFormProps) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -29,7 +28,7 @@ export function LoginForm({
 
     const searchParams = useSearchParams();
     const router = useRouter();
-    const { setUser } = useAuth();
+    const {setUser} = useAuth();
     const from = searchParams.get('redirect') || '/';
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -41,13 +40,13 @@ export function LoginForm({
             const result = await localLogin(email, password);
 
             if (result) {
-                const { accessToken, refreshToken } = result;
+                const {accessToken, refreshToken} = result;
                 localStorage.setItem('access_token', accessToken);
                 localStorage.setItem('refresh_token', refreshToken);
 
                 // Refresh user state
                 const me = await getMe();
-                if(me) setUser(me);
+                if (me) setUser(me);
 
                 // Redirect to original page after successful login
                 router.replace(from);
@@ -128,7 +127,8 @@ export function LoginForm({
                             </div>
                             <div className="text-center text-sm">
                                 Don&apos;t have an account?{' '}
-                                <Link href={`/auth/register${from ? `?redirect=${encodeURIComponent(from)}` : ''}`} className="underline underline-offset-4">
+                                <Link href={`/auth/register${from ? `?redirect=${encodeURIComponent(from)}` : ''}`}
+                                      className="underline underline-offset-4">
                                     Sign up
                                 </Link>
                             </div>

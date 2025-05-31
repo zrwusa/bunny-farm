@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { GoogleLogin } from '@react-oauth/google';
-import { useRouter, usePathname } from 'next/navigation';
-import { googleLogin, getMe } from '@/lib/api/client-actions';
-import { useAuth } from '@/contexts/auth-context';
+import {GoogleLogin} from '@react-oauth/google';
+import {usePathname, useRouter} from 'next/navigation';
+import {getMe, googleLogin} from '@/lib/api/client-actions';
+import {useAuth} from '@/contexts/auth-context';
 
 export type GoogleLoginButtonProps = {
     from?: string;
@@ -13,7 +13,7 @@ export type GoogleLoginButtonProps = {
 export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => {
     const router = useRouter();
     const pathname = usePathname();
-    const { setUser } = useAuth();
+    const {setUser} = useAuth();
 
     return (
         <GoogleLogin
@@ -26,13 +26,13 @@ export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => 
                 });
 
                 if (result) {
-                    const { accessToken, refreshToken } = result;
+                    const {accessToken, refreshToken} = result;
                     localStorage.setItem('access_token', accessToken);
                     localStorage.setItem('refresh_token', refreshToken);
 
                     // Refresh user state
                     const me = await getMe();
-                    if(me) setUser(me);
+                    if (me) setUser(me);
 
                     // If no 'from' parameter is specified, use current path
                     const redirectPath = from || pathname;

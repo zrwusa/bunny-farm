@@ -1,8 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {requestKeys} from '@/lib/constants/request-keys';
 import {fetchGraphQL} from '@/lib/api/graphql-fetch';
-import {Product} from '@/types/generated/graphql';
-import {Query} from '@/types/generated/graphql';
+import {Product, Query} from '@/types/generated/graphql';
 
 
 const authSlice = createSlice({

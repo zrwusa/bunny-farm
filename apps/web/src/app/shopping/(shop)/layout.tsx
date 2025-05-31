@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {ReactNode} from 'react';
-import FloatingCart from '@/app/shopping/_components/floating-cart';
-import NavBar from '@/app/shopping/_components/nav-bar';
+import FloatingCart from '@/components/features/shopping/cart/floating-cart';
+import NavBar from '@/components/features/shopping/layout/nav-bar';
 
 export const metadata: Metadata = {
     title: 'Bunny Shopping',

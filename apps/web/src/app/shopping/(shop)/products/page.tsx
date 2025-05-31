@@ -9,8 +9,8 @@ type PageProps = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function ProductsPage({ searchParams }: PageProps) {
-    const { q } = await searchParams;
+export default async function ProductsPage({searchParams}: PageProps) {
+    const {q} = await searchParams;
     const query = typeof q === 'string' ? q : '';
     const products: Query['products'] = await searchProducts(query);
 
@@ -20,7 +20,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     return (
         <section className="container mx-auto px-4 py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.slice(0, size).map(({ id, name, brand, images, skus }, index) => {
+                {products.slice(0, size).map(({id, name, brand, images, skus}, index) => {
                     const imageUrl = images?.[0]?.url || '/placeholder.jpg';
                     const price = skus?.[0]?.prices?.[0]?.price ?? 'N/A';
 

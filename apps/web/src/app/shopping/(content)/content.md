@@ -1,4 +1,5 @@
 # Provides information primarily, not functional operations:
+
 ## Features:
 
 Mainly content
@@ -6,6 +7,7 @@ Mainly content
 General layout structure (top navigation + footer)
 
 ## Pages:
+
 ### About Us
 
 ### Help Center

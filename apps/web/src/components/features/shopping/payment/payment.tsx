@@ -18,7 +18,7 @@ const PaymentForm = ({amountOfCents}: { amountOfCents: number }) => {
 
     const handleCheckout = async () => {
         const clientSecret = await createPaymentIntent({amountOfCents: amountOfCents, currency: currency});
-        if(clientSecret) setClientSecret(clientSecret);
+        if (clientSecret) setClientSecret(clientSecret);
     };
 
     const handleSubmit = async (e: FormEvent) => {

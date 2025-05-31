@@ -1,19 +1,30 @@
-import {CreatePaymentIntentInput, PlaceOrderInput, Product} from '@/types/generated/graphql';
-import {fetchGraphQL, GraphQLResponse} from './graphql-fetch';
-import { Mutation, Query, LoginInput, CreateUserInput } from '@/types/generated/graphql';
-import { ME_QUERY } from '@/lib/graphql';
 import {
-    GOOGLE_LOGIN,
-    LOGOUT,
+    CreatePaymentIntentInput,
+    CreateUserInput,
+    LoginInput,
+    Mutation,
+    PlaceOrderInput,
+    Product,
+    Query
+} from '@/types/generated/graphql';
+import {fetchGraphQL, GraphQLResponse} from './graphql-fetch';
+import {
+    CREATE_PAYMENT_INTENT,
     CREATE_PRODUCT_CLIENT,
-    REGISTER,
+    GET_ADDRESS_DETAIL,
+    GET_MY_ADDRESSES,
+    GET_ORDER,
+    GET_SELECTED_CART_ITEMS,
+    GOOGLE_LOGIN,
     LOCAL_LOGIN,
+    LOGOUT,
+    ME_QUERY,
     PLACE_ORDER,
-    CREATE_PAYMENT_INTENT
-} from '@/lib/graphql/mutations';
-import { setStoredTokens } from './auth';
-import {GET_ADDRESS_DETAIL, GET_MY_ADDRESSES, GET_ORDER, GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
-const handleGraphQLErrors = (response:  GraphQLResponse<Mutation | Query>) => {
+    REGISTER
+} from '@/lib/graphql';
+import {setStoredTokens} from './auth';
+
+const handleGraphQLErrors = (response: GraphQLResponse<Mutation | Query>) => {
     if (response.errors) throw new Error(response.errors.map((e) => e.message).join(';'))
 }
 export const createProductClient = async (prevState: Product, formData: FormData) => {
@@ -29,7 +40,7 @@ export const createProductClient = async (prevState: Product, formData: FormData
         }
     });
 
-    const { createProduct } = response.data || {};
+    const {createProduct} = response.data || {};
     if (!createProduct?.id) return product;
     return createProduct;
 }
@@ -42,7 +53,7 @@ export const getMe = async () => {
 
 export const googleLogin = async (loginInput: LoginInput) => {
     const response = await fetchGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
-        variables: { input: loginInput }
+        variables: {input: loginInput}
     });
     handleGraphQLErrors(response);
     return response.data?.login;
@@ -60,37 +71,37 @@ export const logout = async () => {
 
 export const register = async (createUserInput: CreateUserInput) => {
     const response = await fetchGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
-        variables: { createUserInput }
+        variables: {createUserInput}
     });
     handleGraphQLErrors(response);
     return response.data?.createUser;
 };
 
 export async function localLogin(email: string, password: string) {
-  try {
-    const { data } = await fetchGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
-      LOCAL_LOGIN.loc?.source.body || '',
-      {
-        variables: {
-          input: {
-            email,
-            password,
-            type: 'local',
-          },
-        },
-      }
-    );
+    try {
+        const {data} = await fetchGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
+            LOCAL_LOGIN.loc?.source.body || '',
+            {
+                variables: {
+                    input: {
+                        email,
+                        password,
+                        type: 'local',
+                    },
+                },
+            }
+        );
 
-    if (data?.login) {
-      await setStoredTokens(data.login.accessToken, data.login.refreshToken);
-      return data.login;
+        if (data?.login) {
+            await setStoredTokens(data.login.accessToken, data.login.refreshToken);
+            return data.login;
+        }
+
+        // TODO find the best approach to handle error properly
+        throw new Error('Login failed');
+    } catch (error) {
+        throw error;
     }
-
-    // TODO find the best approach to handle error properly
-    throw new Error('Login failed');
-  } catch (error) {
-    throw error;
-  }
 }
 
 export const getSelectedCartItems = async () => {

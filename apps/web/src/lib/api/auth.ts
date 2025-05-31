@@ -1,4 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
+
 // import { cookies } from 'next/headers';
 
 interface DecodedToken {
@@ -14,7 +15,7 @@ export const getStoredTokens = async () => {
     if (typeof window === 'undefined') return null;
     const accessToken = localStorage.getItem('access_token') ?? undefined;
     const refreshToken = localStorage.getItem('refresh_token') ?? undefined;
-    return { accessToken, refreshToken };
+    return {accessToken, refreshToken};
 };
 
 export const setStoredTokens = async (accessToken: string, refreshToken: string) => {

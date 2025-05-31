@@ -1,7 +1,7 @@
 import type {Metadata} from 'next';
 import {ReactNode} from 'react';
 // import ApiProgress from '@/components/features/api-progress';
-import {AppSidebar} from '@/app/cms/_components/app-sidebar'
+import {AppSidebar} from '@/components/features/cms/app-sidebar'
 import {
     Breadcrumb,
     BreadcrumbItem,

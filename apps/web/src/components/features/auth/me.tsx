@@ -1,18 +1,13 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context';
-import { useRouter, usePathname } from 'next/navigation';
+import {useAuth} from '@/contexts/auth-context';
+import {usePathname, useRouter} from 'next/navigation';
 import Image from 'next/image';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { LogOut, User } from "lucide-react";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
+import {LogOut, User} from 'lucide-react';
 
 export default function Me() {
-    const { user, logout } = useAuth();
+    const {user, logout} = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -51,7 +46,7 @@ export default function Me() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
+                    <User className="h-4 w-4"/>
                     <span>{user?.profile?.displayName ?? user?.email}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -59,7 +54,7 @@ export default function Me() {
                     className="flex items-center gap-2 text-red-600 focus:text-red-600"
                     data-testid="logout-button"
                 >
-                    <LogOut className="h-4 w-4" />
+                    <LogOut className="h-4 w-4"/>
                     <span>Logout</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

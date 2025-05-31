@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import { CachedCart } from '@/types/generated/graphql';
+import {CachedCart} from '@/types/generated/graphql';
 
 interface CartState {
     cart: CachedCart | null;

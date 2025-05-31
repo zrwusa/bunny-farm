@@ -6,7 +6,8 @@ Strong custom style
 
 Standard navigation and footer are not necessarily required
 
-## Pages: 
+## Pages:
+
 ### Promotional Landing Page
 
 ### Gift Card Page
