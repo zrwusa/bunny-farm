@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const fetchUser = async () => {
       try {
         const result = await getMe();
-        setUser(result);
+        if(result) setUser(result);
       } catch (err) {
         setError(err as Error);
       } finally {

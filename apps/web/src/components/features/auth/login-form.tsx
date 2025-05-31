@@ -47,7 +47,7 @@ export function LoginForm({
 
                 // Refresh user state
                 const me = await getMe();
-                setUser(me);
+                if(me) setUser(me);
 
                 // Redirect to original page after successful login
                 router.replace(from);

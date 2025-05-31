@@ -1,5 +1,5 @@
 import {CreatePaymentIntentInput, PlaceOrderInput, Product} from '@/types/generated/graphql';
-import { fetchGraphQL } from './graphql-fetch';
+import {fetchGraphQL, GraphQLResponse} from './graphql-fetch';
 import { Mutation, Query, LoginInput, CreateUserInput } from '@/types/generated/graphql';
 import { ME_QUERY } from '@/lib/graphql';
 import {
@@ -13,7 +13,9 @@ import {
 } from '@/lib/graphql/mutations';
 import { setStoredTokens } from './auth';
 import {GET_ADDRESS_DETAIL, GET_MY_ADDRESSES, GET_ORDER, GET_SELECTED_CART_ITEMS} from '@/lib/graphql/queries';
-
+const handleGraphQLErrors = (response:  GraphQLResponse<Mutation | Query>) => {
+    if (response.errors) throw new Error(response.errors.map((e) => e.message).join(';'))
+}
 export const createProductClient = async (prevState: Product, formData: FormData) => {
     const formEntries = Object.fromEntries(formData.entries());
     const product = {
@@ -34,6 +36,7 @@ export const createProductClient = async (prevState: Product, formData: FormData
 
 export const getMe = async () => {
     const response = await fetchGraphQL<Query>(ME_QUERY.loc?.source.body || '');
+    handleGraphQLErrors(response);
     return response.data?.me;
 };
 
@@ -41,11 +44,13 @@ export const googleLogin = async (loginInput: LoginInput) => {
     const response = await fetchGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
         variables: { input: loginInput }
     });
+    handleGraphQLErrors(response);
     return response.data?.login;
 };
 
 export const logout = async () => {
     const response = await fetchGraphQL<Mutation>(LOGOUT.loc?.source.body || '');
+    handleGraphQLErrors(response);
     if (response.data?.logout) {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -57,6 +62,7 @@ export const register = async (createUserInput: CreateUserInput) => {
     const response = await fetchGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
         variables: { createUserInput }
     });
+    handleGraphQLErrors(response);
     return response.data?.createUser;
 };
 
@@ -91,14 +97,16 @@ export const getSelectedCartItems = async () => {
     const response = await fetchGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
         variables: {}
     });
-    return response.data?.selectedCartItems;
+    handleGraphQLErrors(response);
+    return response.data?.selectedCartItems ?? [];
 }
 
 export const getMyAddresses = async () => {
     const response = await fetchGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
         variables: {}
     });
-    return response.data?.myAddresses;
+    handleGraphQLErrors(response);
+    return response.data?.myAddresses ?? [];
 }
 
 export const getAddressDetail = async (addressText: string) => {
@@ -107,6 +115,7 @@ export const getAddressDetail = async (addressText: string) => {
             address: addressText
         }
     });
+    handleGraphQLErrors(response);
     return response.data?.placeDetail;
 }
 
@@ -114,6 +123,7 @@ export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
     const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
         variables: {placeOrderInput: placeOrderInput}
     });
+    handleGraphQLErrors(response);
     return response.data?.placeOrder;
 }
 
@@ -121,6 +131,7 @@ export const getOrder = async (id: string) => {
     const response = await fetchGraphQL<Query>(GET_ORDER.loc?.source.body, {
         variables: {id}
     });
+    handleGraphQLErrors(response);
     return response.data?.order;
 }
 
@@ -128,5 +139,6 @@ export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymen
     const response = await fetchGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
         variables: {createPaymentIntentInput: createPaymentIntentInput}
     });
+    handleGraphQLErrors(response);
     return response.data?.createPaymentIntent;
 }

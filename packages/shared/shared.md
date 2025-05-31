@@ -1,0 +1,1 @@
+It is usually used to place "business-independent" basic types, general interfaces, constants (such as status codes, error codes), tool functions, etc.

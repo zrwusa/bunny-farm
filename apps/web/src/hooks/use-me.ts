@@ -10,7 +10,7 @@ export const useMe = () => {
     useEffect(() => {
         getMe()
             .then((me) => {
-                setUser(me);
+                if(me) setUser(me);
             })
             .catch(() => {
                 setUser(null);

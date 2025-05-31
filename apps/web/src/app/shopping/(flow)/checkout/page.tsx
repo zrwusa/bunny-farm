@@ -32,7 +32,7 @@ export default function CheckoutPage() {
             addressId: selectedAddress,
             paymentMethod: PaymentMethod.CreditCard
         })
-        if (orderPlaced.id) router.push(`/shopping/orders/${orderPlaced.id}/payment`);
+        if (orderPlaced?.id) router.push(`/shopping/orders/${orderPlaced.id}/payment`);
     }
 
     const handleAddressCorrection = async () => {

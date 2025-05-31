@@ -32,7 +32,7 @@ export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => 
 
                     // Refresh user state
                     const me = await getMe();
-                    setUser(me);
+                    if(me) setUser(me);
 
                     // If no 'from' parameter is specified, use current path
                     const redirectPath = from || pathname;

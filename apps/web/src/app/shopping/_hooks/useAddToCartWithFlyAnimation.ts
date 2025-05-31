@@ -1,6 +1,6 @@
 import {MouseEvent, useState} from 'react';
 import {useCart} from './useCart';
-import {ProductPrice, SKU} from '@/types/generated/graphql';
+import {ProductPrice, Sku} from '@/types/generated/graphql';
 
 export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jpg') {
     const {addToCart} = useCart();
@@ -8,7 +8,7 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
 
     function getFlyingItem(
         event: MouseEvent,
-        sku: SKU,
+        sku: Sku,
         price: ProductPrice,
         index: number
     ) {
@@ -32,7 +32,7 @@ export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jp
 
     const handleAddToCart = async (
         event: MouseEvent,
-        sku: SKU,
+        sku: Sku,
         price: ProductPrice,
         index: number,
         productId: string,

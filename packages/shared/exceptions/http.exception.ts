@@ -1,9 +1,9 @@
 import {
   HttpExceptionBody,
   HttpExceptionBodyMessage,
-} from '../interfaces/http/http-exception-body.interface';
+} from '../interfaces';
 import { IntrinsicException } from './intrinsic.exception';
-import {isNumber, isObject, isString} from '../utils';
+import {isNumber, isObject, isString} from '../../../apps/api/src/utils';
 
 export interface HttpExceptionOptions {
   /** original cause of the error */
