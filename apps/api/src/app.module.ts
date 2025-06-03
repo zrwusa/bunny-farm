@@ -35,10 +35,10 @@ import { AuthModule } from './auth/auth.module';
 import { Cart } from './cart/entities/cart.entity';
 import { CartItem } from './cart/entities/cart-item.entity';
 import { SkuImage } from './product/entities/sku-image.entity';
-import { Request, Response } from 'express';
 import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
-import {PlaceModule} from './place/place.module';
+import { PlaceModule } from './place/place.module';
+import { GqlContext } from './types/graphql';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import {PlaceModule} from './place/place.module';
       debug: true, // Enable debugging mode to log detailed GraphQL execution info
       playground: true, // Enable GraphQL Playground for in-browser query testing
       introspection: true, // Allow introspection queries to fetch schema details
-      context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
+      context: ({ req, res }: GqlContext) => ({ req, res }),
       formatError: (error) => {
         console.error('GraphQL Error:', error);
         return error;

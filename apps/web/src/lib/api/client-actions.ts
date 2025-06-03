@@ -7,7 +7,7 @@ import {
     Product,
     Query
 } from '@/types/generated/graphql';
-import {fetchGraphQL, GraphQLResponse} from './graphql-fetch';
+import {fetchGraphQL} from './client-graphql-fetch';
 import {
     CREATE_PAYMENT_INTENT,
     CREATE_PRODUCT_CLIENT,
@@ -22,7 +22,8 @@ import {
     PLACE_ORDER,
     REGISTER
 } from '@/lib/graphql';
-import {setStoredTokens} from './auth';
+import {setStoredTokens} from './client-auth';
+import {GraphQLResponse} from '@/types/graphql';
 
 const handleGraphQLErrors = (response: GraphQLResponse<Mutation | Query>) => {
     if (response.errors) throw new Error(response.errors.map((e) => e.message).join(';'))

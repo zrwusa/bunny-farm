@@ -1,70 +1,61 @@
-import {
-    getStoredTokens,
-    getUserIdFromToken,
-    isTokenExpired,
-    isTokenExpiringSoon,
-    removeStoredTokens,
-    setStoredTokens
-} from './auth';
-import {GraphQLError} from 'graphql/error';
-import {AuthError, NetworkError} from '@/lib/errors';
+'use server';
+
+import { isTokenExpired, isTokenExpiringSoon } from './client-auth';
+import { GraphQLError } from 'graphql/error';
+import { AuthError, NetworkError } from '@/lib/errors';
+import { getCookieTokens } from '@/lib/api/auth';
+import { FetchGraphQLOptions, GraphQLResponse } from '@/types/graphql';
 
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
-export type GraphQLOptions = {
-    variables?: Record<string, unknown>;
-    revalidate?: number;
-    accessToken?: string;
-};
+function buildCookieHeader(accessToken?: string, refreshToken?: string): string {
+    return [accessToken && `access_token=${accessToken}`, refreshToken && `refresh_token=${refreshToken}`]
+        .filter(Boolean)
+        .join('; ');
+}
 
-export  type GraphQLResponse<T> = {
-    data?: T;
-    errors?: GraphQLError[];
-};
+async function refreshTokensIfNeeded(): Promise<void> {
+    const tokens = await getCookieTokens();
+    if (!tokens?.accessToken || !tokens.refreshToken) {
+        // Don't try to refresh during SSR
+        if (typeof window === 'undefined') {
+            throw new AuthError('No tokens in SSR context');
+        }
+        throw new AuthError('Missing tokens');
+    }
 
-async function refreshTokens() {
+    if (!isTokenExpired(tokens.accessToken) && !isTokenExpiringSoon(tokens.accessToken)) return;
+
     if (isRefreshing) return refreshPromise;
 
     isRefreshing = true;
     refreshPromise = (async () => {
         try {
-            const tokens = await getStoredTokens();
-            if (!tokens?.refreshToken) throw new AuthError('No refresh token available');
-
-            const userId = getUserIdFromToken(tokens.refreshToken);
-            if (!userId) throw new AuthError('Invalid refresh token');
-
+            const cookieHeader = buildCookieHeader(tokens.accessToken, tokens.refreshToken);
             const response = await fetch('http://localhost:8080/graphql', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Cookie': cookieHeader,
                 },
                 body: JSON.stringify({
                     query: `
-                        mutation RefreshToken($userId: String!, $refreshToken: String!) {
-                            refreshToken(userId: $userId, refreshToken: $refreshToken) {
-                                accessToken
-                                refreshToken
-                            }
-                        }
-                    `,
-                    variables: {
-                        userId,
-                        refreshToken: tokens.refreshToken,
-                    },
+            mutation RefreshToken($refreshToken: String!) {
+              refreshToken(refreshToken: $refreshToken) {
+                accessToken
+                refreshToken
+              }
+            }
+          `,
+                    variables: { refreshToken: tokens.refreshToken },
                 }),
             });
 
-            if (!response.ok) throw new NetworkError('Failed to refresh token');
-
-            const result = await response.json();
-            const {accessToken, refreshToken} = result.data.refreshToken;
-            await setStoredTokens(accessToken, refreshToken);
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-            await removeStoredTokens();
-            throw error;
+            if (!response.ok) throw new NetworkError('Token refresh failed');
+        } catch (err) {
+            console.error('Token refresh failed:', err);
+            throw new AuthError('Refresh token failed');
         } finally {
             isRefreshing = false;
             refreshPromise = null;
@@ -74,32 +65,27 @@ async function refreshTokens() {
     return refreshPromise;
 }
 
-export async function doFetchGraphQL<T>(
+async function doFetchGraphQL<T>(
     query?: string,
-    {variables, revalidate = 10, accessToken}: GraphQLOptions = {}
+    { variables, revalidate = 10, cookieHeader }: FetchGraphQLOptions & { cookieHeader?: string } = {}
 ): Promise<GraphQLResponse<T>> {
     const res = await fetch('http://localhost:8080/graphql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(accessToken ? {Authorization: `Bearer ${accessToken}`} : {}),
+            ...(cookieHeader && { Cookie: cookieHeader }),
         },
-        body: JSON.stringify({query, variables}),
-        next: {revalidate},
+        body: JSON.stringify({ query, variables }),
+        next: { revalidate },
     });
 
-    if (!res.ok) {
-        throw new NetworkError(`${res.status} ${res.statusText}`);
-    }
+    if (!res.ok) throw new NetworkError(`${res.status} ${res.statusText}`);
 
     const result: GraphQLResponse<T> = await res.json();
 
     if (result.errors?.length) {
-        const firstError = result.errors[0];
-        const code = firstError.extensions?.code; // Use NestJS' throw new ForbiddenException(), which will also automatically add extensions.code
-        const message = firstError.message || 'GraphQL error occurred';
-
-        switch (code) {
+        const { message = 'GraphQL error occurred', extensions } = result.errors[0];
+        switch (extensions?.code) {
             case 'UNAUTHORIZED':
             case 'FORBIDDEN':
                 throw new AuthError(message);
@@ -107,7 +93,7 @@ export async function doFetchGraphQL<T>(
             case 'VALIDATION_FAILED':
                 return result;
             case 'INTERNAL_SERVER_ERROR':
-                throw new NetworkError('Server encountered an error');
+                throw new NetworkError('Server error');
             default:
                 throw new GraphQLError(message);
         }
@@ -116,56 +102,114 @@ export async function doFetchGraphQL<T>(
     return result;
 }
 
-// fetchGraphQLPure: without token
-export async function fetchGraphQLPure<T>(
-    query?: string,
-    options?: Omit<GraphQLOptions, 'accessToken'>
-): Promise<GraphQLResponse<T>> {
+export async function fetchGraphQLPure<T>(query?: string, options?: FetchGraphQLOptions) {
     return doFetchGraphQL<T>(query, options);
 }
 
-// fetchGraphQL: Automatically handle tokens
 export async function fetchGraphQL<T>(
     query?: string,
-    options?: {
-        variables?: Record<string, unknown>;
-        revalidate?: number;
-    }
+    options?: { variables?: Record<string, unknown>; revalidate?: number }
 ): Promise<GraphQLResponse<T>> {
-    let tokens = await getStoredTokens();
-
-    if (tokens?.accessToken && (isTokenExpired(tokens.accessToken) || isTokenExpiringSoon(tokens.accessToken))) {
-        try {
-            await refreshTokens();
-            tokens = await getStoredTokens();
-        } catch (error) {
-            console.error('Failed to refresh token:', error);
-            throw new AuthError('Token refresh failed');
-        }
-    }
-
     try {
+        await refreshTokensIfNeeded();
+
+        const tokens = await getCookieTokens();
+        const cookieHeader = buildCookieHeader(tokens?.accessToken, tokens?.refreshToken);
+
         return await doFetchGraphQL<T>(query, {
             ...options,
-            accessToken: tokens?.accessToken,
+            cookieHeader,
         });
-    } catch (error: unknown) {
-        if (error instanceof AuthError) {
+    } catch (err) {
+        if (err instanceof AuthError) {
+            console.warn('Auth error, trying to refresh and retry:', err);
             try {
-                await refreshTokens();
-                tokens = await getStoredTokens();
+                await refreshTokensIfNeeded();
+                const tokens = await getCookieTokens();
+                const cookieHeader = buildCookieHeader(tokens?.accessToken, tokens?.refreshToken);
+
                 return await doFetchGraphQL<T>(query, {
                     ...options,
-                    accessToken: tokens?.accessToken,
+                    cookieHeader,
                 });
             } catch (refreshError) {
-                console.error('Failed to refresh token after 401:', refreshError);
-                await removeStoredTokens();
+                // await removeCookieTokens();
                 throw new AuthError('Re-authentication required');
             }
         }
 
-        throw error;
+        throw err;
     }
 }
 
+
+// 'use server';
+//
+// import { GraphQLError } from 'graphql/error';
+// import { AuthError, NetworkError } from '@/lib/errors';
+// import { getCookieTokens } from '@/lib/api/auth';
+// import { FetchGraphQLOptions, GraphQLResponse } from '@/types/graphql';
+//
+// function buildCookieHeader(accessToken?: string, refreshToken?: string): string {
+//     return [accessToken && `access_token=${accessToken}`, refreshToken && `refresh_token=${refreshToken}`]
+//         .filter(Boolean)
+//         .join('; ');
+// }
+//
+// async function doFetchGraphQL<T>(
+//     query?: string,
+//     { variables, revalidate = 10, cookieHeader }: FetchGraphQLOptions & { cookieHeader?: string } = {}
+// ): Promise<GraphQLResponse<T>> {
+//     const res = await fetch('http://localhost:8080/graphql', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             ...(cookieHeader && { Cookie: cookieHeader }),
+//         },
+//         body: JSON.stringify({ query, variables }),
+//         next: { revalidate },
+//     });
+//
+//     if (!res.ok) throw new NetworkError(`${res.status} ${res.statusText}`);
+//
+//     const result: GraphQLResponse<T> = await res.json();
+//
+//     if (result.errors?.length) {
+//         const { message = 'GraphQL error occurred', extensions } = result.errors[0];
+//         switch (extensions?.code) {
+//             case 'UNAUTHORIZED':
+//             case 'FORBIDDEN':
+//                 throw new AuthError(message);
+//             case 'BAD_USER_INPUT':
+//             case 'VALIDATION_FAILED':
+//                 return result;
+//             case 'INTERNAL_SERVER_ERROR':
+//                 throw new NetworkError('Server error');
+//             default:
+//                 throw new GraphQLError(message);
+//         }
+//     }
+//
+//     return result;
+// }
+//
+// export async function fetchGraphQLPure<T>(query?: string, options?: FetchGraphQLOptions) {
+//     return doFetchGraphQL<T>(query, options);
+// }
+//
+// export async function fetchGraphQL<T>(
+//     query?: string,
+//     options?: { variables?: Record<string, unknown>; revalidate?: number }
+// ): Promise<GraphQLResponse<T>> {
+//     const tokens = await getCookieTokens();
+//     if (!tokens?.accessToken || !tokens.refreshToken) {
+//         throw new AuthError('Missing access or refresh token');
+//     }
+//
+//     const cookieHeader = buildCookieHeader(tokens.accessToken, tokens.refreshToken);
+//
+//     return await doFetchGraphQL<T>(query, {
+//         ...options,
+//         cookieHeader,
+//     });
+// }

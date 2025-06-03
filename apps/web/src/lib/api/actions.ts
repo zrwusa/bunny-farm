@@ -2,7 +2,15 @@
 
 import {fetchGraphQL, fetchGraphQLPure} from './graphql-fetch';
 import {Mutation, Product, Query, User} from '@/types/generated/graphql';
-import {CREATE_PRODUCT, GET_PRODUCT, GET_PRODUCT_IDS, GET_PRODUCTS, GET_USERS, SEARCH_PRODUCTS,} from '@/lib/graphql';
+import {
+    CREATE_PRODUCT,
+    GET_PRODUCT,
+    GET_PRODUCT_IDS,
+    GET_PRODUCTS,
+    GET_USERS,
+    ME_QUERY,
+    SEARCH_PRODUCTS,
+} from '@/lib/graphql';
 
 export const createProduct = async (formData: FormData) => {
     const product = Object.fromEntries(formData.entries()) as unknown as Product;
@@ -28,6 +36,11 @@ export const getProducts = async () => {
     }
     return response.data.products ?? [];
 }
+
+export const getMe = async () => {
+    const response = await fetchGraphQL<Query>(ME_QUERY.loc?.source.body || '');
+    return response.data?.me;
+};
 
 export const getProductIds = async () => {
     const response = await fetchGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);

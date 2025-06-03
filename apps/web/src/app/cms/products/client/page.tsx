@@ -3,7 +3,7 @@
 import {useEffect, useState} from 'react'
 import {ProductsTable} from '@/components/features/cms/product-table'
 import {Product} from '@/types/generated/graphql'
-import {fetchGraphQL} from '@/lib/api/graphql-fetch'
+import {fetchGraphQL} from '@/lib/api/client-graphql-fetch'
 
 interface ProductsResponse {
     products: Product[]

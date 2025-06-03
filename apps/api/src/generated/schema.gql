@@ -470,7 +470,7 @@ type Mutation {
   updateShipment(updateShipmentInput: UpdateShipmentInput!): Shipment!
   removeShipment(id: Int!): Shipment!
   login(input: LoginInput!): TokenOutput!
-  refreshToken(userId: String!, refreshToken: String!): TokenOutput!
+  refreshToken(refreshToken: String!): TokenOutput!
   logout: Boolean!
 }
 

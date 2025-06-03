@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {requestKeys} from '@/lib/constants/request-keys';
-import {fetchGraphQL} from '@/lib/api/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Product, Query} from '@/types/generated/graphql';
 
 

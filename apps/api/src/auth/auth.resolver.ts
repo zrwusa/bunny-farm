@@ -1,60 +1,75 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { TokenOutput } from './dto/token.output';
 import { UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
+import { GqlContext } from '../types/graphql';
+import { CookieUtil } from '../common';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly cookieUtil: CookieUtil,
+  ) {}
 
   @Mutation(() => TokenOutput)
-  @Mutation(() => TokenOutput)
-  async login(@Args('input') input: LoginInput): Promise<TokenOutput> {
+  async login(
+    @Args('input') input: LoginInput,
+    @Context() context: GqlContext,
+  ): Promise<TokenOutput> {
     const { type, email, password, oauthToken } = input;
-
+    let user = null;
     if (type === 'local') {
       if (!email || !password) {
         throw new BadRequestException('Email and password are required');
       }
       // After calling Service, no longer catch 401, the Service returns null and then handles it uniformly
-      const user = await this.authService.validateUser(email, password);
+      user = await this.authService.validateUser(email, password);
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
       }
-      return this.authService.generateTokens(user);
     } else if (type === 'google') {
       if (!oauthToken) {
         throw new BadRequestException('OAuth token is required');
       }
-      const user = await this.authService.validateOAuthUser('google', oauthToken);
+      user = await this.authService.validateOAuthUser('google', oauthToken);
       if (!user) {
         throw new UnauthorizedException('Invalid OAuth credentials');
       }
-      return this.authService.generateTokens(user);
     } else {
       throw new BadRequestException('Unsupported login type');
     }
+    const tokens = await this.authService.generateTokens(user);
+    console.debug('---cookie written');
+    this.cookieUtil.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
+    return tokens;
   }
 
   @Mutation(() => TokenOutput)
   async refreshToken(
-    @Args('userId') userId: string,
     @Args('refreshToken') refreshToken: string,
+    @Context() context: GqlContext,
   ): Promise<TokenOutput> {
-    const tokens = await this.authService.refreshToken(userId, refreshToken);
+    const tokens = await this.authService.refreshToken(refreshToken);
     if (!tokens) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+    this.cookieUtil.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
     return tokens;
   }
 
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
-  async logout(@CurrentUser('userId') userId: string): Promise<boolean> {
+  async logout(
+    @CurrentUser('userId') userId: string,
+    @Context() context: GqlContext,
+  ): Promise<boolean> {
     await this.authService.logout(userId);
+
+    this.cookieUtil.clearAuthCookies(context.res);
     return true;
   }
 }

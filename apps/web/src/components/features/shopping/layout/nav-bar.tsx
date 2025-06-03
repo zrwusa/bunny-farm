@@ -5,10 +5,15 @@ import Me from '@/components/features/auth/me';
 import {SearchInput} from '@/components/ui/search-bar';
 import {useEffect, useState} from 'react';
 import {SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';
-import {fetchGraphQL} from '@/lib/api/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Query} from '@/types/generated/graphql';
+import SsrMe from '@/components/features/auth/ssr-me';
 
-const NavBar = () => {
+
+interface NavBarProps {
+    me?: Query["me"]
+}
+const NavBar = ({ me }: NavBarProps) => {
     const router = useRouter();
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const [suggestData, setSuggestData] = useState<Query | null>(null);
@@ -58,6 +63,7 @@ const NavBar = () => {
                     </div>
                     <div className="flex items-center justify-end">
                         <Me/>
+                        <SsrMe me={me}/>
                     </div>
                 </div>
             </div>

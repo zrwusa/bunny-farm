@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
@@ -82,20 +82,37 @@ export class AuthService {
   }
 
   async refreshToken(
-    userId: string,
-    token: string,
+    refreshToken: string,
   ): Promise<{ accessToken: string; refreshToken: string } | null> {
-    const stored = await this.redis.get(`refresh:${userId}`);
-    if (!stored || stored !== token) {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.config.get('JWT_SECRET'),
+      });
+
+      const userId = payload.sub;
+      const stored = await this.redis.get(`refresh:${userId}`);
+      if (!stored || stored !== refreshToken) {
+        return null;
+      }
+
+      const user = await this.userService.findById(userId);
+      if (!user) {
+        return null;
+      }
+
+      return this.generateTokens(user);
+    } catch (err: unknown) {
+      if (err instanceof TokenExpiredError) {
+        // TODO logger should be implemented
+        // this.logger.warn('Refresh token expired');
+      } else if (err instanceof JsonWebTokenError) {
+        // this.logger.warn('Invalid refresh token');
+      } else {
+        // this.logger.error('Unexpected error during refresh token process', err);
+      }
+
       return null;
     }
-
-    const user = await this.userService.findById(userId);
-    if (!user) {
-      return null;
-    }
-
-    return this.generateTokens(user);
   }
 
   async logout(userId: string): Promise<void> {

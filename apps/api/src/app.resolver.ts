@@ -1,5 +1,5 @@
 import { Query, Resolver } from '@nestjs/graphql';
-import { App } from './app.type';
+import { App } from './app.entity';
 
 @Resolver(() => App)
 export class AppResolver {

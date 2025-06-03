@@ -7,6 +7,7 @@ import { GoogleOAuthService } from './google-oauth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CookieUtil } from '../common';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthResolver, AuthService, GoogleOAuthService, JwtStrategy],
+  providers: [AuthResolver, AuthService, GoogleOAuthService, JwtStrategy, CookieUtil],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -13,7 +13,7 @@ import {
     TOGGLE_ITEM_SELECTION,
     UPDATE_ITEM_QUANTITY
 } from '@/lib/graphql';
-import {fetchGraphQL} from '@/lib/api/graphql-fetch';
+import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Dispatch, PayloadAction} from '@reduxjs/toolkit';
 
 const handleError = (error: unknown, dispatch: Dispatch<PayloadAction<string>>) => {
