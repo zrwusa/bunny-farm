@@ -1,33 +1,36 @@
-# api.Dockerfile
-
-# Step 1: Use official Node image
+# ---- STEP 1: Build Stage ----
 FROM node:22.10.0-alpine AS builder
 
-# Step 2: Set workdir and copy files
+# Enable pnpm and install turbo
+RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN pnpm add -g turbo
+
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-COPY apps/api ./apps/api
-COPY tsconfig.json tsconfig.build.json nest-cli.json ./
+# Copy all files (assumes .dockerignore is configured to skip node_modules, dist, etc.)
+COPY . .
 
-# Install dependencies
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Install monorepo dependencies (turbo will use root)
+RUN pnpm install --no-frozen-lockfile
 
-# Build the NestJS project
-RUN pnpm --filter=apps/api build
+# Build only the api app (and its dependencies)
+RUN turbo run build --filter=api...
 
-# Step 3: Production image
+# ---- STEP 2: Production Image ----
 FROM node:22.10.0-alpine
 
 WORKDIR /app
 
-# Copy built files and production dependencies
+# Copy only what’s needed to run
 COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
 
-# Expose port
-EXPOSE 3000
+# (Optional) Copy .env if needed (Render can inject env vars directly)
+# COPY --from=builder /app/apps/api/.env .env
 
-# Start the app
+# Expose Render-expected port (PORT env variable)
+EXPOSE 8080
+
+# Start the NestJS app
 CMD ["node", "dist/main"]
