@@ -1,88 +1,32 @@
-import {
-    getStoredTokens,
-    getUserIdFromToken,
-    isTokenExpired,
-    isTokenExpiringSoon,
-    removeStoredTokens,
-    setStoredTokens
-} from './client-auth';
+'use client'
+
+import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens,} from './client-auth';
 import {GraphQLError} from 'graphql/error';
 import {AuthError, NetworkError} from '@/lib/errors';
-import {ClientFetchGraphQLOptions, GraphQLResponse} from '@/types/graphql';
+import {GraphQLResponse} from '@/types/graphql';
+import {GRAPH_QL_API_URL, TOKEN_MODE} from '@/lib/config';
 
-enum TokenMode {
-    'Bearer'= 'Bearer',
-    'Cookie'= 'Cookie',
-}
-const TOKEN_MODE: TokenMode = TokenMode.Bearer;
-
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
-
-async function refreshTokens() {
-    if (isRefreshing) return refreshPromise;
-
-    isRefreshing = true;
-    refreshPromise = (async () => {
-        try {
-            const tokens = await getStoredTokens();
-            if (!tokens?.refreshToken) throw new AuthError('No refresh token available');
-
-            const userId = getUserIdFromToken(tokens.refreshToken);
-            if (!userId) throw new AuthError('Invalid refresh token');
-            const response = await fetch('http://localhost:8080/graphql', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include', // Carry cookies to access the interface, and allow the backend to set cookies
-                body: JSON.stringify({
-                    query: `
-                        mutation RefreshToken($refreshToken: String!) {
-                            refreshToken(refreshToken: $refreshToken) {
-                                accessToken
-                                refreshToken
-                            }
-                        }
-                    `,
-                    variables: {
-                        userId,
-                        refreshToken: tokens.refreshToken,
-                    },
-                }),
-            });
-
-            if (!response.ok) throw new NetworkError('Failed to refresh token');
-
-            const result = await response.json();
-            const {accessToken, refreshToken} = result.data.refreshToken;
-            await setStoredTokens(accessToken, refreshToken);
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-            await removeStoredTokens();
-            throw error;
-        } finally {
-            isRefreshing = false;
-            refreshPromise = null;
-        }
-    })();
-
-    return refreshPromise;
-}
-
-export async function doFetchGraphQL<T>(
+async function internalFetchGraphQL<T>(
     query?: string,
-    {variables, revalidate = 10, accessToken}: ClientFetchGraphQLOptions = {}
+    {
+        variables,
+        revalidate = 10,
+        accessToken,
+    }: {
+        variables?: Record<string, unknown>;
+        revalidate?: number;
+        accessToken?: string;
+    } = {}
 ): Promise<GraphQLResponse<T>> {
-    console.log('---doFetchGraphQL', query)
-
-    const res = await fetch('http://localhost:8080/graphql', {
+    const res = await fetch(GRAPH_QL_API_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            ...(accessToken ? {Authorization: `Bearer ${accessToken}`} : {}),
+            ...(TOKEN_MODE === 'storage' && accessToken
+                ? {Authorization: `Bearer ${accessToken}`}
+                : {}),
         },
-        credentials: 'include', // Carry cookies to access the interface, and allow the backend to set cookies
+        credentials: 'include', // always include cookies
         body: JSON.stringify({query, variables}),
         next: {revalidate},
     });
@@ -95,7 +39,7 @@ export async function doFetchGraphQL<T>(
 
     if (result.errors?.length) {
         const firstError = result.errors[0];
-        const code = firstError.extensions?.code; // Use NestJS' throw new ForbiddenException(), which will also automatically add extensions.code
+        const code = firstError.extensions?.code;
         const message = firstError.message || 'GraphQL error occurred';
 
         switch (code) {
@@ -115,15 +59,6 @@ export async function doFetchGraphQL<T>(
     return result;
 }
 
-// fetchGraphQLPure: without token
-export async function fetchGraphQLPure<T>(
-    query?: string,
-    options?: Omit<ClientFetchGraphQLOptions, 'accessToken'>
-): Promise<GraphQLResponse<T>> {
-    return doFetchGraphQL<T>(query, options);
-}
-
-// fetchGraphQL: Automatically handle tokens
 export async function fetchGraphQL<T>(
     query?: string,
     options?: {
@@ -131,20 +66,27 @@ export async function fetchGraphQL<T>(
         revalidate?: number;
     }
 ): Promise<GraphQLResponse<T>> {
+    if (TOKEN_MODE === 'cookie') {
+        // Cookie mode: The browser automatically brings cookies without processing tokens
+        return internalFetchGraphQL<T>(query, options);
+    }
+
+    // storage mode
     let tokens = await getStoredTokens();
 
-    if (tokens?.accessToken && (isTokenExpired(tokens.accessToken) || isTokenExpiringSoon(tokens.accessToken))) {
+    if (tokens?.accessToken && isTokenExpiringSoon(tokens.accessToken)) {
         try {
             await refreshTokens();
             tokens = await getStoredTokens();
-        } catch (error) {
-            console.error('Failed to refresh token:', error);
-            throw new AuthError('Token refresh failed');
+        } catch (err) {
+            console.warn('Token refresh failed before fetch:', err);
+            await removeStoredTokens();
+            throw new AuthError('Re-authentication required');
         }
     }
 
     try {
-        return await doFetchGraphQL<T>(query, {
+        return await internalFetchGraphQL<T>(query, {
             ...options,
             accessToken: tokens?.accessToken,
         });
@@ -153,7 +95,7 @@ export async function fetchGraphQL<T>(
             try {
                 await refreshTokens();
                 tokens = await getStoredTokens();
-                return await doFetchGraphQL<T>(query, {
+                return await internalFetchGraphQL<T>(query, {
                     ...options,
                     accessToken: tokens?.accessToken,
                 });
@@ -167,4 +109,3 @@ export async function fetchGraphQL<T>(
         throw error;
     }
 }
-

@@ -61,6 +61,26 @@ export class AuthResolver {
     return tokens;
   }
 
+  @Mutation(() => TokenOutput)
+  async refreshTokenByCookie(@Context() context: GqlContext): Promise<TokenOutput> {
+    const { req, res } = context;
+
+    const refreshToken = req.cookies?.refreshToken ?? req.cookies?.refresh_token;
+    console.debug('---req.cookies', req.cookies);
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token found in cookies');
+    }
+
+    const tokens = await this.authService.refreshToken(refreshToken);
+    if (!tokens) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    this.cookieUtil.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+    return tokens;
+  }
+
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
   async logout(

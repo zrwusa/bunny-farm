@@ -92,6 +92,7 @@ export class AuthService {
       const userId = payload.sub;
       const stored = await this.redis.get(`refresh:${userId}`);
       if (!stored || stored !== refreshToken) {
+        console.debug('---!stored || stored !== refreshToken', !stored || stored !== refreshToken);
         return null;
       }
 
@@ -99,7 +100,7 @@ export class AuthService {
       if (!user) {
         return null;
       }
-
+      // A new pair of tokens is generated every time it is refreshed to prevent the refreshToken from being stolen for a long time.
       return this.generateTokens(user);
     } catch (err: unknown) {
       if (err instanceof TokenExpiredError) {

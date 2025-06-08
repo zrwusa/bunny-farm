@@ -1,0 +1,24 @@
+.bunny-loading .ear {
+    transform-origin: bottom center;
+    animation: ear-wiggle 1s ease-in-out infinite;
+}
+
+.bunny-loading .ear-left {
+    animation-delay: 0s;
+}
+
+.bunny-loading .ear-right {
+    animation-delay: 0.5s;
+}
+
+@keyframes ear-wiggle {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(5deg);
+    }
+    75% {
+        transform: rotate(-5deg);
+    }
+}

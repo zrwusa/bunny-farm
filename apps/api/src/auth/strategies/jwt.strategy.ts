@@ -17,7 +17,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: function (req: Request): string | null {
         const authHeader = req.headers['authorization'];
-        console.debug('---req.cookies', req.cookies);
         if (authHeader?.startsWith('Bearer ')) {
           console.debug('---from header');
           return authHeader.slice(7);

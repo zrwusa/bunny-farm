@@ -5,6 +5,7 @@ import { UserService } from './user.service';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
+import { CurrentJwtUser } from '../auth/types/types';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,7 +28,7 @@ export class UserResolver {
 
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
-  me(@CurrentUser('userId') userId: string) {
-    return this.userService.findById(userId);
+  me(@CurrentUser() user: CurrentJwtUser) {
+    return this.userService.findById(user.id);
   }
 }

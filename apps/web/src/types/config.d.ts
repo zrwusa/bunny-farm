@@ -1,0 +1,1 @@
+export type TokenMode = 'cookie' | 'storage';

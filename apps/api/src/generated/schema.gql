@@ -471,6 +471,7 @@ type Mutation {
   removeShipment(id: Int!): Shipment!
   login(input: LoginInput!): TokenOutput!
   refreshToken(refreshToken: String!): TokenOutput!
+  refreshTokenByCookie: TokenOutput!
   logout: Boolean!
 }
 

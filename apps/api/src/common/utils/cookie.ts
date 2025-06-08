@@ -7,9 +7,8 @@ import { ms, StringValue } from '../../utils';
 export class CookieUtil {
   constructor(private readonly configService: ConfigService) {}
 
-  setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
+  setAuthCookies(res: Response, accessToken: string, refreshToken?: string): void {
     const isProd = this.configService.get<string>('NODE_ENV') === 'production';
-    console.debug(`---isProd`, isProd)
 
     const accessMaxAge = ms(
       this.configService.get<StringValue>('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m'),
@@ -27,12 +26,14 @@ export class CookieUtil {
       maxAge: accessMaxAge,
     });
 
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: isProd ? 'none' : 'lax',
-      maxAge: refreshMaxAge,
-    });
+    if (refreshToken) {
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? 'none' : 'lax',
+        maxAge: refreshMaxAge,
+      });
+    }
   }
 
   clearAuthCookies(res: Response): void {

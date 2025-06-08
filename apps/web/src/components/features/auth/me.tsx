@@ -5,9 +5,14 @@ import {usePathname, useRouter} from 'next/navigation';
 import Image from 'next/image';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
 import {LogOut, User} from 'lucide-react';
+import {Query} from '@/types/generated/graphql';
 
-export default function Me() {
-    const {user, logout} = useAuth();
+interface MeProps {
+    me?: Query["me"]
+}
+
+export default function Me({me}: MeProps) {
+    const {logout} = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -16,7 +21,7 @@ export default function Me() {
         router.push(`/auth/login?redirect=${pathname}`);
     };
 
-    if (!user) {
+    if (!me) {
         return (
             <button
                 onClick={() => router.push(`/auth/login?redirect=${pathname}`)}
@@ -36,8 +41,8 @@ export default function Me() {
                     data-testid="avatar-button"
                 >
                     <Image
-                        src={user?.profile?.avatarUrl ?? '/avatar.svg'}
-                        alt={user?.profile?.displayName ?? 'User avatar'}
+                        src={me?.profile?.avatarUrl ?? '/avatar.svg'}
+                        alt={me?.profile?.displayName ?? 'User avatar'}
                         width={32}
                         height={32}
                         className="rounded-full"
@@ -47,7 +52,7 @@ export default function Me() {
             <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem className="flex items-center gap-2">
                     <User className="h-4 w-4"/>
-                    <span>{user?.profile?.displayName ?? user?.email}</span>
+                    <span>{me?.profile?.displayName ?? me?.email}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                     onClick={handleLogout}

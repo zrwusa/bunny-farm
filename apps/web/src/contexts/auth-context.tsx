@@ -1,8 +1,12 @@
-'use client'
+'use client';
 
-import {createContext, useContext, useEffect, useState} from 'react';
+import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import {Query} from '@/types/generated/graphql';
 import {getMe, logout} from '@/lib/api/client-actions';
+import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens} from '@/lib/api/client-auth';
+import {TOKEN_MODE} from '@/lib/config';
+import {TokenMode} from '@/types/config';
+import Image from 'next/image';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -10,32 +14,59 @@ interface AuthContextType {
     error: Error | null;
     logout: () => Promise<void>;
     setUser: (user: Query['me'] | null) => void;
+    tokenMode: TokenMode;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({children}: { children: React.ReactNode }) {
+interface AuthProviderProps {
+    children: ReactNode;
+    tokenMode?: TokenMode;
+}
+
+export function AuthProvider({children, tokenMode = TOKEN_MODE}: AuthProviderProps) {
     const [user, setUser] = useState<Query['me'] | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const initializeAuth = async () => {
             try {
+                if (tokenMode === 'cookie') {
+                    // Cookie mode: The backend will automatically read HttpOnly refresh_token. Since the front-end cannot get tokens in cookies, the access token can only be refreshed every time the app is started                    console.log('[AuthProvider] Cookie mode: refreshing token...');
+                    await refreshTokens();
+                } else {
+                    // Storage mode: Check token and refresh
+                    const tokens = await getStoredTokens();
+                    if (
+                        tokens?.refreshToken &&
+                        !isTokenExpiringSoon(tokens.refreshToken) &&
+                        (!tokens.accessToken || isTokenExpiringSoon(tokens.accessToken))
+                    ) {
+                        console.log('[AuthProvider] Header mode: refreshing token...');
+                        await refreshTokens();
+                    }
+                }
+
                 const result = await getMe();
                 if (result) setUser(result);
             } catch (err) {
+                console.warn('[AuthProvider] Auth init failed:', err);
                 setError(err as Error);
+                setUser(null);
+                if (tokenMode === 'storage') await removeStoredTokens();
             } finally {
                 setIsLoading(false);
             }
         };
-        fetchUser();
-    }, []);
+
+        initializeAuth().then();
+    }, [tokenMode]);
 
     const handleLogout = async () => {
         try {
             await logout();
+            await removeStoredTokens();
             setUser(null);
         } catch (err) {
             setError(err as Error);
@@ -43,8 +74,19 @@ export function AuthProvider({children}: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{user, isLoading, error, logout: handleLogout, setUser}}>
-            {children}
+        <AuthContext.Provider
+            value={{
+                user,
+                isLoading,
+                error,
+                logout: handleLogout,
+                setUser,
+                tokenMode
+            }}
+        >
+            {isLoading ? <div className="flex items-center justify-center h-screen">
+                <Image src="/cog.svg" width={100} height={100} alt="loading" />
+            </div> : children} {/* Children are not loaded until the token refresh is complete */}
         </AuthContext.Provider>
     );
 }

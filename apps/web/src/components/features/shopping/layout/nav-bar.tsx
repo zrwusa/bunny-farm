@@ -7,7 +7,6 @@ import {useEffect, useState} from 'react';
 import {SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';
 import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Query} from '@/types/generated/graphql';
-import SsrMe from '@/components/features/auth/ssr-me';
 
 
 interface NavBarProps {
@@ -62,8 +61,7 @@ const NavBar = ({ me }: NavBarProps) => {
                         />
                     </div>
                     <div className="flex items-center justify-end">
-                        <Me/>
-                        <SsrMe me={me}/>
+                        <Me me={me}/>
                     </div>
                 </div>
             </div>
