@@ -1,6 +1,6 @@
 import * as React from 'react'
 import {Product} from '@/components/features/shopping/shop/product';
-import {getProduct, getProductIds} from '@/lib/api/actions';
+import {getProduct} from '@/lib/api/actions';
 
 // // For SSR caching the detail pages
 // export async function generateStaticParams() {
