@@ -9,6 +9,7 @@ import { PublishProductInput } from './dto/publish-product.input';
 import { Warehouse } from './entities/warehouse.entity';
 import { SearchService } from '../search/search.service';
 import { SearchProductDto } from '../search/dto/search-product.dto';
+import { LoggerService } from '../shared/logger.service';
 
 @Injectable()
 export class ProductService {
@@ -16,6 +17,7 @@ export class ProductService {
     @InjectRepository(Product) private productRepo: Repository<Product>,
     private readonly dataSource: DataSource,
     private readonly searchService: SearchService,
+    private readonly logger: LoggerService,
   ) {}
 
   static transformProductToSearchDto({
@@ -185,8 +187,8 @@ export class ProductService {
       where: { id: In(productIds) },
       order: { images: { position: 'ASC' } },
     });
+    this.logger.log(`Products searched: ${products.length} products`);
 
-    console.log('Found products:', products.length);
     return products;
   }
 

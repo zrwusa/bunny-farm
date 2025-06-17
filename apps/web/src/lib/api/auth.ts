@@ -5,7 +5,6 @@ export const getCookieTokens = async () => {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access_token')?.value;
     const refreshToken = cookieStore.get('refresh_token')?.value;
-    console.debug(`---xxx cookieStore.get('access_token')`, cookieStore.get('access_token'))
     return {accessToken, refreshToken};
 };
 

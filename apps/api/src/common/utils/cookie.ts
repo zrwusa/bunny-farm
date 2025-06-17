@@ -17,8 +17,6 @@ export class CookieUtil {
     const refreshMaxAge = ms(
       this.configService.get<StringValue>('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d'),
     );
-    console.debug('accessMaxAge', accessMaxAge); // Should output 900000 (15 minutes)
-    console.debug('refreshMaxAge', refreshMaxAge); // Should output 604800000 (7 days)
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: isProd,

@@ -43,7 +43,6 @@ export class AuthResolver {
       throw new BadRequestException('Unsupported login type');
     }
     const tokens = await this.authService.generateTokens(user);
-    console.debug('---cookie written');
     this.cookieUtil.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
     return tokens;
   }

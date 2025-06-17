@@ -24,9 +24,6 @@ export default function RootLayout({
     children: ReactNode;
 }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-        <body suppressHydrationWarning>
-        {/*<ApiProgress/>*/}
         <SidebarProvider>
             <AppSidebar/>
             <SidebarInset>
@@ -55,7 +52,5 @@ export default function RootLayout({
                 </main>
             </SidebarInset>
         </SidebarProvider>
-        </body>
-        </html>
     );
 }

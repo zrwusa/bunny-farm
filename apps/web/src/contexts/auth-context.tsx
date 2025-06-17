@@ -7,6 +7,7 @@ import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens}
 import {TOKEN_MODE} from '@/lib/config';
 import {TokenMode} from '@/types/config';
 import Image from 'next/image';
+import {usePathname, useRouter} from 'next/navigation';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -28,9 +29,14 @@ export function AuthProvider({children, tokenMode = TOKEN_MODE}: AuthProviderPro
     const [user, setUser] = useState<Query['me'] | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const pathname = usePathname();
 
     useEffect(() => {
         const initializeAuth = async () => {
+            if (pathname === '/auth/login') {
+                setIsLoading(false);
+                return;
+            }
             try {
                 if (tokenMode === 'cookie') {
                     // Cookie mode: The backend will automatically read HttpOnly refresh_token. Since the front-end cannot get tokens in cookies, the access token can only be refreshed every time the app is started                    console.log('[AuthProvider] Cookie mode: refreshing token...');

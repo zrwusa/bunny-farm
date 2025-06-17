@@ -39,12 +39,16 @@ import { RedisModule, RedisModuleOptions } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PlaceModule } from './place/place.module';
 import { GqlContext } from './types/graphql';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MonitoringModule } from './monitoring/monitoring.module';
+import { PerformanceInterceptor } from './monitoring/interceptors/performance.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigModule globally available throughout the application
     }),
+    MonitoringModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'src/generated/schema.gql', // Automatically generate GraphQL schema and save it to a file
@@ -96,7 +100,9 @@ import { GqlContext } from './types/graphql';
           migrations: ['src/migrations/*{.ts,.js}'],
           synchronize: true, // For development only, production environments should use migrations
           namingStrategy: new SnakeNamingStrategy(),
-          logging: ['query', 'error'], //Turn on SQL query and error logging
+          logging: ['error', 'warn', 'query', 'schema'], //Turn on SQL query and error logging
+          logger: 'advanced-console',
+          maxQueryExecutionTime: 50, // highlights those exceeding maxQueryExecutionTime
         };
       },
       inject: [ConfigService], // The useFactory of forRootAsync cannot directly access the global ConfigService, and must be explicitly injected
@@ -124,6 +130,12 @@ import { GqlContext } from './types/graphql';
     PlaceModule,
   ],
   controllers: [],
-  providers: [AppResolver],
+  providers: [
+    AppResolver,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PerformanceInterceptor,
+    },
+  ],
 })
 export class AppModule {}

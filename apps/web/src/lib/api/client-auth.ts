@@ -3,6 +3,7 @@
 import {jwtDecode} from 'jwt-decode';
 import {GRAPH_QL_API_URL, TOKEN_MODE} from '@/lib/config';
 import {AuthError, NetworkError} from '@/lib/errors';
+import {authManager} from '@/lib/auth-manager';
 
 interface DecodedToken {
     sub: string;
@@ -87,7 +88,9 @@ export async function refreshTokens(): Promise<void> {
 
                 const json = await response.json();
                 if (!json.data?.refreshTokenByCookie?.ok) {
-                    throw new AuthError('Token refresh rejected by server');
+
+                    authManager.triggerAuthFailure();
+                    // throw new AuthError('Token refresh rejected by server');
                 }
             } catch (error) {
                 console.error('Token refresh (cookie) failed:', error);

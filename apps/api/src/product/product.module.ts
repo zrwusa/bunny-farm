@@ -10,6 +10,7 @@ import { ProductReviewLoader } from './loaders/product-review.loader';
 import { ProductReview } from './entities/product-review.entity';
 import { SearchModule } from '../search/search.module';
 import { SearchService } from '../search/search.service';
+import { SharedModule } from '../shared/shared.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SearchService } from '../search/search.service';
       ProductReview,
     ]),
     SearchModule,
+    SharedModule,
   ], // The core function of TypeOrmModule.forFeature is to convert the specified entities into an Injectable Provider and register them into NestJS's dependency injection container. These converted Repositories can be directly injected into your services without the need to manually add them to the providers array.
   // The class marked by @Injectable() is not injected as modules dependencies, but is directly specified in providers, and does not require @InjectRepository() or @Inject to specify explicitly.
   providers: [

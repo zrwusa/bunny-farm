@@ -21,7 +21,6 @@ async function doFetchGraphQL<T>(
     query?: string,
     { variables, revalidate = 10, cookieHeader }: FetchGraphQLOptions & { cookieHeader?: string } = {}
 ): Promise<GraphQLResponse<T>> {
-    console.debug('---cookieHeader', cookieHeader)
     const res = await fetch(GRAPH_QL_API_URL, {
         method: 'POST',
         headers: {
