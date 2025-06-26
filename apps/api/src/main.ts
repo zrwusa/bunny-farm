@@ -4,6 +4,8 @@ import * as process from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 
+console.log('▶ PORT env:', process.env.PORT);
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
