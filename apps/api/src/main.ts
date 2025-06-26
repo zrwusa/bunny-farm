@@ -29,7 +29,7 @@ async function bootstrap() {
 
   // 5. Start the service
   const port = parseInt(process.env.PORT ?? '8080', 10);
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port);
 }
 
 bootstrap().then();
