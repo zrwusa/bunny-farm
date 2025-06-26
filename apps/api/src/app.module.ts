@@ -125,11 +125,12 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
     RedisModule.forRootAsync({
       useFactory: (configService: ConfigService): RedisModuleOptions => ({
         type: 'single',
-        options: {
-          host: configService.get('REDIS_HOST'),
-          port: parseInt(configService.get('REDIS_PORT') || '6379', 10),
-          password: configService.get('REDIS_PASSWORD'),
-        },
+        url: configService.get('REDIS_URL'),
+        // options: {
+        //   host: configService.get('REDIS_HOST'),
+        //   port: parseInt(configService.get('REDIS_PORT') || '6379', 10),
+        //   password: configService.get('REDIS_PASSWORD'),
+        // },
       }),
       inject: [ConfigService],
     }),

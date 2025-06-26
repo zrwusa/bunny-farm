@@ -18,11 +18,18 @@ export class AuthService {
     private config: ConfigService,
     private googleOauthService: GoogleOAuthService,
   ) {
-    this.redis = new Redis({
-      host: config.get('REDIS_HOST', 'localhost'),
-      port: config.get('REDIS_PORT', 6379),
-      password: config.get('REDIS_PASSWORD', undefined),
-    });
+    const redisUrl = this.config.get<string>('REDIS_URL');
+    if (!redisUrl) {
+      throw new Error('Missing REDIS_URL config');
+    }
+
+    this.redis = new Redis(redisUrl);
+
+    // this.redis = new Redis({
+    //   host: config.get('REDIS_HOST', 'localhost'),
+    //   port: config.get('REDIS_PORT', 6379),
+    //   password: config.get('REDIS_PASSWORD', undefined),
+    // });
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {

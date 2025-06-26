@@ -7,11 +7,18 @@ export class RedisService {
   private redis: Redis;
 
   constructor(private configService: ConfigService) {
-    this.redis = new Redis({
-      host: this.configService.get('REDIS_HOST'),
-      port: this.configService.get('REDIS_PORT'),
-      password: this.configService.get('REDIS_PASSWORD'),
-    });
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+    if (!redisUrl) {
+      throw new Error('Missing REDIS_URL config');
+    }
+
+    this.redis = new Redis(redisUrl);
+
+    // this.redis = new Redis({
+    //   host: this.configService.get('REDIS_HOST'),
+    //   port: this.configService.get('REDIS_PORT'),
+    //   password: this.configService.get('REDIS_PASSWORD'),
+    // });
   }
 
   getUserCartKey(userId: string): string {
