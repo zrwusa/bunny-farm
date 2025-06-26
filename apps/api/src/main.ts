@@ -28,8 +28,11 @@ async function bootstrap() {
   );
 
   // 5. Start the service
-  const port = parseInt(process.env.PORT ?? '8080', 10);
-  await app.listen(port);
+  const port = parseInt(process.env.PORT || '3000', 10) || 3000;
+
+  // Bind to 0.0.0.0 before being scanned by Render
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Application is running on: http://0.0.0.0:${port}`);
 }
 
 bootstrap().then();
