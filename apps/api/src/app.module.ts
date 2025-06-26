@@ -42,6 +42,14 @@ import { GqlContext } from './types/graphql';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { MonitoringModule } from './monitoring/monitoring.module';
 import { PerformanceInterceptor } from './monitoring/interceptors/performance.interceptor';
+import { DictionaryModule } from './dictionary/dictionary.module';
+import { Word } from './dictionary/entities/word.entity';
+import { ExampleSentence } from './dictionary/entities/example-sentence.entity';
+import { VariantAttribute } from './dictionary/entities/variant-attribute.entity';
+import { VariantSynonym } from './dictionary/entities/variant-synonym.entity';
+import { Morpheme } from './dictionary/entities/word-morpheme.entity';
+import { WordVariant } from './dictionary/entities/word-variant.entity';
+import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity';
 
 @Module({
   imports: [
@@ -96,6 +104,13 @@ import { PerformanceInterceptor } from './monitoring/interceptors/performance.in
             InventoryRecord,
             Payment,
             Shipment,
+            Word,
+            ExampleSentence,
+            VariantAttribute,
+            VariantSynonym,
+            Morpheme,
+            MorphemeWord,
+            WordVariant,
           ],
           migrations: ['src/migrations/*{.ts,.js}'],
           synchronize: true, // For development only, production environments should use migrations
@@ -128,6 +143,7 @@ import { PerformanceInterceptor } from './monitoring/interceptors/performance.in
     CartModule,
     AuthModule,
     PlaceModule,
+    DictionaryModule,
   ],
   controllers: [],
   providers: [

@@ -418,6 +418,146 @@ type PlaceGeoDetail {
   confidence: Int!
 }
 
+type VariantAttribute {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  frequency: Float!
+  emotionalIntensity: Float!
+  connotation: Connotation!
+  acquisitionAge: AgeGroup!
+}
+
+enum Connotation {
+  STRONGLY_NEGATIVE
+  NEGATIVE
+  NEUTRAL
+  POSITIVE
+  STRONGLY_POSITIVE
+}
+
+enum AgeGroup {
+  EARLY_CHILDHOOD
+  CHILD
+  PRETEEN
+  TEEN
+  ADULT
+}
+
+type ExampleSentence {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variant: WordVariant!
+  sentence: String!
+  translationZh: String!
+  isSpoken: Boolean!
+}
+
+type VariantSynonym {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  variant: WordVariant!
+  text: String!
+  definition: String
+  definitionZh: String
+  isSpoken: Boolean!
+  isWritten: Boolean!
+  partOfSpeech: PartOfSpeech
+  frequency: WordFrequency
+  emotionalIntensity: EmotionalIntensity
+  connotation: Connotation
+  acquisitionAge: AgeGroup
+  synonymVariant: [WordVariant!]!
+}
+
+enum PartOfSpeech {
+  NOUN
+  TRANSITIVE_VERB
+  INTRANSITIVE_VERB
+  ADJECTIVE
+  ADVERB
+  PRONOUN
+  PREPOSITION
+  CONJUNCTION
+  INTERJECTION
+}
+
+enum WordFrequency {
+  VERY_RARE
+  RARE
+  UNCOMMON
+  COMMON
+  VERY_COMMON
+}
+
+enum EmotionalIntensity {
+  VERY_MILD
+  MILD
+  MODERATE
+  INTENSE
+  VERY_INTENSE
+}
+
+type WordVariant {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  word: Word!
+  partOfSpeech: PartOfSpeech!
+  definition: String!
+  definitionZh: String!
+  imageUrl: String
+  pronunciationUk: String
+  pronunciationUs: String
+  isSpoken: Boolean!
+  isWritten: Boolean!
+  attributes: VariantAttribute
+  examples: [ExampleSentence!]!
+  synonyms: [VariantSynonym!]!
+}
+
+type MorphemeWord {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  morpheme: Morpheme!
+  text: String!
+  definition: String
+  definitionZh: String
+  isSpoken: Boolean!
+  isWritten: Boolean!
+  partOfSpeech: PartOfSpeech
+  frequency: WordFrequency
+  emotionalIntensity: EmotionalIntensity
+  connotation: Connotation
+  acquisitionAge: AgeGroup
+  relatedWordVariant: [WordVariant!]!
+}
+
+type Morpheme {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  text: String!
+  meaningEn: String!
+  meaningZh: String!
+  isRoot: Boolean!
+  isPrefix: Boolean!
+  isSuffix: Boolean!
+  relatedWords: [MorphemeWord!]!
+}
+
+type Word {
+  id: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  text: String!
+  variants: [WordVariant!]!
+  morphemes: [Morpheme!]!
+}
+
 type Query {
   ping: App!
   user(id: String!): User
@@ -437,6 +577,7 @@ type Query {
   shipments: [Shipment!]!
   shipment(id: Int!): Shipment!
   placeDetail(address: String!): PlaceGeoDetail
+  findWord(text: String!): Word
 }
 
 input FilterOrderInput {
@@ -473,6 +614,7 @@ type Mutation {
   refreshToken(refreshToken: String!): TokenOutput!
   refreshTokenByCookie: TokenOutput!
   logout: Boolean!
+  publishWord(input: PublishWordInput!): Word!
 }
 
 input CreateUserInput {
@@ -639,4 +781,73 @@ input LoginInput {
   email: String
   password: String
   oauthToken: String
+}
+
+input PublishWordInput {
+  text: String!
+  variants: [CreateVariantInput!]
+  morphemes: [CreateMorphemeInput!]
+}
+
+input CreateVariantInput {
+  partOfSpeech: PartOfSpeech!
+  definition: String!
+  definitionZh: String!
+  imageUrl: String
+  pronunciationUk: String
+  pronunciationUs: String
+  isSpoken: Boolean! = false
+  isWritten: Boolean! = false
+  attributes: CreateAttributeInput
+  examples: [CreateExampleInput!]
+  synonyms: [CreateSynonymInput!]
+}
+
+input CreateAttributeInput {
+  frequency: WordFrequency!
+  emotionalIntensity: EmotionalIntensity!
+  connotation: Connotation!
+  acquisitionAge: AgeGroup!
+}
+
+input CreateExampleInput {
+  sentence: String!
+  translationZh: String!
+  isSpoken: Boolean!
+}
+
+input CreateSynonymInput {
+  text: String!
+  definition: String
+  definitionZh: String
+  isSpoken: Boolean! = false
+  isWritten: Boolean! = false
+  partOfSpeech: PartOfSpeech
+  frequency: WordFrequency
+  emotionalIntensity: EmotionalIntensity
+  connotation: Connotation
+  acquisitionAge: AgeGroup
+}
+
+input CreateMorphemeInput {
+  text: String!
+  meaningEn: String!
+  meaningZh: String!
+  isRoot: Boolean! = false
+  isPrefix: Boolean! = false
+  isSuffix: Boolean! = false
+  relatedWords: [CreateMorphemeRelatedWordInput!]!
+}
+
+input CreateMorphemeRelatedWordInput {
+  text: String!
+  definition: String
+  definitionZh: String
+  isSpoken: Boolean! = false
+  isWritten: Boolean! = false
+  partOfSpeech: PartOfSpeech
+  frequency: WordFrequency
+  emotionalIntensity: EmotionalIntensity
+  connotation: Connotation
+  acquisitionAge: AgeGroup
 }
