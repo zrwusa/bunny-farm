@@ -568,6 +568,7 @@ type Query {
   products: [Product!]!
   searchProducts(keyword: String!): [Product!]!
   suggestProductNames(input: String!): [String!]!
+  pingElasticsearch: String!
   orders(filterOrderInput: FilterOrderInput!): [Order!]!
   order(id: String!): Order!
   cart(clientCartId: String): CachedCart!

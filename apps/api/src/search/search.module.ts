@@ -1,21 +1,33 @@
 import { Module } from '@nestjs/common';
 import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchService } from './search.service';
 import { SearchResolver } from './search.resolver';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 @Module({
   imports: [
-    ElasticsearchModule.register({
-      node: 'https://localhost:9200',
-      auth: {
-        username: 'elastic',
-        password: 'dev_password',
-      },
-      tls: {
-        ca: readFileSync(join(__dirname, '..', '..', 'certs', 'ca.crt')), // Read certs/ca.crt in the root directory of the project
-        rejectUnauthorized: false, // Allow self-signed certificates
+    ElasticsearchModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const node = configService.get<string>('ELASTICSEARCH_NODE', 'https://localhost:9200');
+        const isLocalhost = node.includes('localhost');
+
+        return {
+          node,
+          auth: {
+            username: configService.get<string>('ELASTICSEARCH_USERNAME', 'elastic'),
+            password: configService.get<string>('ELASTICSEARCH_PASSWORD', 'dev_password'),
+          },
+          ...(isLocalhost && {
+            tls: {
+              ca: readFileSync(join(__dirname, '..', '..', 'certs', 'ca.crt')),
+              rejectUnauthorized: false,
+            },
+          }),
+        };
       },
     }),
   ],

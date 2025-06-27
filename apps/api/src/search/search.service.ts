@@ -22,6 +22,10 @@ export class SearchService {
     });
   }
 
+  async ping() {
+    return this.elasticsearchService.ping();
+  }
+
   async updateProduct(product: SearchProductDto): Promise<UpdateResponse> {
     return this.elasticsearchService.update({
       index: 'products',
