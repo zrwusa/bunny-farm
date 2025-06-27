@@ -10,9 +10,4 @@ export class SearchResolver {
     const isAlive = await this.searchService.ping();
     return isAlive ? 'Elasticsearch is alive' : 'Elasticsearch is unreachable';
   }
-
-  // @Query(() => [SearchProductDto], { name: 'searchProducts' })
-  // async searchProducts(@Args('keyword', { type: () => String }) keyword: string) {
-  //   return this.searchService.searchProducts(keyword);
-  // }
 }

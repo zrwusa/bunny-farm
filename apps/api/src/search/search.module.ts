@@ -27,6 +27,8 @@ import { join } from 'node:path';
               rejectUnauthorized: false,
             },
           }),
+          // apiVersion: '7.10', // Compatible with Bonsai ES 7.10.2
+          // productCheck: false, // Compatible with, disable product verification
         };
       },
     }),

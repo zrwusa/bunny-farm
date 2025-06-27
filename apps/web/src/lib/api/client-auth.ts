@@ -87,7 +87,7 @@ export async function refreshTokens(): Promise<void> {
                 if (!response.ok) throw new NetworkError('Failed to refresh token (cookie mode)');
 
                 const json = await response.json();
-                if (!json.data?.refreshTokenByCookie?.ok) {
+                if (!json.data?.refreshTokenByCookie?.accessToken) {
 
                     authManager.triggerAuthFailure();
                     // throw new AuthError('Token refresh rejected by server');
