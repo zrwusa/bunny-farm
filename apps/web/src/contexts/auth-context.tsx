@@ -7,7 +7,7 @@ import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens}
 import {TOKEN_MODE} from '@/lib/config';
 import {TokenMode} from '@/types/config';
 import Image from 'next/image';
-import {usePathname, useRouter} from 'next/navigation';
+import {usePathname} from 'next/navigation';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -67,7 +67,7 @@ export function AuthProvider({children, tokenMode = TOKEN_MODE}: AuthProviderPro
         };
 
         initializeAuth().then();
-    }, [tokenMode]);
+    }, [tokenMode, pathname]);
 
     const handleLogout = async () => {
         try {
