@@ -1,94 +1,80 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { ConfigService } from '@nestjs/config';
 import { SearchProductDto } from './dto/search-product.dto';
-import {
-  BulkResponse,
-  WriteResponseBase,
-  UpdateResponse,
-  SearchHit,
-  SearchCompletionSuggestOption,
-} from '@elastic/elasticsearch/lib/api/types';
+import { ElasticCompat } from './elasticsearch-version.helper';
+import { SearchResponse } from '@elastic/elasticsearch/api/types';
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+  private readonly compat: ElasticCompat;
 
-  async createProduct(product: SearchProductDto): Promise<WriteResponseBase> {
+  constructor(
+    private readonly elasticsearchService: ElasticsearchService,
+    private readonly configService: ConfigService,
+  ) {
+    this.compat = new ElasticCompat(this.configService);
+  }
+
+  async createProduct(product: SearchProductDto) {
     const { id } = product;
-    return this.elasticsearchService.create({
-      index: 'products',
-      id,
-      document: product,
-    });
+    return this.elasticsearchService.create(this.compat.createParams('products', id, product));
+  }
+
+  async updateProduct(product: SearchProductDto) {
+    return this.elasticsearchService.update(
+      this.compat.updateParams('products', product.id, product),
+    );
+  }
+
+  async deleteProduct(id: string) {
+    return this.elasticsearchService.delete({ index: 'products', id });
   }
 
   async ping() {
     return this.elasticsearchService.ping();
   }
 
-  async updateProduct(product: SearchProductDto): Promise<UpdateResponse> {
-    return this.elasticsearchService.update({
-      index: 'products',
-      id: product.id,
-      doc: product, // Update only changed fields
-    });
-  }
-
-  async deleteProduct(id: string): Promise<WriteResponseBase> {
-    return this.elasticsearchService.delete({
-      index: 'products',
-      id,
-    });
-  }
-
-  async searchProducts(query: string): Promise<SearchHit<SearchProductDto>[]> {
+  async searchProducts(query: string) {
     const isEmptyQuery = !query?.trim();
 
-    const searchQuery = isEmptyQuery
-      ? { match_all: {} } // If query is empty, match all
+    const queryBody = isEmptyQuery
+      ? { query: { match_all: {} }, sort: [{ id: { order: 'desc' } }] }
       : {
-          multi_match: {
-            query,
-            fields: [
-              'name^3',
-              'description.overview.model^3',
-              'description.overview.description^2',
-              'category',
-              'brand',
-            ],
-            operator: 'and' as const, // All words must match
+          query: {
+            multi_match: {
+              query,
+              fields: [
+                'name^3',
+                'description.overview.model^3',
+                'description.overview.description^2',
+                'category',
+                'brand',
+              ],
+              operator: 'and',
+            },
           },
         };
 
-    try {
-      const response = await this.elasticsearchService.search<SearchProductDto>({
-        index: 'products',
-        size: 100, // Restrictions to return up to 100 records
-        query: searchQuery,
-        sort: isEmptyQuery
-          ? [{ id: { order: 'desc' } }] // When empty strings are created in reverse order (assuming you have this field)
-          : undefined,
-      });
+    const result = await this.elasticsearchService.search<SearchResponse<SearchProductDto>>(
+      this.compat.searchParams('products', { size: 100, ...queryBody }),
+    );
 
-      return response.hits?.hits || [];
-    } catch (error) {
-      throw error;
-    }
+    return this.compat.extractHits(result);
   }
 
-  async bulkIndexProducts(products: SearchProductDto[]): Promise<BulkResponse> {
+  async bulkIndexProducts(products: SearchProductDto[]) {
     const index = 'products';
 
-    const exists = await this.elasticsearchService.indices.exists({ index });
-
+    const existsRaw = await this.elasticsearchService.indices.exists({ index });
+    const exists = this.compat.extractExists(existsRaw);
+    console.debug('---exists', exists);
     if (exists) {
       await this.elasticsearchService.indices.delete({ index });
-      console.log(`Deleted index: ${index}`);
     }
 
-    await this.elasticsearchService.indices.create({
-      index,
-      mappings: {
+    await this.elasticsearchService.indices.create(
+      this.compat.createIndexParams(index, {
         properties: {
           id: { type: 'keyword' },
           name: { type: 'text' },
@@ -107,82 +93,79 @@ export class SearchService {
               },
             },
           },
-          suggest: {
-            type: 'completion',
-          },
+          suggest: { type: 'completion' },
         },
-      },
-    });
+      }),
+    );
 
-    console.log(`Created index '${index}' with custom mappings`);
-
-    if (!products || products.length === 0) {
+    if (!products?.length) {
       throw new BadRequestException('Products array cannot be empty.');
     }
 
-    const operations = products.flatMap((product) => [
-      { index: { _index: 'products', _id: product.id } },
-      product,
-    ]);
+    const ops = products.flatMap((p) => [{ index: { _index: index, _id: p.id } }, p]);
 
-    return this.elasticsearchService.bulk({ operations });
+    return this.elasticsearchService.bulk(this.compat.bulkParams(ops));
   }
 
-  async suggestProducts(input: string): Promise<SearchHit<SearchProductDto>[]> {
+  async suggestProducts(input: string) {
     const isShort = input.trim().split(/\s+/).length <= 2;
 
     if (isShort) {
-      const result = await this.elasticsearchService.search<SearchProductDto>({
-        index: 'products',
-        suggest: {
-          product_suggest: {
-            prefix: input,
-            completion: {
-              field: 'suggest',
-              fuzzy: {
-                fuzziness: 2,
-                min_length: 3,
-                prefix_length: 1,
-                transpositions: true,
+      const result = await this.elasticsearchService.search<SearchResponse<SearchProductDto>>(
+        this.compat.searchParams('products', {
+          suggest: {
+            product_suggest: {
+              prefix: input,
+              completion: {
+                field: 'suggest',
+                fuzzy: {
+                  fuzziness: 2,
+                  min_length: 3,
+                  prefix_length: 1,
+                  transpositions: true,
+                },
+                size: 10,
               },
-              size: 10,
             },
           },
-        },
-      });
+        }),
+      );
 
-      // Convert suggestions to SearchHit format
-      const suggestions = result.suggest?.product_suggest?.[0]?.options ?? [];
-      return (Array.isArray(suggestions) ? suggestions : [suggestions]).map((suggestion) => {
-        const completionOption = suggestion as SearchCompletionSuggestOption<SearchProductDto>;
-        return {
+      const suggestions = this.compat.extractSuggest(result)?.product_suggest?.[0]?.options ?? [];
+
+      return (Array.isArray(suggestions) ? suggestions : [suggestions]).map((s) => {
+        const result: Record<string, any> = {
           _index: 'products',
-          _id: completionOption._id || '',
           _score: 0,
-          _source: completionOption._source || ({} as SearchProductDto),
         };
+
+        const sAny = s as any;
+        if (sAny._id) {
+          result._id = sAny._id;
+        }
+
+        if (sAny._source) {
+          result._source = sAny._source;
+        }
+
+        return result;
       });
-    } else {
-      const result = await this.elasticsearchService.search<SearchProductDto>({
-        index: 'products',
+    }
+
+    const result = await this.elasticsearchService.search<SearchResponse<SearchProductDto>>(
+      this.compat.searchParams('products', {
         size: 10,
         query: {
           bool: {
             should: [
               {
                 match_phrase_prefix: {
-                  name: {
-                    query: input,
-                    boost: 3,
-                  },
+                  name: { query: input, boost: 3 },
                 },
               },
               {
                 match_phrase: {
-                  name: {
-                    query: input,
-                    boost: 2,
-                  },
+                  name: { query: input, boost: 2 },
                 },
               },
               {
@@ -196,9 +179,9 @@ export class SearchService {
           },
         },
         _source: ['name'],
-      });
+      }),
+    );
 
-      return result.hits?.hits || [];
-    }
+    return this.compat.extractHits(result);
   }
 }

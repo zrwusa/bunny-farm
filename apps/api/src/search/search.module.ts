@@ -3,17 +3,20 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SearchService } from './search.service';
 import { SearchResolver } from './search.resolver';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { ElasticsearchModuleOptions } from '@nestjs/elasticsearch';
 
 @Module({
   imports: [
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService): ElasticsearchModuleOptions => {
         const node = configService.get<string>('ELASTICSEARCH_NODE', 'https://localhost:9200');
         const isLocalhost = node.includes('localhost');
+        const elasticVersion = configService.get<string>('ELASTIC_VERSION', '8.x');
+        const isV7 = elasticVersion.startsWith('7');
 
         return {
           node,
@@ -27,8 +30,10 @@ import { join } from 'node:path';
               rejectUnauthorized: false,
             },
           }),
-          // apiVersion: '7.10', // Compatible with Bonsai ES 7.10.2
-          // productCheck: false, // Compatible with, disable product verification
+          ...(isV7 && {
+            apiVersion: '7.10',
+            productCheck: false,
+          }),
         };
       },
     }),
