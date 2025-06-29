@@ -65,6 +65,7 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
             return '.env.development';
         }
       })(),
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
     MonitoringModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
