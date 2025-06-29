@@ -55,14 +55,24 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
   imports: [
     ConfigModule.forRoot({
       isGlobal: true, // Make ConfigModule globally available throughout the application
+      envFilePath: (() => {
+        switch (process.env.NODE_ENV) {
+          case 'production':
+            return '.env.production';
+          case 'test':
+            return '.env.test';
+          default:
+            return '.env.development';
+        }
+      })(),
     }),
     MonitoringModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: 'src/generated/schema.gql', // Automatically generate GraphQL schema and save it to a file
-      debug: true, // Enable debugging mode to log detailed GraphQL execution info
-      playground: true, // Enable GraphQL Playground for in-browser query testing
-      introspection: true, // Allow introspection queries to fetch schema details
+      debug: process.env.APOLLO_DEBUG === 'true', // Enable debugging mode to log detailed GraphQL execution info
+      playground: process.env.GRAPHQL_PLAYGROUND === 'true', // Enable GraphQL Playground for in-browser query testing
+      introspection: process.env.GRAPHQL_PLAYGROUND === 'true', // Allow introspection queries to fetch schema details
       context: ({ req, res }: GqlContext) => ({ req, res }),
       formatError: (error) => {
         console.error('GraphQL Error:', error);
@@ -113,7 +123,7 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
             WordVariant,
           ],
           migrations: ['src/migrations/*{.ts,.js}'],
-          synchronize: true, // For development only, production environments should use migrations
+          synchronize: configService.get('TYPEORM_SYNCHRONIZE') === 'true', // For development only, production environments should use migrations
           namingStrategy: new SnakeNamingStrategy(),
           logging: ['error', 'warn', 'query', 'schema'], //Turn on SQL query and error logging
           logger: 'advanced-console',

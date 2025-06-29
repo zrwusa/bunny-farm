@@ -4,8 +4,6 @@ import * as process from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 
-console.log('▶ PORT env:', process.env.PORT);
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -30,7 +28,7 @@ async function bootstrap() {
   );
 
   // 5. Start the service
-  const port = parseInt(process.env.PORT || '3000', 10) || 3000;
+  const port = parseInt(process.env.PORT || '8080', 10) || 8080;
 
   // Bind to 0.0.0.0 before being scanned by Render
   await app.listen(port, '0.0.0.0');

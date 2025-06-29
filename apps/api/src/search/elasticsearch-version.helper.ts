@@ -4,6 +4,9 @@ import { SearchResponse } from '@elastic/elasticsearch/api/types';
 
 type ElasticVersion = '7.x' | '8.x';
 
+// If you change to default 8.x, you need to upgrade
+// "@elastic/elasticsearch": "^8.17.1"
+// "@nestjs/elasticsearch": "^11.0.0",
 export class ElasticCompat<V extends ElasticVersion = '7.x'> {
   private readonly isV7: boolean;
 

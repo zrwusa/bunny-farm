@@ -18,14 +18,14 @@ export class CookieUtil {
       this.configService.get<StringValue>('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d'),
     );
 
+    const domain = this.configService.get<string>('COOKIE_DOMAIN', '.bunny-farm.org');
+
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       maxAge: accessMaxAge,
-      domain: isProd
-        ? this.configService.get<string>('COOKIE_DOMAIN', '.bunny-farm.org')
-        : undefined,
+      domain: isProd ? domain : undefined,
     });
 
     if (refreshToken) {
@@ -34,9 +34,7 @@ export class CookieUtil {
         secure: isProd,
         sameSite: isProd ? 'none' : 'lax',
         maxAge: refreshMaxAge,
-        domain: isProd
-          ? this.configService.get<string>('COOKIE_DOMAIN', '.bunny-farm.org')
-          : undefined,
+        domain: isProd ? domain : undefined,
       });
     }
   }
