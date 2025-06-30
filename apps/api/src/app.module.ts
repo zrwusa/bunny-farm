@@ -50,6 +50,7 @@ import { VariantSynonym } from './dictionary/entities/variant-synonym.entity';
 import { Morpheme } from './dictionary/entities/word-morpheme.entity';
 import { WordVariant } from './dictionary/entities/word-variant.entity';
 import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity';
+import { LoggerOptions } from 'typeorm';
 
 @Module({
   imports: [
@@ -84,6 +85,15 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
       // TypeORM must wait for ConfigModule to parse .env to be properly initialized, so forRootAsync() is the best practice over forRoot()
       imports: [ConfigModule], // ConfigModule.forRoot() has been introduced globally in AppModule's imports. In theory, imports: [ConfigModule] can be omitted, but it is recommended to retain them to ensure stability.
       useFactory: async (configService: ConfigService) => {
+        const loggingRaw = configService.get<string>('TYPEORM_LOGGING');
+        const logging: LoggerOptions = loggingRaw
+          ? (loggingRaw.split(',').map((level) => level.trim()) as LoggerOptions)
+          : ['error', 'warn'];
+
+        const sslConfig = {
+          rejectUnauthorized: configService.get('TYPEORM_SSL_REJECT_UNAUTHORIZED') !== 'false',
+        };
+
         // Transform non-injectable objects into providers using useValue and useFactory
         return {
           type: 'postgres',
@@ -126,9 +136,15 @@ import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity
           migrations: ['src/migrations/*{.ts,.js}'],
           synchronize: configService.get('TYPEORM_SYNCHRONIZE') === 'true', // For development only, production environments should use migrations
           namingStrategy: new SnakeNamingStrategy(),
-          logging: ['error', 'warn', 'query', 'schema'], //Turn on SQL query and error logging
-          logger: 'advanced-console',
-          maxQueryExecutionTime: 50, // highlights those exceeding maxQueryExecutionTime
+          logging: logging, //Turn on SQL query and error logging
+          logger: (configService.get<string>('TYPEORM_LOGGER') ?? 'advanced-console') as
+            | 'advanced-console'
+            | 'simple-console'
+            | 'file'
+            | 'debug',
+          maxQueryExecutionTime:
+            +configService.get<string>('TYPEORM_MAX_QUERY_EXECUTION_TIME', '100') || 100, // highlights those exceeding maxQueryExecutionTime
+          ...(sslConfig ? { ssl: sslConfig } : {}), // Only the production environment transmits ssl configuration,
         };
       },
       inject: [ConfigService], // The useFactory of forRootAsync cannot directly access the global ConfigService, and must be explicitly injected
