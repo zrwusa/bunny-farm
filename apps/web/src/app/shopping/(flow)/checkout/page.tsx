@@ -102,6 +102,7 @@ export default function CheckoutPage() {
     );
 
     function onSubmit(data: z.infer<typeof AddressFormSchema>) {
+        console.log('---data', data);
         // toast("Address fields submitted", {
         //     description: (
         //         <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
