@@ -1,6 +1,9 @@
 import Me from '../../auth/me';
-
-export const FlowNavBar = () => {
+import {Query} from '@/types/generated/graphql';
+interface FlowNavBarProps {
+    me?: Query["me"]
+}
+export const FlowNavBar = ({me}: FlowNavBarProps) => {
     return (
         <nav
             className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -12,7 +15,7 @@ export const FlowNavBar = () => {
                 </div>
                 <div className="flex flex-1 items-center justify-end">
                     <div className="flex items-center justify-end">
-                        <Me/>
+                        <Me me={me}/>
                     </div>
                 </div>
             </div>

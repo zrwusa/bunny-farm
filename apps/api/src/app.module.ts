@@ -102,6 +102,9 @@ import { LoggerOptions } from 'typeorm';
           username: configService.get('POSTGRES_USERNAME'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DATABASE'),
+          extra: {
+            channelBinding: configService.get('PGCHANNELBINDING', 'prefer'),
+          },
           entities: [
             User,
             UserPreference,

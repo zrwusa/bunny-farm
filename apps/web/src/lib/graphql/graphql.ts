@@ -150,6 +150,8 @@ export const GET_ADDRESS_DETAIL = gql`
                 road
                 state_code
             }
+            confidence
+            formatted
         }
     }
 `

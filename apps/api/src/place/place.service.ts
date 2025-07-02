@@ -62,6 +62,7 @@ export class PlaceService {
     const res = await fetch(url);
     const json = await res.json();
     const result = json?.results?.[0];
+    console.debug('---result', result);
     if (!result) return null;
     return result;
     // const { components, geometry } = result;

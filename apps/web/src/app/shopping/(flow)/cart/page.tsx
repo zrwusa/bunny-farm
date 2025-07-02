@@ -4,7 +4,7 @@ import {CartList} from '@/components/features/shopping/cart/cart-list';
 
 export default function CartPage() {
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto p-6">
             <CartList/>
         </div>
     );

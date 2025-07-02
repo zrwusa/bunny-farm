@@ -23,10 +23,10 @@ export const Product: FC<ProductProps> = ({product}) => {
     const {images, skus, name, brand, category, description} = product;
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
+        <div className="mx-auto p-6">
             <FlyingItemAnimation flyingItem={flyingItem}/>
 
-            <Carousel className="w-full max-w-xl mx-auto mb-6">
+            <Carousel className="mb-6">
                 <CarouselContent>
                     {images.length > 0 ? (
                         images.map((image) => (
@@ -60,8 +60,22 @@ export const Product: FC<ProductProps> = ({product}) => {
                         </CarouselItem>
                     )}
                 </CarouselContent>
-                <CarouselPrevious/>
-                <CarouselNext/>
+                <CarouselPrevious className="
+        absolute top-1/2 left-4
+        -translate-y-1/2
+        z-10
+        bg-white/70 backdrop-blur-md
+        rounded-full p-2
+        hover:bg-white
+      "/>
+                <CarouselNext className="
+        absolute top-1/2 right-4
+        -translate-y-1/2
+        z-10
+        bg-white/70 backdrop-blur-md
+        rounded-full p-2
+        hover:bg-white
+      "/>
             </Carousel>
 
             <Card className="mb-6">
