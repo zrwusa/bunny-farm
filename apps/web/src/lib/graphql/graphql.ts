@@ -155,6 +155,7 @@ export const GET_ADDRESS_DETAIL = gql`
         }
     }
 `
+
 export const GET_SELECTED_CART_ITEMS = gql`
     query GetSelectedCartItems {
         selectedCartItems {
@@ -537,6 +538,14 @@ export const REGISTER = gql`
         }
     }
 `;
+
+export const ADD_MY_ADDRESS = gql`
+    mutation AddMyAddress($input: CreateUserAddressInput!) {
+        addMyAddress(input: $input) {
+            id
+        }
+    }
+`
 
 export const LOCAL_LOGIN = gql`
     mutation LocalLogin($input: LoginInput!) {

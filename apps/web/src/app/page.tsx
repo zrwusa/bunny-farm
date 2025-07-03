@@ -1,10 +1,7 @@
-import Link from 'next/link';
+import {redirect} from 'next/navigation';
+
 
 export default function Home() {
-    return (
-        <>
-            <Link href="/shopping">Shopping</Link>
-            <Link href="/cms">CMS</Link>
-        </>
-    );
+    redirect('/shopping/products');
 }
+

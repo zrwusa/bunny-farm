@@ -233,6 +233,7 @@ type UserAddress {
   phone: String!
   addressLine1: String!
   addressLine2: String
+  suburb: String
   city: String!
   postalCode: String!
   country: String!
@@ -592,6 +593,7 @@ input FilterOrderInput {
 type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   createUserSettings(createUserPreferenceInput: CreateUserPreferenceInput!): UserPreference!
+  addMyAddress(input: CreateUserAddressInput!): UserAddress!
   createProduct(createProductInput: CreateProductInput!): Product!
   publishProduct(publishProductInput: PublishProductInput!): Product!
   bulkIndexProducts: Boolean!
@@ -628,6 +630,18 @@ input CreateUserPreferenceInput {
   userId: String!
   receiveNotifications: Boolean = false
   receiveEmails: Boolean = false
+}
+
+input CreateUserAddressInput {
+  recipientName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  suburb: String
+  city: String!
+  postalCode: String!
+  country: String!
+  isDefault: Boolean! = false
 }
 
 input CreateProductInput {

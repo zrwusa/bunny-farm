@@ -1,5 +1,5 @@
 import {
-    CreatePaymentIntentInput,
+    CreatePaymentIntentInput, CreateUserAddressInput,
     CreateUserInput,
     LoginInput,
     Mutation,
@@ -9,6 +9,7 @@ import {
 } from '@/types/generated/graphql';
 import {fetchGraphQL} from './client-graphql-fetch';
 import {
+    ADD_MY_ADDRESS,
     CREATE_PAYMENT_INTENT,
     CREATE_PRODUCT_CLIENT,
     GET_ADDRESS_DETAIL,
@@ -129,6 +130,16 @@ export const getAddressDetail = async (addressText: string) => {
     });
     handleGraphQLErrors(response);
     return response.data?.placeDetail;
+}
+
+export const addMyAddress = async (createUserAddressInput: CreateUserAddressInput) => {
+    const response = await fetchGraphQL<Mutation>(ADD_MY_ADDRESS.loc?.source.body, {
+        variables: {
+            input: createUserAddressInput
+        }
+    });
+    handleGraphQLErrors(response);
+    return response.data?.addMyAddress;
 }
 
 export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {

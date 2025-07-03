@@ -24,6 +24,14 @@ export type AddItemToCartInput = {
   item: CartItemInput;
 };
 
+export enum AgeGroup {
+  Adult = 'ADULT',
+  Child = 'CHILD',
+  EarlyChildhood = 'EARLY_CHILDHOOD',
+  Preteen = 'PRETEEN',
+  Teen = 'TEEN'
+}
+
 export type Annotations = {
   callingcode: Scalars['Int']['output'];
   currency: Currency;
@@ -133,6 +141,50 @@ export type Components = {
   suburb?: Maybe<Scalars['String']['output']>;
 };
 
+export enum Connotation {
+  Negative = 'NEGATIVE',
+  Neutral = 'NEUTRAL',
+  Positive = 'POSITIVE',
+  StronglyNegative = 'STRONGLY_NEGATIVE',
+  StronglyPositive = 'STRONGLY_POSITIVE'
+}
+
+export type CreateAttributeInput = {
+  acquisitionAge: AgeGroup;
+  connotation: Connotation;
+  emotionalIntensity: EmotionalIntensity;
+  frequency: WordFrequency;
+};
+
+export type CreateExampleInput = {
+  isSpoken: Scalars['Boolean']['input'];
+  sentence: Scalars['String']['input'];
+  translationZh: Scalars['String']['input'];
+};
+
+export type CreateMorphemeInput = {
+  isPrefix?: Scalars['Boolean']['input'];
+  isRoot?: Scalars['Boolean']['input'];
+  isSuffix?: Scalars['Boolean']['input'];
+  meaningEn: Scalars['String']['input'];
+  meaningZh: Scalars['String']['input'];
+  relatedWords: Array<CreateMorphemeRelatedWordInput>;
+  text: Scalars['String']['input'];
+};
+
+export type CreateMorphemeRelatedWordInput = {
+  acquisitionAge?: InputMaybe<AgeGroup>;
+  connotation?: InputMaybe<Connotation>;
+  definition?: InputMaybe<Scalars['String']['input']>;
+  definitionZh?: InputMaybe<Scalars['String']['input']>;
+  emotionalIntensity?: InputMaybe<EmotionalIntensity>;
+  frequency?: InputMaybe<WordFrequency>;
+  isSpoken?: Scalars['Boolean']['input'];
+  isWritten?: Scalars['Boolean']['input'];
+  partOfSpeech?: InputMaybe<PartOfSpeech>;
+  text: Scalars['String']['input'];
+};
+
 export type CreateOrderInput = {
   items: Array<OrderItemInput>;
   /** User Id */
@@ -163,6 +215,30 @@ export type CreateShipmentInput = {
   exampleField: Scalars['Int']['input'];
 };
 
+export type CreateSynonymInput = {
+  acquisitionAge?: InputMaybe<AgeGroup>;
+  connotation?: InputMaybe<Connotation>;
+  definition?: InputMaybe<Scalars['String']['input']>;
+  definitionZh?: InputMaybe<Scalars['String']['input']>;
+  emotionalIntensity?: InputMaybe<EmotionalIntensity>;
+  frequency?: InputMaybe<WordFrequency>;
+  isSpoken?: Scalars['Boolean']['input'];
+  isWritten?: Scalars['Boolean']['input'];
+  partOfSpeech?: InputMaybe<PartOfSpeech>;
+  text: Scalars['String']['input'];
+};
+
+export type CreateUserAddressInput = {
+  addressLine1: Scalars['String']['input'];
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city: Scalars['String']['input'];
+  country: Scalars['String']['input'];
+  isDefault?: Scalars['Boolean']['input'];
+  phone: Scalars['String']['input'];
+  postalCode: Scalars['String']['input'];
+  recipientName: Scalars['String']['input'];
+};
+
 export type CreateUserInput = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
@@ -173,6 +249,20 @@ export type CreateUserPreferenceInput = {
   receiveEmails?: InputMaybe<Scalars['Boolean']['input']>;
   receiveNotifications?: InputMaybe<Scalars['Boolean']['input']>;
   userId: Scalars['String']['input'];
+};
+
+export type CreateVariantInput = {
+  attributes?: InputMaybe<CreateAttributeInput>;
+  definition: Scalars['String']['input'];
+  definitionZh: Scalars['String']['input'];
+  examples?: InputMaybe<Array<CreateExampleInput>>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  isSpoken?: Scalars['Boolean']['input'];
+  isWritten?: Scalars['Boolean']['input'];
+  partOfSpeech: PartOfSpeech;
+  pronunciationUk?: InputMaybe<Scalars['String']['input']>;
+  pronunciationUs?: InputMaybe<Scalars['String']['input']>;
+  synonyms?: InputMaybe<Array<CreateSynonymInput>>;
 };
 
 export type Currency = {
@@ -189,6 +279,14 @@ export enum DeviceType {
   Web = 'WEB'
 }
 
+export enum EmotionalIntensity {
+  Intense = 'INTENSE',
+  Mild = 'MILD',
+  Moderate = 'MODERATE',
+  VeryIntense = 'VERY_INTENSE',
+  VeryMild = 'VERY_MILD'
+}
+
 export type EnrichedCartItem = {
   cart?: Maybe<Cart>;
   createdAt: Scalars['DateTime']['output'];
@@ -200,6 +298,16 @@ export type EnrichedCartItem = {
   sku?: Maybe<Sku>;
   skuId: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ExampleSentence = {
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  isSpoken: Scalars['Boolean']['output'];
+  sentence: Scalars['String']['output'];
+  translationZh: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  variant: WordVariant;
 };
 
 export type FilterOrderInput = {
@@ -264,7 +372,39 @@ export type LoginInput = {
   type: Scalars['String']['input'];
 };
 
+export type Morpheme = {
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  isPrefix: Scalars['Boolean']['output'];
+  isRoot: Scalars['Boolean']['output'];
+  isSuffix: Scalars['Boolean']['output'];
+  meaningEn: Scalars['String']['output'];
+  meaningZh: Scalars['String']['output'];
+  relatedWords: Array<MorphemeWord>;
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type MorphemeWord = {
+  acquisitionAge?: Maybe<AgeGroup>;
+  connotation?: Maybe<Connotation>;
+  createdAt: Scalars['DateTime']['output'];
+  definition?: Maybe<Scalars['String']['output']>;
+  definitionZh?: Maybe<Scalars['String']['output']>;
+  emotionalIntensity?: Maybe<EmotionalIntensity>;
+  frequency?: Maybe<WordFrequency>;
+  id: Scalars['String']['output'];
+  isSpoken: Scalars['Boolean']['output'];
+  isWritten: Scalars['Boolean']['output'];
+  morpheme: Morpheme;
+  partOfSpeech?: Maybe<PartOfSpeech>;
+  relatedWordVariant: Array<WordVariant>;
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type Mutation = {
+  addMyAddress: UserAddress;
   addToCart: CachedCart;
   bulkIndexProducts: Scalars['Boolean']['output'];
   clearCart: CachedCart;
@@ -281,7 +421,9 @@ export type Mutation = {
   logout: Scalars['Boolean']['output'];
   placeOrder: Order;
   publishProduct: Product;
+  publishWord: Word;
   refreshToken: TokenOutput;
+  refreshTokenByCookie: TokenOutput;
   removeItems: CachedCart;
   removePayment: Payment;
   removeShipment: Shipment;
@@ -289,6 +431,11 @@ export type Mutation = {
   updateItemQuantity: CachedCart;
   updatePayment: Payment;
   updateShipment: Shipment;
+};
+
+
+export type MutationAddMyAddressArgs = {
+  input: CreateUserAddressInput;
 };
 
 
@@ -355,6 +502,11 @@ export type MutationPlaceOrderArgs = {
 
 export type MutationPublishProductArgs = {
   publishProductInput: PublishProductInput;
+};
+
+
+export type MutationPublishWordArgs = {
+  input: PublishWordInput;
 };
 
 
@@ -441,6 +593,18 @@ export enum OrderStatus {
   Returned = 'RETURNED',
   Returning = 'RETURNING',
   Shipped = 'SHIPPED'
+}
+
+export enum PartOfSpeech {
+  Adjective = 'ADJECTIVE',
+  Adverb = 'ADVERB',
+  Conjunction = 'CONJUNCTION',
+  Interjection = 'INTERJECTION',
+  IntransitiveVerb = 'INTRANSITIVE_VERB',
+  Noun = 'NOUN',
+  Preposition = 'PREPOSITION',
+  Pronoun = 'PRONOUN',
+  TransitiveVerb = 'TRANSITIVE_VERB'
 }
 
 export type Payment = {
@@ -542,8 +706,15 @@ export type PublishProductInput = {
   skus: Array<SkuInput>;
 };
 
+export type PublishWordInput = {
+  morphemes?: InputMaybe<Array<CreateMorphemeInput>>;
+  text: Scalars['String']['input'];
+  variants?: InputMaybe<Array<CreateVariantInput>>;
+};
+
 export type Query = {
   cart: CachedCart;
+  findWord?: Maybe<Word>;
   me: User;
   myAddresses: Array<UserAddress>;
   order: Order;
@@ -551,6 +722,7 @@ export type Query = {
   payment: Payment;
   payments: Array<Payment>;
   ping: App;
+  pingElasticsearch: Scalars['String']['output'];
   placeDetail?: Maybe<PlaceGeoDetail>;
   product?: Maybe<Product>;
   products: Array<Product>;
@@ -566,6 +738,11 @@ export type Query = {
 
 export type QueryCartArgs = {
   clientCartId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryFindWordArgs = {
+  text: Scalars['String']['input'];
 };
 
 
@@ -791,6 +968,34 @@ export type UserProfile = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type VariantAttribute = {
+  acquisitionAge: AgeGroup;
+  connotation: Connotation;
+  createdAt: Scalars['DateTime']['output'];
+  emotionalIntensity: Scalars['Float']['output'];
+  frequency: Scalars['Float']['output'];
+  id: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type VariantSynonym = {
+  acquisitionAge?: Maybe<AgeGroup>;
+  connotation?: Maybe<Connotation>;
+  createdAt: Scalars['DateTime']['output'];
+  definition?: Maybe<Scalars['String']['output']>;
+  definitionZh?: Maybe<Scalars['String']['output']>;
+  emotionalIntensity?: Maybe<EmotionalIntensity>;
+  frequency?: Maybe<WordFrequency>;
+  id: Scalars['String']['output'];
+  isSpoken: Scalars['Boolean']['output'];
+  isWritten: Scalars['Boolean']['output'];
+  partOfSpeech?: Maybe<PartOfSpeech>;
+  synonymVariant: Array<WordVariant>;
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  variant: WordVariant;
+};
+
 export type Warehouse = {
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['String']['output'];
@@ -804,6 +1009,41 @@ export type WarehouseInput = {
   id?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Word = {
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['String']['output'];
+  morphemes: Array<Morpheme>;
+  text: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  variants: Array<WordVariant>;
+};
+
+export enum WordFrequency {
+  Common = 'COMMON',
+  Rare = 'RARE',
+  Uncommon = 'UNCOMMON',
+  VeryCommon = 'VERY_COMMON',
+  VeryRare = 'VERY_RARE'
+}
+
+export type WordVariant = {
+  attributes?: Maybe<VariantAttribute>;
+  createdAt: Scalars['DateTime']['output'];
+  definition: Scalars['String']['output'];
+  definitionZh: Scalars['String']['output'];
+  examples: Array<ExampleSentence>;
+  id: Scalars['String']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  isSpoken: Scalars['Boolean']['output'];
+  isWritten: Scalars['Boolean']['output'];
+  partOfSpeech: PartOfSpeech;
+  pronunciationUk?: Maybe<Scalars['String']['output']>;
+  pronunciationUs?: Maybe<Scalars['String']['output']>;
+  synonyms: Array<VariantSynonym>;
+  updatedAt: Scalars['DateTime']['output'];
+  word: Word;
 };
 
 export type GetUsersQueryVariables = Exact<{ [key: string]: never; }>;
@@ -845,7 +1085,7 @@ export type PlaceDetailQueryVariables = Exact<{
 }>;
 
 
-export type PlaceDetailQuery = { placeDetail?: { components: { suburb?: string | null, city?: string | null, country?: string | null, continent?: string | null, country_code?: string | null, postcode?: string | null, road?: string | null, state_code?: string | null } } | null };
+export type PlaceDetailQuery = { placeDetail?: { confidence: number, formatted: string, components: { suburb?: string | null, city?: string | null, country?: string | null, continent?: string | null, country_code?: string | null, postcode?: string | null, road?: string | null, state_code?: string | null } } | null };
 
 export type GetSelectedCartItemsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -959,6 +1199,13 @@ export type RegisterMutationVariables = Exact<{
 
 
 export type RegisterMutation = { createUser: { id: string, username: string, email: string } };
+
+export type AddMyAddressMutationVariables = Exact<{
+  input: CreateUserAddressInput;
+}>;
+
+
+export type AddMyAddressMutation = { addMyAddress: { id: string } };
 
 export type LocalLoginMutationVariables = Exact<{
   input: LoginInput;
@@ -1306,6 +1553,8 @@ export const PlaceDetailDocument = gql`
       road
       state_code
     }
+    confidence
+    formatted
   }
 }
     `;
@@ -2181,6 +2430,39 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const AddMyAddressDocument = gql`
+    mutation AddMyAddress($input: CreateUserAddressInput!) {
+  addMyAddress(input: $input) {
+    id
+  }
+}
+    `;
+export type AddMyAddressMutationFn = Apollo.MutationFunction<AddMyAddressMutation, AddMyAddressMutationVariables>;
+
+/**
+ * __useAddMyAddressMutation__
+ *
+ * To run a mutation, you first call `useAddMyAddressMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddMyAddressMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addMyAddressMutation, { data, loading, error }] = useAddMyAddressMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddMyAddressMutation(baseOptions?: Apollo.MutationHookOptions<AddMyAddressMutation, AddMyAddressMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddMyAddressMutation, AddMyAddressMutationVariables>(AddMyAddressDocument, options);
+      }
+export type AddMyAddressMutationHookResult = ReturnType<typeof useAddMyAddressMutation>;
+export type AddMyAddressMutationResult = Apollo.MutationResult<AddMyAddressMutation>;
+export type AddMyAddressMutationOptions = Apollo.BaseMutationOptions<AddMyAddressMutation, AddMyAddressMutationVariables>;
 export const LocalLoginDocument = gql`
     mutation LocalLogin($input: LoginInput!) {
   login(input: $input) {

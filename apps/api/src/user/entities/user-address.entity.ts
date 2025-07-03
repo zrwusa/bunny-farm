@@ -25,6 +25,10 @@ export class UserAddress extends BaseEntity {
   @Column({ nullable: true })
   addressLine2: string;
 
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  suburb: string;
+
   @Field()
   @Column()
   city: string;
