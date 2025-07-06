@@ -1,25 +1,27 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
+import { STRIPE_CLIENT } from './stripe.provider';
+import { LoggerService } from '../core/logger.service';
 
 @Injectable()
 export class StripeService {
-  private stripe: Stripe;
+  constructor(
+    @Inject(STRIPE_CLIENT) private readonly stripe: Stripe,
+    private readonly logger: LoggerService,
+  ) {}
 
-  constructor() {
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-05-28.basil',
-    });
+  constructEvent(payload: Buffer | string, signature: string, webhookSecret: string): Stripe.Event {
+    try {
+      return this.stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    } catch (err) {
+      this.logger.error('Stripe webhook validation failed', err);
+      throw err;
+    }
   }
 
-  async createPaymentIntent(amountOfCents: number, currency: string) {
-    return await this.stripe.paymentIntents.create({
-      amount: amountOfCents, // Unit is the smallest currency unit, for example 1000 means 10.00 USD
-      currency,
-    });
-  }
-
-  async retrievePaymentIntent(id: string) {
-    return await this.stripe.paymentIntents.retrieve(id);
+  async createPaymentIntent(amount: number, currency: string) {
+    this.logger.log(`Creating payment intent: ${amount} ${currency}`);
+    return this.stripe.paymentIntents.create({ amount, currency });
   }
 
   async createCheckoutSession() {

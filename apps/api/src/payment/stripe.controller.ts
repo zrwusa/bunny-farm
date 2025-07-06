@@ -1,10 +1,14 @@
 import { Controller, Post, Headers, Req, Res } from '@nestjs/common';
-import Stripe from 'stripe';
 import { Request, Response } from 'express';
+import { StripeService } from './stripe.service';
+import { LoggerService } from '../core/logger.service';
 
 @Controller('webhook')
 export class StripeWebhookController {
-  private stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-05-28.basil' });
+  constructor(
+    private readonly stripeService: StripeService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @Post()
   async handleWebhook(
@@ -12,21 +16,27 @@ export class StripeWebhookController {
     @Res() res: Response,
     @Headers('stripe-signature') signature: string,
   ) {
-    const payload = req.rawBody;
-    const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    let event: Stripe.Event;
+    let event;
 
     try {
-      event = this.stripe.webhooks.constructEvent(payload, signature, endpointSecret!);
+      const payload = req.body;
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+      event = this.stripeService.constructEvent(payload, signature, webhookSecret);
     } catch (err) {
-      console.error('Webhook Error:', err.message);
+      this.logger.error(`Webhook Error: ${err.message}`);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    if (event.type === 'payment_intent.succeeded') {
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      // TODO Update database order status
+    this.logger.log(`Stripe event received: ${event.type}`);
+
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object;
+        this.logger.log(`PaymentIntent succeeded: ${paymentIntent.id}`);
+        // TODO: Call another service to update the order
+        break;
+      default:
+        this.logger.warn(`Unhandled event type: ${event.type}`);
     }
 
     res.status(200).json({ received: true });
