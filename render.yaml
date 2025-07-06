@@ -6,5 +6,5 @@ services:
     region: oregon
     branch: main
     rootDir: .
-    buildCommand: pnpm install --frozen-lockfile && pnpm build --filter=bunny-farm-api
+    buildCommand: pnpm install && pnpm build --filter=bunny-farm-api
     startCommand: pnpm --filter=bunny-farm-api start
