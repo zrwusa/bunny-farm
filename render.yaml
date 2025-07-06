@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bunny-farm-api
+    env: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build --filter=bunny-farm-api
+    startCommand: pnpm --filter=bunny-farm-api start
