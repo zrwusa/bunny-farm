@@ -136,7 +136,7 @@ import { LoggerOptions } from 'typeorm';
             MorphemeWord,
             WordVariant,
           ],
-          migrations: ['src/migrations/*{.ts,.js}'],
+          // migrations: ['src/migrations/*{.ts,.js}'],
           synchronize: configService.get('TYPEORM_SYNCHRONIZE') === 'true', // For development only, production environments should use migrations
           namingStrategy: new SnakeNamingStrategy(),
           logging: logging, //Turn on SQL query and error logging

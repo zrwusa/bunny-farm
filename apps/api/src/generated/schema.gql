@@ -230,7 +230,8 @@ type UserAddress {
   createdAt: DateTime!
   updatedAt: DateTime!
   recipientName: String!
-  phone: String!
+  phone: String
+  email: String
   addressLine1: String!
   addressLine2: String
   suburb: String
@@ -634,7 +635,8 @@ input CreateUserPreferenceInput {
 
 input CreateUserAddressInput {
   recipientName: String!
-  phone: String!
+  phone: String
+  email: String!
   addressLine1: String!
   addressLine2: String
   suburb: String

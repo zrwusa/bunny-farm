@@ -9,7 +9,7 @@ import { PublishProductInput } from './dto/publish-product.input';
 import { Warehouse } from './entities/warehouse.entity';
 import { SearchService } from '../search/search.service';
 import { SearchProductDto } from '../search/dto/search-product.dto';
-import { LoggerService } from '../shared/logger.service';
+import { LoggerService } from '../core/logger.service';
 
 @Injectable()
 export class ProductService {

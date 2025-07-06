@@ -6,13 +6,13 @@ import { UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/c
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
 import { GqlContext } from '../types/graphql';
-import { CookieUtil } from '../common';
+import { CookieService } from '../core/cookie.service';
 
 @Resolver()
 export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
-    private readonly cookieUtil: CookieUtil,
+    private readonly cookieService: CookieService,
   ) {}
 
   @Mutation(() => TokenOutput)
@@ -43,7 +43,7 @@ export class AuthResolver {
       throw new BadRequestException('Unsupported login type');
     }
     const tokens = await this.authService.generateTokens(user);
-    this.cookieUtil.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
+    this.cookieService.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
     return tokens;
   }
 
@@ -56,7 +56,7 @@ export class AuthResolver {
     if (!tokens) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    this.cookieUtil.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
+    this.cookieService.setAuthCookies(context.res, tokens.accessToken, tokens.refreshToken);
     return tokens;
   }
 
@@ -76,7 +76,7 @@ export class AuthResolver {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    this.cookieUtil.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
+    this.cookieService.setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
     return tokens;
   }
 
@@ -88,7 +88,7 @@ export class AuthResolver {
   ): Promise<boolean> {
     await this.authService.logout(userId);
 
-    this.cookieUtil.clearAuthCookies(context.res);
+    this.cookieService.clearAuthCookies(context.res);
     return true;
   }
 }

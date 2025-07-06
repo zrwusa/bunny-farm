@@ -7,12 +7,13 @@ import { GoogleOAuthService } from './google-oauth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CookieUtil } from '../common';
+import { CookieModule } from '../core/cookie.module';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    CookieModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -24,7 +25,7 @@ import { CookieUtil } from '../common';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthResolver, AuthService, GoogleOAuthService, JwtStrategy, CookieUtil],
+  providers: [AuthResolver, AuthService, GoogleOAuthService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

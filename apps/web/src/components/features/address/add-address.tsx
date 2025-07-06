@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -18,20 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { addMyAddress, getAddressDetail } from "@/lib/api/client-actions";
 import { useState } from "react";
-
-const AddressFormSchema = z.object({
-    recipientName: z.string().min(1, { message: "Recipient name is required" }),
-    phone: z.string().min(1, { message: "Phone is required" }),
-    addressLine1: z.string().min(1, { message: "Address line 1 is required" }),
-    addressLine2: z.string().optional(),
-    suburb: z.string().optional(),
-    city: z.string().min(1, { message: "City is required" }),
-    postalCode: z.string().min(1, { message: "Postal code is required" }),
-    country: z.string().min(1, { message: "Country is required" }),
-    isDefault: z.boolean().optional(),
-});
-
-export type AddressFormData = z.infer<typeof AddressFormSchema>;
+import {AddressFormData, AddressSchema} from '@bunny/shared';
 
 interface AddAddressFormProps {
     onAddressAdded?: () => void;
@@ -41,9 +27,10 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
     const [inputAddress, setInputAddress] = useState("");
 
     const form = useForm<AddressFormData>({
-        resolver: zodResolver(AddressFormSchema),
+        resolver: zodResolver(AddressSchema),
         defaultValues: {
             recipientName: "",
+            email: "",
             phone: "",
             addressLine1: "",
             addressLine2: "",
@@ -60,6 +47,7 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
         if (corrected?.components) {
             const values = {
                 recipientName: "",
+                email: "",
                 phone: "",
                 addressLine1: corrected.components.road || "",
                 addressLine2: "",
@@ -98,6 +86,7 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
                     {[
                         "recipientName",
                         "phone",
+                        "email",
                         "addressLine1",
                         "addressLine2",
                         "suburb",

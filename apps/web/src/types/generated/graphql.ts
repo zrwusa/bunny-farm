@@ -233,10 +233,12 @@ export type CreateUserAddressInput = {
   addressLine2?: InputMaybe<Scalars['String']['input']>;
   city: Scalars['String']['input'];
   country: Scalars['String']['input'];
+  email: Scalars['String']['input'];
   isDefault?: Scalars['Boolean']['input'];
-  phone: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
   postalCode: Scalars['String']['input'];
   recipientName: Scalars['String']['input'];
+  suburb?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateUserInput = {
@@ -931,11 +933,13 @@ export type UserAddress = {
   city: Scalars['String']['output'];
   country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   id: Scalars['String']['output'];
   isDefault: Scalars['Boolean']['output'];
-  phone: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
   postalCode: Scalars['String']['output'];
   recipientName: Scalars['String']['output'];
+  suburb?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 

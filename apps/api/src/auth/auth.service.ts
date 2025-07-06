@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { GoogleOAuthService } from './google-oauth.service';
-import { ms } from '../utils';
+import { ms } from '@bunny/shared';
 
 @Injectable()
 export class AuthService {

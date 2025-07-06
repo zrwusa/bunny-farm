@@ -1,7 +1,7 @@
 import { BeforeInsert, PrimaryColumn } from 'typeorm';
 import { CreatedAtField, IdField, UpdatedAtField } from '../index';
 import { Field, ObjectType } from '@nestjs/graphql';
-import { generateUuNumId } from '../../utils';
+import { generateUuNumId } from '@bunny/shared';
 
 @ObjectType()
 export abstract class BaseEntity {

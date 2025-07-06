@@ -1,4 +1,4 @@
-import {AuthManager} from '../../../../packages/shared/interfaces/auth-manager';
+import {AuthManager} from '@bunny/shared';
 
 class WebAuthManager implements AuthManager {
     private handler: () => void = () => {

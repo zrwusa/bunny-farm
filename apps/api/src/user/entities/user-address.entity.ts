@@ -13,9 +13,13 @@ export class UserAddress extends BaseEntity {
   @Column()
   recipientName: string;
 
-  @Field()
-  @Column()
-  phone: string;
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  phone?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true })
+  email?: string;
 
   @Field()
   @Column()
