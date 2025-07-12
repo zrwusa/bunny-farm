@@ -87,22 +87,6 @@ export const Product: FC<ProductProps> = ({product}) => {
                     </p>
                 </CardHeader>
             </Card>
-
-            <Card className="mb-6">
-                <CardHeader>
-                    <CardTitle className="text-lg font-semibold">Product Description</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {description ? (
-                        <RichTextEditor content={description} editable={true}/>
-                    ) : (
-                        <p className="text-gray-500">No description available</p>
-                    )}
-                </CardContent>
-            </Card>
-
-            <Separator className="my-6"/>
-
             <Card className="mb-6">
                 <CardHeader>
                     <CardTitle className="text-lg font-semibold">Product Skus</CardTitle>
@@ -153,6 +137,19 @@ export const Product: FC<ProductProps> = ({product}) => {
                             )}
                         </TableBody>
                     </Table>
+                </CardContent>
+            </Card>
+            <Separator className="my-6"/>
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Product Description</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {description ? (
+                        <RichTextEditor content={description} editable={false}/>
+                    ) : (
+                        <p className="text-gray-500">No description available</p>
+                    )}
                 </CardContent>
             </Card>
         </div>

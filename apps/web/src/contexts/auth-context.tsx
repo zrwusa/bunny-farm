@@ -1,13 +1,13 @@
 'use client';
 
-import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
-import {Query} from '@/types/generated/graphql';
-import {getMe, logout} from '@/lib/api/client-actions';
-import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens} from '@/lib/api/client-auth';
-import {TOKEN_MODE} from '@/lib/config';
-import {TokenMode} from '@/types/config';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import { Query } from '@/types/generated/graphql';
+import { getMe, logout } from '@/lib/api/client-actions';
+import { removeStoredTokens } from '@/lib/auth/client-auth';
+import { TOKEN_MODE } from '@/lib/config';
+import { TokenMode } from '@/types/config';
 import Image from 'next/image';
-import {usePathname} from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -23,51 +23,48 @@ const AuthContext = createContext<AuthContextType | null>(null);
 interface AuthProviderProps {
     children: ReactNode;
     tokenMode?: TokenMode;
+
+    /**
+     * If you have SSR Embed, you can pass it in when using <AuthProvider ssrUser={...}>
+     * In this way, the CSR can be reused directly when starting, without adjusting /me
+     */
+    ssrUser?: Query['me'] | null;
 }
 
-export function AuthProvider({children, tokenMode = TOKEN_MODE}: AuthProviderProps) {
-    const [user, setUser] = useState<Query['me'] | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({
+                                 children,
+                                 tokenMode = TOKEN_MODE,
+                                 ssrUser = null,
+                             }: AuthProviderProps) {
+    const [user, setUser] = useState<Query['me'] | null>(ssrUser ?? null);
+    const [isLoading, setIsLoading] = useState(!ssrUser); // If the SSR already has a user, loading is not required
     const [error, setError] = useState<Error | null>(null);
     const pathname = usePathname();
 
     useEffect(() => {
-        const initializeAuth = async () => {
-            if (pathname === '/auth/login') {
-                setIsLoading(false);
-                return;
-            }
-            try {
-                if (tokenMode === 'cookie') {
-                    // Cookie mode: The backend will automatically read HttpOnly refresh_token. Since the front-end cannot get tokens in cookies, the access token can only be refreshed every time the app is started                    console.log('[AuthProvider] Cookie mode: refreshing token...');
-                    await refreshTokens();
-                } else {
-                    // Storage mode: Check token and refresh
-                    const tokens = await getStoredTokens();
-                    if (
-                        tokens?.refreshToken &&
-                        !isTokenExpiringSoon(tokens.refreshToken) &&
-                        (!tokens.accessToken || isTokenExpiringSoon(tokens.accessToken))
-                    ) {
-                        console.log('[AuthProvider] Header mode: refreshing token...');
-                        await refreshTokens();
-                    }
-                }
+        if (ssrUser) return;
 
-                const result = await getMe();
-                if (result) setUser(result);
+        const initializeAuth = async () => {
+            try {
+                    const me = await getMe();
+
+                    if (me) {
+                        setUser(me);
+                    } else {
+                        console.warn('[AuthProvider] Cookie mode: still no user after refresh.');
+                        setUser(null);
+                    }
             } catch (err) {
                 console.warn('[AuthProvider] Auth init failed:', err);
                 setError(err as Error);
                 setUser(null);
-                if (tokenMode === 'storage') await removeStoredTokens();
             } finally {
                 setIsLoading(false);
             }
         };
 
         initializeAuth().then();
-    }, [tokenMode, pathname]);
+    }, [tokenMode, pathname, ssrUser]);
 
     const handleLogout = async () => {
         try {
@@ -87,12 +84,16 @@ export function AuthProvider({children, tokenMode = TOKEN_MODE}: AuthProviderPro
                 error,
                 logout: handleLogout,
                 setUser,
-                tokenMode
+                tokenMode,
             }}
         >
-            {isLoading ? <div className="flex items-center justify-center h-screen">
-                <Image src="/cog.svg" width={100} height={100} alt="loading" />
-            </div> : children} {/* Children are not loaded until the token refresh is complete */}
+            {isLoading ? (
+                <div className="flex items-center justify-center h-screen">
+                    <Image src="/cog.svg" width={100} height={100} alt="loading" />
+                </div>
+            ) : (
+                children
+            )}
         </AuthContext.Provider>
     );
 }

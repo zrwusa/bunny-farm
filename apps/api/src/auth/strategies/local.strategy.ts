@@ -1,3 +1,5 @@
+// apps/api/src/auth/strategies/local.strategy.ts
+
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { PassportStrategy } from '@nestjs/passport';

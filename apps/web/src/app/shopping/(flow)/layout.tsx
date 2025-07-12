@@ -1,6 +1,6 @@
 import {ReactNode} from 'react';
 import {FlowNavBar} from '@/components/features/shopping/layout/flow-nav-bar';
-import {getMe} from '@/lib/api/actions';
+import {getMe} from '@/lib/api/server-actions';
 
 export default async function FlowLayout({children}: { children: ReactNode }) {
     const me = await getMe();

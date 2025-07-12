@@ -887,9 +887,15 @@ export type ToggleItemSelectionInput = {
   skuId: Scalars['String']['input'];
 };
 
+export type TokenMeta = {
+  accessTokenMaxAge: Scalars['Float']['output'];
+  refreshTokenMaxAge: Scalars['Float']['output'];
+};
+
 export type TokenOutput = {
   accessToken: Scalars['String']['output'];
   refreshToken: Scalars['String']['output'];
+  tokenMeta: TokenMeta;
 };
 
 export type UpdateItemQuantityInput = {

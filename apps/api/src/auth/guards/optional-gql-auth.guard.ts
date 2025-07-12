@@ -3,11 +3,22 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { GraphQLError } from 'graphql';
+// import { Response } from 'express';
+// import { AuthService } from '../auth.service';
+// import { CookieService } from '../../core/cookie.service';
 
 @Injectable()
 export class OptionalGqlAuthGuard extends AuthGuard('jwt') {
+  // constructor(
+  //   private readonly authService: AuthService,
+  //   private readonly cookieService: CookieService,
+  // ) {
+  //   super();
+  // }
+
   getRequest(context: ExecutionContext): Request {
-    return GqlExecutionContext.create(context).getContext().req;
+    const ctx = GqlExecutionContext.create(context);
+    return ctx.getContext().req;
   }
 
   handleRequest<CurrentJwtUser>(
@@ -36,4 +47,33 @@ export class OptionalGqlAuthGuard extends AuthGuard('jwt') {
     // Return to valid user, otherwise null
     return user ?? null;
   }
+
+  // async canActivate(context: ExecutionContext): Promise<boolean> {
+  //   const ctx = GqlExecutionContext.create(context);
+  //   const req = ctx.getContext().req as Request;
+  //   const res = ctx.getContext().res as Response;
+  //
+  //   try {
+  //     const result = await super.canActivate(context);
+  //     return result as boolean;
+  //   } catch (err: any) {
+  //     if (err?.name === 'UnauthorizedException') {
+  //       const refreshToken = req.cookies?.refresh_token;
+  //       if (!refreshToken) return true;
+  //
+  //       const newTokens = await this.authService.refreshToken(refreshToken);
+  //       if (!newTokens) return true;
+  //
+  //       this.cookieService.setAuthCookies(res, newTokens.accessToken, newTokens.refreshToken);
+  //
+  //       const decoded = await this.authService.verifyAsync(newTokens.accessToken);
+  //       req.user = { id: decoded.sub, email: decoded.email };
+  //
+  //       return true;
+  //     }
+  //
+  //     // ignore other errors: allow anonymous
+  //     return true;
+  //   }
+  // }
 }

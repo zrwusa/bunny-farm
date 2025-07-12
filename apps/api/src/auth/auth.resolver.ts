@@ -64,7 +64,7 @@ export class AuthResolver {
   async refreshTokenByCookie(@Context() context: GqlContext): Promise<TokenOutput> {
     const { req, res } = context;
 
-    const refreshToken = req.cookies?.refreshToken ?? req.cookies?.refresh_token;
+    const refreshToken = req.cookies?.refresh_token;
     console.debug('---req.cookies', req.cookies);
 
     if (!refreshToken) {

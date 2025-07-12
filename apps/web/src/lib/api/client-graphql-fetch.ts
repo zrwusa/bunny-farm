@@ -1,10 +1,10 @@
 'use client'
 
-import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens,} from './client-auth';
 import {GraphQLError} from 'graphql/error';
 import {AuthError, NetworkError} from '@/lib/errors';
 import {GraphQLResponse} from '@/types/graphql';
 import {GRAPH_QL_API_URL, TOKEN_MODE} from '@/lib/config';
+import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens} from '@/lib/auth/client-auth';
 
 async function internalFetchGraphQL<T>(
     query?: string,
@@ -74,7 +74,9 @@ export async function fetchGraphQL<T>(
     // storage mode
     let tokens = await getStoredTokens();
 
-    if (tokens?.accessToken && isTokenExpiringSoon(tokens.accessToken)) {
+    if (tokens?.refreshToken &&
+        !isTokenExpiringSoon(tokens.refreshToken) &&
+        (!tokens.accessToken || isTokenExpiringSoon(tokens.accessToken))) {
         try {
             await refreshTokens();
             tokens = await getStoredTokens();

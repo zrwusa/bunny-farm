@@ -1,3 +1,5 @@
+// apps/api/src/user/user.resolver.ts
+
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';

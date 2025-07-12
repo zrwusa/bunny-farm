@@ -1,3 +1,5 @@
+// apps/api/src/core/cookie.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -19,7 +21,7 @@ export class CookieService {
     );
 
     const domain = this.configService.get<string>('COOKIE_DOMAIN', '.bunny-farm.org');
-
+    console.log('---access_token expire', accessMaxAge);
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: isProd,

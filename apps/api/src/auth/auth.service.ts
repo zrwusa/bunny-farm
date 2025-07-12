@@ -1,3 +1,5 @@
+// apps/api/src/auth/auth.service.ts
+
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +9,7 @@ import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { GoogleOAuthService } from './google-oauth.service';
 import { ms } from '@bunny/shared';
+import { TokenOutput } from './dto/token.output';
 
 @Injectable()
 export class AuthService {
@@ -64,12 +67,13 @@ export class AuthService {
     return user;
   }
 
-  async generateTokens(user: User): Promise<{ accessToken: string; refreshToken: string }> {
+  async generateTokens(user: User): Promise<TokenOutput> {
     const payload = { sub: user.id, email: user.email };
-
+    const JWT_ACCESS_TOKEN_EXPIRES_IN = this.config.get('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m');
+    const accessTokenMaxAge = ms(JWT_ACCESS_TOKEN_EXPIRES_IN) / 1000;
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.config.get('JWT_SECRET'),
-      expiresIn: this.config.get('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m'),
+      expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
     });
 
     const JWT_REFRESH_TOKEN_EXPIRES_IN = this.config.get('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d');
@@ -78,23 +82,21 @@ export class AuthService {
       secret: this.config.get('JWT_SECRET'),
       expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
-
-    await this.redis.set(
-      `refresh:${user.id}`,
+    const refreshTokenMaxAge = ms(JWT_REFRESH_TOKEN_EXPIRES_IN) / 1000;
+    await this.redis.set(`refresh:${user.id}`, refreshToken, 'EX', refreshTokenMaxAge);
+    return {
+      accessToken,
       refreshToken,
-      'EX',
-      ms(JWT_REFRESH_TOKEN_EXPIRES_IN) / 1000,
-    );
-    return { accessToken, refreshToken };
+      tokenMeta: {
+        accessTokenMaxAge,
+        refreshTokenMaxAge,
+      },
+    };
   }
 
-  async refreshToken(
-    refreshToken: string,
-  ): Promise<{ accessToken: string; refreshToken: string } | null> {
+  async refreshToken(refreshToken: string): Promise<TokenOutput | null> {
     try {
-      const payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.config.get('JWT_SECRET'),
-      });
+      const payload = await this.verifyAsync(refreshToken);
 
       const userId = payload.sub;
       const stored = await this.redis.get(`refresh:${userId}`);
@@ -121,6 +123,13 @@ export class AuthService {
 
       return null;
     }
+  }
+
+  async verifyAsync(token: string) {
+    const result = await this.jwtService.verifyAsync(token, {
+      secret: this.config.get('JWT_SECRET'),
+    });
+    return result;
   }
 
   async logout(userId: string): Promise<void> {

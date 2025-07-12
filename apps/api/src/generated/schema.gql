@@ -353,9 +353,15 @@ enum Carrier {
   LOCAL_COURIER
 }
 
+type TokenMeta {
+  accessTokenMaxAge: Float!
+  refreshTokenMaxAge: Float!
+}
+
 type TokenOutput {
   accessToken: String!
   refreshToken: String!
+  tokenMeta: TokenMeta!
 }
 
 type Geometry {

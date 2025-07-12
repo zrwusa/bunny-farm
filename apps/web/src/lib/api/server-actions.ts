@@ -1,6 +1,8 @@
 'use server'
 
-import {fetchGraphQL, fetchGraphQLPure} from './graphql-fetch';
+// apps/web/src/lib/api/actions.ts
+
+import {fetchGraphQL, fetchGraphQLPure} from './server-graphql-fetch';
 import {Mutation, Product, Query, User} from '@/types/generated/graphql';
 import {
     CREATE_PRODUCT,

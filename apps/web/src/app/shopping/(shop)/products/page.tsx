@@ -2,7 +2,7 @@ import Link from 'next/link';
 import {Card, CardContent, CardHeader, CardTitle} from '@/components/ui/card';
 import Image from 'next/image';
 import {Query} from '@/types/generated/graphql';
-import {searchProducts} from '@/lib/api/actions';
+import {searchProducts} from '@/lib/api/server-actions';
 
 
 type PageProps = {

@@ -1,3 +1,5 @@
+// apps/api/src/auth/strategies/jwt.strategy.ts
+
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';

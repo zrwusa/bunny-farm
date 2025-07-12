@@ -1,3 +1,5 @@
+// apps/api/src/user/user.module.ts
+
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserResolver } from './user.resolver';
@@ -9,9 +11,15 @@ import { UserPreferenceResolver } from './user-preference.resolver';
 import { UserAddressResolver } from './user-address.resolver';
 import { UserAddressService } from './user-address.service';
 import { UserAddress } from './entities/user-address.entity';
+// import { CookieModule } from '../core/cookie.module';
+// import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, UserPreference, UserAddress])], // The core function of TypeOrmModule.forFeature is to convert the specified entities into an Injectable Provider and register them into NestJS's dependency injection container. These converted Repositories can be directly injected into your services without the need to manually add them to the providers array.
+  imports: [
+    TypeOrmModule.forFeature([User, UserPreference, UserAddress]),
+    // CookieModule,
+    // AuthModule,
+  ], // The core function of TypeOrmModule.forFeature is to convert the specified entities into an Injectable Provider and register them into NestJS's dependency injection container. These converted Repositories can be directly injected into your services without the need to manually add them to the providers array.
   providers: [
     UserService,
     UserResolver,

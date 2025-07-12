@@ -23,7 +23,7 @@ import {
     PLACE_ORDER,
     REGISTER
 } from '@/lib/graphql';
-import {setStoredTokens} from './client-auth';
+import {setStoredTokens} from '../auth/client-auth';
 import {GraphQLResponse} from '@/types/graphql';
 
 const handleGraphQLErrors = (response: GraphQLResponse<Mutation | Query>) => {
