@@ -14,7 +14,8 @@ const REFRESH_MUTATION = `
   }
 `;
 
-const ENABLE_MIDDLEWARE_REDIRECTED = process.env.ENABLE_MIDDLEWARE_REDIRECTED === 'true';
+// const ENABLE_MIDDLEWARE_REDIRECTED = process.env.ENABLE_MIDDLEWARE_REDIRECTED === 'true';
+const ENABLE_MIDDLEWARE_REDIRECTED = true;
 
 export async function middleware(request: NextRequest) {
     console.log('💡 [Middleware] Running for:', request.nextUrl.pathname);
