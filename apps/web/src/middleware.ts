@@ -1,5 +1,3 @@
-// apps/web/src/middleware.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -12,16 +10,21 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    console.log('💡 [Middleware] No access_token, redirecting to /api/refresh');
+    console.log('💡 [Middleware] No access_token, redirecting to /api/auth/refresh-tokens');
 
-    // Redirect to /api/refresh?next=originalPath
+    // Always build an absolute URL for redirect
     const refreshUrl = request.nextUrl.clone();
     refreshUrl.pathname = '/api/auth/refresh-tokens';
-    refreshUrl.searchParams.set('next', request.nextUrl.pathname + request.nextUrl.search);
+    refreshUrl.searchParams.set(
+        'next',
+        request.nextUrl.pathname + request.nextUrl.search
+    );
 
-    return NextResponse.redirect(refreshUrl);
+    const absoluteRefreshUrl = refreshUrl.toString();
+
+    return NextResponse.redirect(absoluteRefreshUrl);
 }
 
 export const config = {
-    matcher: ['/cms/:path*', '/shopping/:path*'], // Protect your protected routes
+    matcher: ['/cms/:path*', '/shopping/:path*'],
 };

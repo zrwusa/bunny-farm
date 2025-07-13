@@ -1,5 +1,4 @@
-// apps/api/src/auth/auth.service.ts
-
+// File: apps/api/src/auth/auth.service.ts
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -8,8 +7,8 @@ import Redis from 'ioredis';
 import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { GoogleOAuthService } from './google-oauth.service';
-import { ms } from '@bunny/shared';
-import { TokenOutput } from './dto/token.output';
+import { ms, StringValue } from '@bunny/shared';
+import { TokenOutput, TokenMeta } from './dto/token.output';
 
 @Injectable()
 export class AuthService {
@@ -25,35 +24,23 @@ export class AuthService {
     if (!redisUrl) {
       throw new Error('Missing REDIS_URL config');
     }
-
     this.redis = new Redis(redisUrl);
-
-    // this.redis = new Redis({
-    //   host: config.get('REDIS_HOST', 'localhost'),
-    //   port: config.get('REDIS_PORT', 6379),
-    //   password: config.get('REDIS_PASSWORD', undefined),
-    // });
   }
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userService.findByEmail(email);
     if (user && user.password) {
       const match = await bcrypt.compare(password, user.password);
-      if (match) {
-        return user;
-      }
+      if (match) return user;
     }
-    // No more throwing 401 directly, return null
     return null;
   }
 
   async validateOAuthUser(provider: string, oauthToken: string): Promise<User | null> {
     const googleUser = await this.googleOauthService.verifyIdToken(oauthToken);
     const { email, googleId, avatar: avatarUrl, name: displayName } = googleUser;
-    if (!email) {
-      // It is more suitable to use BadRequest or custom exceptions here.
-      throw new BadRequestException('Email is required for OAuth login');
-    }
+    if (!email) throw new BadRequestException('Email is required for OAuth login');
+
     let user = await this.userService.findByProviderId(provider, googleId);
     if (!user) {
       user = await this.userService.createOAuthUser({
@@ -69,67 +56,67 @@ export class AuthService {
 
   async generateTokens(user: User): Promise<TokenOutput> {
     const payload = { sub: user.id, email: user.email };
-    const JWT_ACCESS_TOKEN_EXPIRES_IN = this.config.get('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m');
-    const accessTokenMaxAge = ms(JWT_ACCESS_TOKEN_EXPIRES_IN) / 1000;
+
+    const accessConfig = this.config.get<StringValue>('JWT_ACCESS_TOKEN_EXPIRES_IN', '15m');
+    const accessMaxAge = ms(accessConfig) / 1000;
     const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get('JWT_SECRET'),
-      expiresIn: JWT_ACCESS_TOKEN_EXPIRES_IN,
+      secret: this.config.get<string>('JWT_SECRET'),
+      expiresIn: accessConfig,
     });
 
-    const JWT_REFRESH_TOKEN_EXPIRES_IN = this.config.get('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d');
-
+    const refreshConfig = this.config.get<StringValue>('JWT_REFRESH_TOKEN_EXPIRES_IN', '7d');
+    const refreshMaxAge = ms(refreshConfig) / 1000;
     const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.config.get('JWT_SECRET'),
-      expiresIn: JWT_REFRESH_TOKEN_EXPIRES_IN,
+      secret: this.config.get<string>('JWT_SECRET'),
+      expiresIn: refreshConfig,
     });
-    const refreshTokenMaxAge = ms(JWT_REFRESH_TOKEN_EXPIRES_IN) / 1000;
-    await this.redis.set(`refresh:${user.id}`, refreshToken, 'EX', refreshTokenMaxAge);
+    await this.redis.set(`refresh:${user.id}`, refreshToken, 'EX', refreshMaxAge);
+
+    const meta: TokenMeta = {
+      maxAge: accessMaxAge,
+      httpOnly: true,
+      secure: this.config.get<string>('NODE_ENV') === 'production',
+      sameSite: this.config.get<string>('NODE_ENV') === 'production' ? 'none' : 'lax',
+      domain: this.config.get<string>('COOKIE_DOMAIN', ''),
+    };
+    const refreshMeta: TokenMeta = {
+      maxAge: refreshMaxAge,
+      httpOnly: true,
+      secure: this.config.get<string>('NODE_ENV') === 'production',
+      sameSite: this.config.get<string>('NODE_ENV') === 'production' ? 'none' : 'lax',
+      domain: this.config.get<string>('COOKIE_DOMAIN', ''),
+    };
+
     return {
       accessToken,
       refreshToken,
-      tokenMeta: {
-        accessTokenMaxAge,
-        refreshTokenMaxAge,
-      },
+      accessTokenMeta: meta,
+      refreshTokenMeta: refreshMeta,
     };
   }
 
-  async refreshToken(refreshToken: string): Promise<TokenOutput | null> {
+  async refreshToken(token: string): Promise<TokenOutput | null> {
     try {
-      const payload = await this.verifyAsync(refreshToken);
-
+      const payload = await this.verifyAsync(token);
       const userId = payload.sub;
+
       const stored = await this.redis.get(`refresh:${userId}`);
-      if (!stored || stored !== refreshToken) {
-        console.debug('---!stored || stored !== refreshToken', !stored || stored !== refreshToken);
-        return null;
-      }
+      if (!stored || stored !== token) return null;
 
       const user = await this.userService.findById(userId);
-      if (!user) {
+      if (!user) return null;
+
+      return this.generateTokens(user);
+    } catch (err) {
+      if (err instanceof TokenExpiredError || err instanceof JsonWebTokenError) {
         return null;
       }
-      // A new pair of tokens is generated every time it is refreshed to prevent the refreshToken from being stolen for a long time.
-      return this.generateTokens(user);
-    } catch (err: unknown) {
-      if (err instanceof TokenExpiredError) {
-        // TODO logger should be implemented
-        // this.logger.warn('Refresh token expired');
-      } else if (err instanceof JsonWebTokenError) {
-        // this.logger.warn('Invalid refresh token');
-      } else {
-        // this.logger.error('Unexpected error during refresh token process', err);
-      }
-
-      return null;
+      throw err;
     }
   }
 
   async verifyAsync(token: string) {
-    const result = await this.jwtService.verifyAsync(token, {
-      secret: this.config.get('JWT_SECRET'),
-    });
-    return result;
+    return this.jwtService.verifyAsync(token, { secret: this.config.get<string>('JWT_SECRET') });
   }
 
   async logout(userId: string): Promise<void> {

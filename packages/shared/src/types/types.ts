@@ -1,0 +1,1 @@
+export type SameSite = boolean | "lax" | "strict" | "none" | undefined;

@@ -354,14 +354,18 @@ enum Carrier {
 }
 
 type TokenMeta {
-  accessTokenMaxAge: Float!
-  refreshTokenMaxAge: Float!
+  maxAge: Float!
+  httpOnly: Boolean!
+  secure: Boolean!
+  sameSite: String
+  domain: String
 }
 
 type TokenOutput {
   accessToken: String!
   refreshToken: String!
-  tokenMeta: TokenMeta!
+  accessTokenMeta: TokenMeta!
+  refreshTokenMeta: TokenMeta!
 }
 
 type Geometry {

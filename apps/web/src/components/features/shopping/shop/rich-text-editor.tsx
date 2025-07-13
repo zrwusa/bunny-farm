@@ -13,26 +13,39 @@ import {Button} from '@/components/ui/button';
 import './rich-text-editor.css';
 
 interface RichTextRendererProps {
-    content: JSONContent;
-    editable?: boolean;
+    content: JSONContent
+    editable?: boolean
 }
 
-export const RichTextEditor = ({content, editable = false}: RichTextRendererProps) => {
+export const RichTextEditor = ({
+                                   content,
+                                   editable = false,
+                               }: RichTextRendererProps) => {
     const editor = useEditor({
-        extensions: [StarterKit,
-            Table.configure({resizable: true}),
+        extensions: [
+            // disable heading & codeBlock in StarterKit
+            StarterKit.configure({
+                heading: false,
+                codeBlock: false,
+            }),
+
+            // then re‑add only once each
+            Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
+            CodeBlock,
+
+            // the rest
+            Link,
+            Image,
+            TextAlign.configure({ types: ['paragraph', 'heading'] }),
+            Table.configure({ resizable: true }),
             TableRow,
             TableCell,
             TableHeader,
-            Heading,
-            Link,
-            Image,
-            CodeBlock,
-            TextAlign.configure({types: ['paragraph', 'heading']}),],
+        ],
         content,
         editable,
-        immediatelyRender: false
-    });
+        immediatelyRender: false,
+    })
     const handleBold = () => editor?.chain().focus().toggleBold().run();
     const handleItalic = () => editor?.chain().focus().toggleItalic().run();
     const handleStrike = () => editor?.chain().focus().toggleStrike().run();

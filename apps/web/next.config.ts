@@ -5,56 +5,90 @@ const nextConfig: NextConfig = {
     images: {
         remotePatterns: [
             {
-                hostname: 'images.homedepot.ca'
+                protocol: 'https',
+                hostname: 'images.homedepot.ca',
+                pathname: '/**',
             },
             {
-                hostname: 'images.homedepot.com'
+                protocol: 'https',
+                hostname: 'images.homedepot.com',
+                pathname: '/**',
             },
             {
-                hostname: 'i0.wp.com'
+                protocol: 'https',
+                hostname: 'i0.wp.com',
+                pathname: '/**',
             },
             {
-                hostname: 'images.thdstatic.com'
+                protocol: 'https',
+                hostname: 'images.thdstatic.com',
+                pathname: '/**',
             },
             {
-                hostname: 'www.thdstatic.com'
+                protocol: 'https',
+                hostname: 'www.thdstatic.com',
+                pathname: '/**',
             },
             {
-                hostname: 'm.media-amazon.com'
+                protocol: 'https',
+                hostname: 'm.media-amazon.com',
+                pathname: '/**',
             },
             {
-                hostname: 'lh3.googleusercontent.com'
+                protocol: 'https',
+                hostname: 'lh3.googleusercontent.com',
+                pathname: '/**',
             },
             {
-                hostname: 'sydneytools.co.nz'
+                protocol: 'https',
+                hostname: 'sydneytools.co.nz',
+                pathname: '/**',
             },
             {
-                hostname: 'c.media-amazon.com'
+                protocol: 'https',
+                hostname: 'c.media-amazon.com',
+                pathname: '/**',
             },
             {
-                hostname: 'www.rupes.com'
+                protocol: 'https',
+                hostname: 'www.rupes.com',
+                pathname: '/**',
             },
             {
-                hostname: 'media.cdn.festool.io'
+                protocol: 'https',
+                hostname: 'media.cdn.festool.io',
+                pathname: '/**',
             },
             {
-                hostname: 'www.18650batterystore.com'
+                protocol: 'https',
+                hostname: 'www.18650batterystore.com',
+                pathname: '/**',
             },
             {
-                hostname: 'www.toolnation.com'
+                protocol: 'https',
+                hostname: 'www.toolnation.com',
+                pathname: '/**',
             },
             {
-                hostname: 'www.hilti.co.nz'
+                protocol: 'https',
+                hostname: 'www.hilti.co.nz',
+                pathname: '/**',
             },
             {
-                hostname: 'www.metabo.com'
+                protocol: 'https',
+                hostname: 'www.metabo.com',
+                pathname: '/**',
             },
             {
-                hostname: 'images.makita.co.nz'
+                protocol: 'https',
+                hostname: 'images.makita.co.nz',
+                pathname: '/**',
             },
             {
-                hostname: 'cdn.makitatools.com'
-            }
+                protocol: 'https',
+                hostname: 'cdn.makitatools.com',
+                pathname: '/**',
+            },
         ]
     }
 };

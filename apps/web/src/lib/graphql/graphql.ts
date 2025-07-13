@@ -574,10 +574,20 @@ export const REFRESH_TOKENS_BY_COOKIE = gql`
     refreshTokenByCookie {
       accessToken
       refreshToken
-      tokenMeta {
-        accessTokenMaxAge
-        refreshTokenMaxAge
+        accessTokenMeta {
+            maxAge
+            domain
+            sameSite
+            secure
+            httpOnly
       }
+        refreshTokenMeta{
+            maxAge
+            domain
+            sameSite
+            secure
+            httpOnly
+        }
     }
   }
 `;
