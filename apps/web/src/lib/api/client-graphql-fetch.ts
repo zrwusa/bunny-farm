@@ -1,35 +1,45 @@
-'use client'
+// File: apps/web/src/lib/api/graphql-client.ts
+'use client';
 
-import {GraphQLError} from 'graphql/error';
-import {AuthError, NetworkError} from '@/lib/errors';
-import {GraphQLResponse} from '@/types/graphql';
-import {GRAPH_QL_API_URL, TOKEN_MODE} from '@/lib/config';
-import {getStoredTokens, isTokenExpiringSoon, refreshTokens, removeStoredTokens} from '@/lib/auth/client-auth';
+import { GraphQLError } from 'graphql/error';
+import { AuthError, NetworkError } from '@/lib/errors';
+import { GraphQLResponse } from '@/types/graphql';
+import { authManager } from '@/lib/auth/auth-manager';
+import { TOKEN_MODE } from '@/lib/config';
+import {getValidAccessToken, refreshTokens} from '@/lib/auth/client-auth';
+
+interface FetchOptions {
+    variables?: Record<string, unknown>;
+    revalidate?: number;
+}
 
 async function internalFetchGraphQL<T>(
-    query?: string,
+    query: string | undefined,
     {
         variables,
-        revalidate = 10,
         accessToken,
+        revalidate = 10,
     }: {
         variables?: Record<string, unknown>;
-        revalidate?: number;
         accessToken?: string;
-    } = {}
+        revalidate?: number;
+    }
 ): Promise<GraphQLResponse<T>> {
-    const res = await fetch(GRAPH_QL_API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(TOKEN_MODE === 'storage' && accessToken
-                ? {Authorization: `Bearer ${accessToken}`}
-                : {}),
-        },
-        credentials: 'include', // always include cookies
-        body: JSON.stringify({query, variables}),
-        next: {revalidate},
-    });
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (accessToken) {
+        headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    const res = await fetch(
+        process.env.NEXT_PUBLIC_GRAPH_QL_API_URL ?? '',
+        {
+            method: 'POST',
+            headers,
+            credentials: 'include',
+            body: JSON.stringify({ query, variables }),
+            next: { revalidate },
+        }
+    );
 
     if (!res.ok) {
         throw new NetworkError(`${res.status} ${res.statusText}`);
@@ -38,13 +48,12 @@ async function internalFetchGraphQL<T>(
     const result: GraphQLResponse<T> = await res.json();
 
     if (result.errors?.length) {
-        const firstError = result.errors[0];
-        const code = firstError.extensions?.code;
-        const message = firstError.message || 'GraphQL error occurred';
-
+        const { code } = result.errors[0].extensions ?? {};
+        const message = result.errors[0].message;
         switch (code) {
             case 'UNAUTHORIZED':
             case 'FORBIDDEN':
+            case 'UNAUTHENTICATED':
                 throw new AuthError(message);
             case 'BAD_USER_INPUT':
             case 'VALIDATION_FAILED':
@@ -61,53 +70,46 @@ async function internalFetchGraphQL<T>(
 
 export async function fetchGraphQL<T>(
     query?: string,
-    options?: {
-        variables?: Record<string, unknown>;
-        revalidate?: number;
-    }
+    options: FetchOptions = {}
 ): Promise<GraphQLResponse<T>> {
+    authManager.setAuthFailureHandler(() => authManager.triggerAuthFailure());
+
+    // Cookie Mode
     if (TOKEN_MODE === 'cookie') {
-        // Cookie mode: The browser automatically brings cookies without processing tokens
-        return internalFetchGraphQL<T>(query, options);
-    }
-
-    // storage mode
-    let tokens = await getStoredTokens();
-
-    if (tokens?.refreshToken &&
-        !isTokenExpiringSoon(tokens.refreshToken) &&
-        (!tokens.accessToken || isTokenExpiringSoon(tokens.accessToken))) {
         try {
-            await refreshTokens();
-            tokens = await getStoredTokens();
-        } catch (err) {
-            console.warn('Token refresh failed before fetch:', err);
-            await removeStoredTokens();
-            throw new AuthError('Re-authentication required');
+            return await internalFetchGraphQL<T>(query, {
+                variables: options.variables,
+                revalidate: options.revalidate,
+            });
+        } catch (err: unknown) {
+            if (err instanceof AuthError) {
+                await refreshTokens();
+                return internalFetchGraphQL<T>(query, {
+                    variables: options.variables,
+                    revalidate: options.revalidate,
+                });
+            }
+            throw err;
         }
     }
 
+    // Storage mode
+    const accessToken = await getValidAccessToken();
     try {
         return await internalFetchGraphQL<T>(query, {
-            ...options,
-            accessToken: tokens?.accessToken,
+            variables: options.variables,
+            accessToken,
+            revalidate: options.revalidate,
         });
-    } catch (error: unknown) {
-        if (error instanceof AuthError) {
-            try {
-                await refreshTokens();
-                tokens = await getStoredTokens();
-                return await internalFetchGraphQL<T>(query, {
-                    ...options,
-                    accessToken: tokens?.accessToken,
-                });
-            } catch (refreshError) {
-                console.error('Failed to refresh token after 401:', refreshError);
-                await removeStoredTokens();
-                throw new AuthError('Re-authentication required');
-            }
+    } catch (err: unknown) {
+        if (err instanceof AuthError) {
+            const newToken = await getValidAccessToken();
+            return internalFetchGraphQL<T>(query, {
+                variables: options.variables,
+                accessToken: newToken,
+                revalidate: options.revalidate,
+            });
         }
-
-        throw error;
+        throw err;
     }
 }

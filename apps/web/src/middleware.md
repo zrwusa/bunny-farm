@@ -20,14 +20,26 @@ Rewrite: Rewrite the request to another path or external domain name at the edge
 | Do ACL (IP whitelist/blacklist) | You can use `request.ip` to do interception |
 | Can forward to different backends | Can `rewrite` to other APIs or external URLs |
 
-## Differences 
+## The same points
+| Features | Nginx | Next.js Middleware |
+| ------ | ------------------------------ | ------------------------------- |
+| Routing distribution | `location` configuration can match URLs and distribute them to different backends | `matcher` can match URL Pattern trigger execution |
+| Permission interception | You can use `if` + `rewrite` for simple authentication | You can read cookies and headers for identity judgment |
+| URL rewrite | `rewrite` command change URL | `NextResponse.rewrite()` change URL |
+| Redirect | `return 301` or `rewrite` | `NextResponse.redirect()` |
+| Running location | Server layer (usually in the server or load balancer) | Edge CDN node, closer to the user |
+| Performance targets | Efficient processing of network traffic | Millisecond delay without recalculation |
 
-| 点     | Nginx                      | Next.js Middleware                        |
-| ----- | -------------------------- | ----------------------------------------- |
-| Configuration method | Configuration file (`nginx.conf`) | Using JavaScript/TypeScript |
-| Executable logic | Only match + forwarding, complex logic needs to be written to Lua or external services | You can directly write JS logic (parse JWT, cookies, A/B shunts) |
-| Deployment location | Build your own server | Follow Vercel Edge Network by default or build Edge Runtime by yourself |
-| Range of action | Any path, containing static files | Only act on matching routes (pages and APIs), and do not handle static resources such as `/public/` |
+## The difference
+
+| Differences | Nginx | Middleware |
+| -------- | --------------------------- | ---------------------------------- |
+| Programming capabilities | Configuration files + Lua (OpenResty) | Modern JS/TS, complete programming capabilities |
+| Status | Statusless | Statusless |
+| Executable logic complexity | Natively only supports conditions, variables, and rewrite, and complex needs Lua | You can directly use JS, write conditions, call third-party services, and do experimental diversion |
+| Running Environment | On your server (such as Ubuntu + Nginx) | On Edge node (Vercel / Cloudflare POP) |
+| Cold start | No (configuration is configuration) | In theory, neither (Edge Function cold start is extremely fast) |
+| Purpose | General Web Service Portal | Request Interceptor customized for Next.js services |
 
 
 

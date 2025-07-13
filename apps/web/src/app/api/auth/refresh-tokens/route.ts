@@ -1,20 +1,8 @@
 // apps/web/src/app/api/auth/refresh-tokens/route.ts
 
-import { NextResponse } from 'next/server';
-import { GRAPH_QL_API_URL } from '@/lib/config';
-
-const REFRESH_MUTATION = `
-  mutation {
-    refreshTokenByCookie {
-      accessToken
-      refreshToken
-      tokenMeta {
-        accessTokenMaxAge
-        refreshTokenMaxAge
-      }
-    }
-  }
-`;
+import {NextResponse} from 'next/server';
+import {GRAPH_QL_API_URL} from '@/lib/config';
+import {REFRESH_TOKENS_BY_COOKIE} from '@/lib/graphql';
 
 export async function GET(request: Request) {
     console.log('💡 [API] /api/auth/refresh-tokens called');
@@ -27,7 +15,7 @@ export async function GET(request: Request) {
             'Content-Type': 'application/json',
             Cookie: cookie,
         },
-        body: JSON.stringify({ query: REFRESH_MUTATION }),
+        body: JSON.stringify({query: REFRESH_TOKENS_BY_COOKIE.loc?.source.body}),
     });
 
     console.log('💡 [API] backendRes.ok:', backendRes.ok);
@@ -51,6 +39,6 @@ export async function GET(request: Request) {
     }
 
     console.log('💡 [API] Refresh failed, redirecting to /login');
-    return NextResponse.redirect(origin + '/login');
+    return NextResponse.redirect(origin + '/auth/login');
 }
 

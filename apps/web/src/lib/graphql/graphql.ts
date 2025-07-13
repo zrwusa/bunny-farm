@@ -555,3 +555,29 @@ export const LOCAL_LOGIN = gql`
         }
     }
 `;
+
+export const REFRESH_TOKENS = gql`
+    mutation RefreshToken($refreshToken: String!) {
+        refreshToken(refreshToken: $refreshToken) {
+            accessToken
+            refreshToken
+            tokenMeta {
+                accessTokenMaxAge
+                refreshTokenMaxAge
+            }
+        }
+    }
+`;
+
+export const REFRESH_TOKENS_BY_COOKIE = gql`
+  mutation RefreshTokensByCookie{
+    refreshTokenByCookie {
+      accessToken
+      refreshToken
+      tokenMeta {
+        accessTokenMaxAge
+        refreshTokenMaxAge
+      }
+    }
+  }
+`;

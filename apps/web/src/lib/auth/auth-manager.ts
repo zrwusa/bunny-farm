@@ -1,11 +1,11 @@
-import {AuthManager} from '@bunny/shared';
+// File: apps/web/src/lib/auth/auth-manager.ts
+import { AuthManager } from '@bunny/shared';
 
 class WebAuthManager implements AuthManager {
     private handler: () => void = () => {
         if (typeof window !== 'undefined') {
-            const currentPath = window.location.pathname + window.location.search;
-            const encoded = encodeURIComponent(currentPath);
-            window.location.href = `/auth/login?redirect=${encoded}`;
+            const redirectTo = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/auth/login?redirect=${redirectTo}`;
         }
     };
 
