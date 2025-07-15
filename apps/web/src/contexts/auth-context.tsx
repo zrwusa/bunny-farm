@@ -1,3 +1,4 @@
+// apps/web/src/contexts/auth-context.tsx
 'use client';
 
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
@@ -8,6 +9,7 @@ import { TOKEN_MODE } from '@/lib/config';
 import { TokenMode } from '@/types/config';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { isAuthExemptPath } from '@bunny/shared/dist/utils/auth';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -42,8 +44,10 @@ export function AuthProvider({
     const pathname = usePathname();
 
     useEffect(() => {
-        if (ssrUser) return;
-
+        if (ssrUser || isAuthExemptPath(pathname)) {
+            setIsLoading(false)
+            return;
+        }
         const initializeAuth = async () => {
             try {
                     const me = await getMe();

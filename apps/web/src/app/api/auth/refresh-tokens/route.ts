@@ -6,7 +6,7 @@ import { SameSite } from '@bunny/shared';
 export async function GET(request: Request) {
     const cookieHeader = request.headers.get('cookie') || '';
     const url = new URL(request.url);
-    const origin = url.origin; // https://yourdomain.com
+    const origin = url.origin;
     const nextPath = url.searchParams.get('next') || '/';
 
     const backendRes = await fetch(GRAPH_QL_API_URL, {

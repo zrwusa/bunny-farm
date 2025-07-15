@@ -4,7 +4,6 @@
 import { GraphQLError } from 'graphql/error';
 import { AuthError, NetworkError } from '@/lib/errors';
 import { GraphQLResponse } from '@/types/graphql';
-import { authManager } from '@/lib/auth/auth-manager';
 import { TOKEN_MODE } from '@/lib/config';
 import {getValidAccessToken, refreshTokens} from '@/lib/auth/client-auth';
 
@@ -72,8 +71,6 @@ export async function fetchGraphQL<T>(
     query?: string,
     options: FetchOptions = {}
 ): Promise<GraphQLResponse<T>> {
-    authManager.setAuthFailureHandler(() => authManager.triggerAuthFailure());
-
     // Cookie Mode
     if (TOKEN_MODE === 'cookie') {
         try {

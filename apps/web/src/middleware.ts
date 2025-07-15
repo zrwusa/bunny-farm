@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {isAuthExemptPath} from '@bunny/shared/dist/utils/auth';
 
 export async function middleware(request: NextRequest) {
     console.log('💡 [Middleware] Running for:', request.nextUrl.pathname);
-
+    if (isAuthExemptPath(request.nextUrl.pathname)) {
+        console.log('[Middleware] Current path is auth exempt path');
+        return NextResponse.next();
+    }
     const accessToken = request.cookies.get('access_token')?.value;
 
     if (accessToken) {

@@ -1,7 +1,7 @@
 // apps/api/src/core/cookie.service.ts
 
 import { Injectable } from '@nestjs/common';
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import { TokenMeta } from '../auth/dto/token.output';
 
 @Injectable()
@@ -34,8 +34,8 @@ export class CookieService {
     }
   }
 
-  clearAuthCookies(res: Response): void {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+  clearAuthCookies(res: Response, options?: CookieOptions): void {
+    res.clearCookie('access_token', options);
+    res.clearCookie('refresh_token', options);
   }
 }
