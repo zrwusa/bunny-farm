@@ -2,7 +2,7 @@
 
 // apps/web/src/lib/api/actions.ts
 
-import {fetchGraphQL, fetchGraphQLPure} from './server-graphql-fetch';
+import {fetchAuthGraphQL, fetchPublicGraphQL} from './server-graphql-fetch';
 import {Mutation, Product, Query, User} from '@/types/generated/graphql';
 import {
     CREATE_PRODUCT,
@@ -17,7 +17,7 @@ import {
 export const createProduct = async (formData: FormData) => {
     const product = Object.fromEntries(formData.entries()) as unknown as Product;
 
-    const response = await fetchGraphQL<Mutation>(CREATE_PRODUCT.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Mutation>(CREATE_PRODUCT.loc?.source.body, {
         variables: {
             createProductInput: product
         }
@@ -30,7 +30,7 @@ export const createProduct = async (formData: FormData) => {
 }
 
 export const getProducts = async () => {
-    const response = await fetchGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
 
     if (!response?.data) {
         console.error('Error fetching products');
@@ -40,12 +40,12 @@ export const getProducts = async () => {
 }
 
 export const getMe = async () => {
-    const response = await fetchGraphQL<Query>(ME_QUERY.loc?.source.body || '');
+    const response = await fetchAuthGraphQL<Query>(ME_QUERY.loc?.source.body || '');
     return response.data?.me;
 };
 
 export const getProductIds = async () => {
-    const response = await fetchGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
 
     if (!response?.data) {
         console.error('Error fetching product IDs');
@@ -55,7 +55,7 @@ export const getProductIds = async () => {
 }
 
 export const getProduct = async (id: string) => {
-    const response = await fetchGraphQL<Query>(GET_PRODUCT.loc?.source.body, {variables: {id}});
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT.loc?.source.body, {variables: {id}});
 
     if (!response?.data) {
         console.error('Error fetching product');
@@ -65,7 +65,7 @@ export const getProduct = async (id: string) => {
 }
 
 export const getUsers = async () => {
-    const response = await fetchGraphQL<Query>(GET_USERS.loc?.source.body);
+    const response = await fetchAuthGraphQL<Query>(GET_USERS.loc?.source.body);
 
     if (!response?.data) {
         console.error('Error fetching users');
@@ -87,7 +87,7 @@ export const getUsers = async () => {
 }
 
 export const searchProducts = async (keyword: string) => {
-    const response = await fetchGraphQLPure<Query>(SEARCH_PRODUCTS.loc?.source.body, {
+    const response = await fetchPublicGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
         variables: {keyword}
     });
 

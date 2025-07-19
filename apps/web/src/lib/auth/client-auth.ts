@@ -19,19 +19,19 @@ let refreshPromise: Promise<void> | null = null;
 
 export async function getStoredTokens(): Promise<Tokens> {
     return {
-        accessToken: localStorage.getItem('access_token') ?? undefined,
-        refreshToken: localStorage.getItem('refresh_token') ?? undefined,
+        accessToken: localStorage.getItem('ACCESS_TOKEN') ?? undefined,
+        refreshToken: localStorage.getItem('REFRESH_TOKEN') ?? undefined,
     };
 }
 
 export async function setStoredTokens(accessToken: string, refreshToken: string) {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
+    localStorage.setItem('ACCESS_TOKEN', accessToken);
+    localStorage.setItem('REFRESH_TOKEN', refreshToken);
 }
 
 export async function removeStoredTokens() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('ACCESS_TOKEN');
+    localStorage.removeItem('REFRESH_TOKEN');
 }
 
 export function isTokenExpiringSoon(token: string, thresholdSeconds = 60): boolean {
@@ -68,7 +68,7 @@ async function refreshViaStorage() {
         credentials: 'omit',
         body: JSON.stringify({
             query: REFRESH_TOKENS.loc?.source.body,
-            variables: { refresh_token: refreshToken },
+            variables: { REFRESH_TOKEN: refreshToken },
         }),
     });
 

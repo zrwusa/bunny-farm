@@ -1,3 +1,5 @@
+// apps/web/src/app/api/auth/refresh-tokens/route.ts
+
 import { NextResponse } from 'next/server';
 import { GRAPH_QL_API_URL } from '@/lib/config';
 import { REFRESH_TOKENS_BY_COOKIE } from '@/lib/graphql';
@@ -32,7 +34,7 @@ export async function GET(request: Request) {
     const metaA = payload.accessTokenMeta;
     console.log('---metaA', metaA);
     response.cookies.set({
-        name: 'access_token',
+        name: 'ACCESS_TOKEN',
         value: payload.accessToken,
         httpOnly: metaA.httpOnly,
         secure: metaA.secure,
@@ -46,7 +48,7 @@ export async function GET(request: Request) {
     console.log('---metaR', metaR);
     if (payload.refreshToken) {
         response.cookies.set({
-            name: 'refresh_token',
+            name: 'REFRESH_TOKEN',
             value: payload.refreshToken,
             httpOnly: metaR.httpOnly,
             secure: metaR.secure,

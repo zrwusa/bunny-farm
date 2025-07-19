@@ -1,3 +1,5 @@
+// apps/web/src/components/features/shopping/cart/cart-list.tsx
+
 'use client';
 
 import {useCart} from '@/hooks/shopping/cart/useCart';
@@ -5,6 +7,7 @@ import {CartItem} from './cart-item';
 import Link from 'next/link';
 import {CartItem as CartItemType} from '@/types/generated/graphql';
 import {Button} from '@/components/ui/button';
+import {ButtonLink} from '@/components/ui/button-link';
 
 export const CartList = () => {
     const {cart, loading, error, clearCartItems} = useCart();
@@ -22,6 +25,7 @@ export const CartList = () => {
             <div className="p-4 text-center" data-testid="empty-cart-message">
                 <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
                 <p className="text-gray-600">Add some items to your cart to see them here.</p>
+                <ButtonLink href="/shopping/products">Go shopping</ButtonLink>
             </div>
         );
     }

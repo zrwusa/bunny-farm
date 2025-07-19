@@ -14,7 +14,7 @@ export class CookieService {
     refreshMeta?: TokenMeta,
   ): void {
     if (accessMeta) {
-      res.cookie('access_token', accessToken, {
+      res.cookie('ACCESS_TOKEN', accessToken, {
         httpOnly: accessMeta.httpOnly,
         secure: accessMeta.secure,
         sameSite: accessMeta.sameSite,
@@ -24,7 +24,7 @@ export class CookieService {
     }
 
     if (refreshToken && refreshMeta) {
-      res.cookie('refresh_token', refreshToken, {
+      res.cookie('REFRESH_TOKEN', refreshToken, {
         httpOnly: refreshMeta.httpOnly,
         secure: refreshMeta.secure,
         sameSite: refreshMeta.sameSite,
@@ -35,7 +35,7 @@ export class CookieService {
   }
 
   clearAuthCookies(res: Response, options?: CookieOptions): void {
-    res.clearCookie('access_token', options);
-    res.clearCookie('refresh_token', options);
+    res.clearCookie('ACCESS_TOKEN', options);
+    res.clearCookie('REFRESH_TOKEN', options);
   }
 }

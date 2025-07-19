@@ -27,8 +27,8 @@ export const GoogleLoginButton = ({from, onSuccess}: GoogleLoginButtonProps) => 
 
                 if (result) {
                     const {accessToken, refreshToken} = result;
-                    localStorage.setItem('access_token', accessToken);
-                    localStorage.setItem('refresh_token', refreshToken);
+                    localStorage.setItem('ACCESS_TOKEN', accessToken);
+                    localStorage.setItem('REFRESH_TOKEN', refreshToken);
 
                     // Refresh user state
                     const me = await getMe();

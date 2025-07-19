@@ -18,7 +18,7 @@ export default async function ProductsPage({searchParams}: PageProps) {
     const aboveTheFold = 3;
 
     return (
-        <section className="container mx-auto px-4 py-8">
+        <section className="mx-auto px-4 py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.slice(0, size).map(({id, name, brand, images, skus}, index) => {
                     const imageUrl = images?.[0]?.url || '/placeholder.jpg';
@@ -32,6 +32,9 @@ export default async function ProductsPage({searchParams}: PageProps) {
                                         src={imageUrl}
                                         alt={name}
                                         fill
+                                        sizes="(max-width: 768px) 100vw,
+         (max-width: 1024px) 50vw,
+         25vw"
                                         className="object-contain p-2"
                                         priority={index < aboveTheFold}
                                         loading={index >= aboveTheFold ? 'lazy' : 'eager'}

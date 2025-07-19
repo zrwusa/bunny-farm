@@ -1,0 +1,1 @@
+export type StripeTheme = 'stripe' | 'night' | 'flat';

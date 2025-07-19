@@ -18,10 +18,10 @@ export default async function ShopLayout({
 }) {
     const me = await getMe();
     return (
-        <>
+        <div>
             <NavBar me={me} />
             {children}
             <FloatingCart/>
-        </>
+        </div>
     );
 }

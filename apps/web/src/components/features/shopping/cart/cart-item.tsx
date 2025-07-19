@@ -1,12 +1,14 @@
+// apps/web/src/components/features/shopping/cart/cart-item.tsx
 'use client';
 
-import {ChangeEvent, FC} from 'react';
+import {FC} from 'react';
 import {useCart} from '@/hooks/shopping/cart/useCart';
 import {EnrichedCartItem} from '@/types/generated/graphql';
 import Image from 'next/image'
 import {Checkbox} from '@/components/ui/checkbox';
 import {CheckedState} from '@radix-ui/react-checkbox';
 import {Button} from '@/components/ui/button';
+import {QuantityInput} from '@/components/ui/quantity-input';
 
 interface CartItemProps {
     item: EnrichedCartItem;
@@ -15,9 +17,8 @@ interface CartItemProps {
 export const CartItem: FC<CartItemProps> = ({item}) => {
     const {updateCartItemQuantity, toggleItemSelection, removeFromCart} = useCart();
 
-    const handleQuantityChange = (e: ChangeEvent<HTMLSelectElement>) => {
-        const newQuantity = parseInt(e.target.value);
-        updateCartItemQuantity(item.skuId, newQuantity).then();
+    const handleQuantityChange = (value: number) => {
+        updateCartItemQuantity(item.skuId, value).then();
     };
 
     const handleSelectionToggle = (isChecked: CheckedState) => {
@@ -45,18 +46,7 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
             </div>
             <div className="flex items-center space-x-8">
                 <div className="flex items-center space-x-4">
-                    <select
-                        data-testid="quantity-select"
-                        value={item.quantity}
-                        onChange={handleQuantityChange}
-                        className="border rounded p-1"
-                    >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                            <option key={num} value={num}>
-                                {num}
-                            </option>
-                        ))}
-                    </select>
+                    <QuantityInput value={item.quantity} onChange={handleQuantityChange}/>
                     <Button
                         data-testid="remove-item"
                         onClick={handleRemove}

@@ -1,6 +1,6 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
 import {requestKeys} from '@/lib/constants/request-keys';
-import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
+import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Product, Query} from '@/types/generated/graphql';
 
 
@@ -18,7 +18,7 @@ export const fetchData = createAsyncThunk(
         requestInit: RequestInit & { body: string; },
         requestKey: string
     }, thunkAPI) => {
-        const response = await fetchGraphQL<Query>(requestInit.body, {
+        const response = await fetchAuthGraphQL<Query>(requestInit.body, {
             variables: JSON.parse(requestInit.body).variables
         });
         if (response.errors && response.errors.length > 0) {

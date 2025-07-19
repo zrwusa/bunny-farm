@@ -35,7 +35,7 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
   //     console.log('---err?.name', err?.name);
   //     if (err?.name === 'UnauthorizedException') {
   //       console.log('---req.cookies', req.cookies);
-  //       const refreshToken = req.cookies?.refresh_token as string;
+  //       const refreshToken = req.cookies?.REFRESH_TOKEN as string;
   //       if (!refreshToken) throw new UnauthorizedException('Missing refresh token');
   //       console.log('---refreshToken', refreshToken);
   //       const newTokens = await this.authService.refreshToken(refreshToken);

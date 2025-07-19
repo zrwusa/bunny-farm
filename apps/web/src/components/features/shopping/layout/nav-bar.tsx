@@ -5,7 +5,7 @@ import Me from '@/components/features/auth/me';
 import {SearchInput} from '@/components/ui/search-bar';
 import {useEffect, useState} from 'react';
 import {SUGGEST_PRODUCT_NAMES} from '@/lib/graphql';
-import {fetchGraphQL} from '@/lib/api/client-graphql-fetch';
+import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch';
 import {Query} from '@/types/generated/graphql';
 
 
@@ -22,7 +22,7 @@ const NavBar = ({ me }: NavBarProps) => {
             if (!debouncedQuery) return;
 
             try {
-                const result = await fetchGraphQL<Query>(SUGGEST_PRODUCT_NAMES.loc?.source.body, {
+                const result = await fetchAuthGraphQL<Query>(SUGGEST_PRODUCT_NAMES.loc?.source.body, {
                     variables: {input: debouncedQuery}
                 });
                 if (result.data) {
@@ -42,7 +42,7 @@ const NavBar = ({ me }: NavBarProps) => {
 
     return (
         <nav
-            className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            className="sticky top-0 z-50 w-full border-b bg-background">
             <div className="w-full flex h-14 items-center px-4">
                 <div className="flex">
                     <a className="mr-6 flex items-center space-x-2" href="/shopping">

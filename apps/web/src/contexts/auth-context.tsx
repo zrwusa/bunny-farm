@@ -93,7 +93,7 @@ export function AuthProvider({
         >
             {isLoading ? (
                 <div className="flex items-center justify-center h-screen">
-                    <Image src="/cog.svg" width={100} height={100} alt="loading" />
+                    <Image priority={true} src="/cog.svg" width={100} height={100} alt="loading" />
                 </div>
             ) : (
                 children

@@ -7,7 +7,7 @@ import {
     Product,
     Query
 } from '@/types/generated/graphql';
-import {fetchGraphQL} from './client-graphql-fetch';
+import {fetchAuthGraphQL} from './client-graphql-fetch';
 import {
     ADD_MY_ADDRESS,
     CREATE_PAYMENT_INTENT,
@@ -36,7 +36,7 @@ export const createProductClient = async (prevState: Product, formData: FormData
         ...formEntries,
         price: Number(formEntries.price)
     } as Product;
-    const response = await fetchGraphQL<Mutation>(CREATE_PRODUCT_CLIENT.loc?.source.body || '', {
+    const response = await fetchAuthGraphQL<Mutation>(CREATE_PRODUCT_CLIENT.loc?.source.body || '', {
         variables: {
             createProductInput: product
         }
@@ -48,13 +48,13 @@ export const createProductClient = async (prevState: Product, formData: FormData
 }
 
 export const getMe = async () => {
-    const response = await fetchGraphQL<Query>(ME_QUERY.loc?.source.body || '');
+    const response = await fetchAuthGraphQL<Query>(ME_QUERY.loc?.source.body || '');
     handleGraphQLErrors(response);
     return response.data?.me;
 };
 
 export const googleLogin = async (loginInput: LoginInput) => {
-    const response = await fetchGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
+    const response = await fetchAuthGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
         variables: {input: loginInput}
     });
     handleGraphQLErrors(response);
@@ -62,17 +62,17 @@ export const googleLogin = async (loginInput: LoginInput) => {
 };
 
 export const logout = async () => {
-    const response = await fetchGraphQL<Mutation>(LOGOUT.loc?.source.body || '');
+    const response = await fetchAuthGraphQL<Mutation>(LOGOUT.loc?.source.body || '');
     handleGraphQLErrors(response);
     if (response.data?.logout) {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('ACCESS_TOKEN');
+        localStorage.removeItem('REFRESH_TOKEN');
     }
     return response.data?.logout;
 };
 
 export const register = async (createUserInput: CreateUserInput) => {
-    const response = await fetchGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
+    const response = await fetchAuthGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
         variables: {createUserInput}
     });
     handleGraphQLErrors(response);
@@ -81,7 +81,7 @@ export const register = async (createUserInput: CreateUserInput) => {
 
 export async function localLogin(email: string, password: string) {
     try {
-        const {data} = await fetchGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
+        const {data} = await fetchAuthGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
             LOCAL_LOGIN.loc?.source.body || '',
             {
                 variables: {
@@ -107,7 +107,7 @@ export async function localLogin(email: string, password: string) {
 }
 
 export const getSelectedCartItems = async () => {
-    const response = await fetchGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
         variables: {}
     });
     handleGraphQLErrors(response);
@@ -115,7 +115,7 @@ export const getSelectedCartItems = async () => {
 }
 
 export const getMyAddresses = async () => {
-    const response = await fetchGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
         variables: {}
     });
     handleGraphQLErrors(response);
@@ -123,7 +123,7 @@ export const getMyAddresses = async () => {
 }
 
 export const getAddressDetail = async (addressText: string) => {
-    const response = await fetchGraphQL<Query>(GET_ADDRESS_DETAIL.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Query>(GET_ADDRESS_DETAIL.loc?.source.body, {
         variables: {
             address: addressText
         }
@@ -133,7 +133,7 @@ export const getAddressDetail = async (addressText: string) => {
 }
 
 export const addMyAddress = async (createUserAddressInput: CreateUserAddressInput) => {
-    const response = await fetchGraphQL<Mutation>(ADD_MY_ADDRESS.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Mutation>(ADD_MY_ADDRESS.loc?.source.body, {
         variables: {
             input: createUserAddressInput
         }
@@ -143,7 +143,7 @@ export const addMyAddress = async (createUserAddressInput: CreateUserAddressInpu
 }
 
 export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
-    const response = await fetchGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
         variables: {placeOrderInput: placeOrderInput}
     });
     handleGraphQLErrors(response);
@@ -151,7 +151,7 @@ export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
 }
 
 export const getOrder = async (id: string) => {
-    const response = await fetchGraphQL<Query>(GET_ORDER.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Query>(GET_ORDER.loc?.source.body, {
         variables: {id}
     });
     handleGraphQLErrors(response);
@@ -159,7 +159,7 @@ export const getOrder = async (id: string) => {
 }
 
 export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymentIntentInput) => {
-    const response = await fetchGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
+    const response = await fetchAuthGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
         variables: {createPaymentIntentInput: createPaymentIntentInput}
     });
     handleGraphQLErrors(response);

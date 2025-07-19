@@ -1,3 +1,5 @@
+// apps/web/src/middleware.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import {isAuthExemptPath} from '@bunny/shared/dist/utils/auth';
 
@@ -7,14 +9,14 @@ export async function middleware(request: NextRequest) {
         console.log('[Middleware] Current path is auth exempt path');
         return NextResponse.next();
     }
-    const accessToken = request.cookies.get('access_token')?.value;
+    const accessToken = request.cookies.get('ACCESS_TOKEN')?.value;
 
     if (accessToken) {
-        console.log('💡 [Middleware] Found access_token, continue');
+        console.log('💡 [Middleware] Found ACCESS_TOKEN, continue');
         return NextResponse.next();
     }
 
-    console.log('💡 [Middleware] No access_token, redirecting to /api/auth/refresh-tokens');
+    console.log('💡 [Middleware] No ACCESS_TOKEN, redirecting to /api/auth/refresh-tokens');
 
     // Always build an absolute URL for redirect
     const refreshUrl = request.nextUrl.clone();

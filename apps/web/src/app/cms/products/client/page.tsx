@@ -3,7 +3,7 @@
 import {useEffect, useState} from 'react'
 import {ProductsTable} from '@/components/features/cms/product-table'
 import {Product} from '@/types/generated/graphql'
-import {fetchGraphQL} from '@/lib/api/client-graphql-fetch'
+import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch'
 
 interface ProductsResponse {
     products: Product[]
@@ -17,7 +17,7 @@ export default function ProductsPage() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await fetchGraphQL<ProductsResponse>(
+                const response = await fetchAuthGraphQL<ProductsResponse>(
                     `query GetProducts {
                         products {
                             id

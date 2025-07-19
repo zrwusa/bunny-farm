@@ -58,7 +58,7 @@ export class OptionalGqlAuthGuard extends AuthGuard('jwt') {
   //     return result as boolean;
   //   } catch (err: any) {
   //     if (err?.name === 'UnauthorizedException') {
-  //       const refreshToken = req.cookies?.refresh_token;
+  //       const refreshToken = req.cookies?.REFRESH_TOKEN;
   //       if (!refreshToken) return true;
   //
   //       const newTokens = await this.authService.refreshToken(refreshToken);
