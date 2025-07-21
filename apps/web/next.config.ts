@@ -89,6 +89,11 @@ const nextConfig: NextConfig = {
                 hostname: 'cdn.makitatools.com',
                 pathname: '/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'cdn2.ridgid.com',
+                pathname: '/**',
+            },
         ]
     }
 };
