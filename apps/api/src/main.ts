@@ -3,8 +3,18 @@ import { AppModule } from './app.module';
 import * as process from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import * as Sentry from '@sentry/nestjs';
 
 async function bootstrap() {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
+  });
+
   const app = await NestFactory.create(AppModule);
 
   // 1. Common middleware (such as cookie-parser)
@@ -27,7 +37,10 @@ async function bootstrap() {
     }),
   );
 
-  // 5. Start the service
+  // 5. Register a global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  // 6. Start the service
   const port = parseInt(process.env.PORT || '8080', 10) || 8080;
 
   // Bind to 0.0.0.0 before being scanned by Render

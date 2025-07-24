@@ -1,6 +1,7 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from '@nestjs/common';
 import { Histogram } from 'prom-client';
 import { Observable, tap } from 'rxjs';
+import { NestContext } from '../../types/nest';
 
 @Injectable()
 export class PerformanceInterceptor implements NestInterceptor {
@@ -11,7 +12,7 @@ export class PerformanceInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const now = Date.now();
-    const contextType = context.getType() as 'http' | 'ws' | 'rpc' | 'graphql';
+    const contextType = context.getType() as NestContext;
 
     const handler = context.getHandler()?.name || 'unknown';
 

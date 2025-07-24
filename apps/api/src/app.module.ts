@@ -51,6 +51,7 @@ import { Morpheme } from './dictionary/entities/word-morpheme.entity';
 import { WordVariant } from './dictionary/entities/word-variant.entity';
 import { MorphemeWord } from './dictionary/entities/morpheme-related-word.entity';
 import { LoggerOptions } from 'typeorm';
+import { SentryModule } from '@sentry/nestjs/setup';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { LoggerOptions } from 'typeorm';
       })(),
       ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
+    SentryModule.forRoot(),
     MonitoringModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

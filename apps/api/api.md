@@ -16,3 +16,7 @@ Memory, CPU usage (in combination with Node Exporter or process metrics)
 Active connections, database connection pool occupancy, etc.
 
 ## Access libraries: such as prom-client (Node.js), @willsoto/nestjs-prometheus (NestJS)
+
+# Sentry upload source map
+
+pnpm dlx @sentry/wizard@latest -i sourcemaps --saas --org bunny-farm-group --project bunny-farm-api
