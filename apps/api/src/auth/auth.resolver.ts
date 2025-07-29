@@ -69,7 +69,7 @@ export class AuthResolver {
     if (!refreshToken) throw new UnauthorizedException('No refresh token in cookies');
 
     const tokens = await this.authService.refreshToken(refreshToken);
-    if (!tokens) throw new UnauthorizedException('Invalid refresh token');
+    if (!tokens) throw new UnauthorizedException(`Invalid refresh token: ${refreshToken}`);
     this.cookieService.setAuthCookies(
       res,
       tokens.accessToken,

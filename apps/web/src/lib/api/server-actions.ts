@@ -5,10 +5,10 @@
 import {fetchAuthGraphQL, fetchPublicGraphQL} from './server-graphql-fetch';
 import {Mutation, Product, Query, User} from '@/types/generated/graphql';
 import {
-    CREATE_PRODUCT,
+    CREATE_PRODUCT, GET_MY_ADDRESSES,
     GET_PRODUCT,
     GET_PRODUCT_IDS,
-    GET_PRODUCTS,
+    GET_PRODUCTS, GET_SELECTED_CART_ITEMS,
     GET_USERS,
     ME_QUERY,
     SEARCH_PRODUCTS,
@@ -97,3 +97,31 @@ export const searchProducts = async (keyword: string) => {
     }
     return response.data.searchProducts ?? [];
 };
+
+
+
+export const getMyAddresses = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
+        variables: {}
+    });
+
+
+    if (!response?.data) {
+        console.error('Error getting my addresses');
+        return [];
+    }
+
+    return response.data?.myAddresses ?? [];
+}
+
+export const getSelectedCartItems = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
+        variables: {}
+    });
+
+    if (!response?.data) {
+        console.error('Error getting selected cart items');
+        return [];
+    }
+    return response.data?.selectedCartItems ?? [];
+}

@@ -1,6 +1,6 @@
 {
   "name": "bunny-farm-web",
-  "version": "0.6.2",
+  "version": "0.8.6",
   "private": true,
   "scripts": {
     "dev": "next dev",

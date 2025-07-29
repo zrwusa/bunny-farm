@@ -19,6 +19,8 @@ export async function GET(request: Request) {
 
     const json = await backendRes.json();
     const payload = json.data?.refreshTokenByCookie;
+    console.log('---cookieHeader', cookieHeader);
+    console.log('---url', url);
     console.log('---payload', payload);
 
     if (!backendRes.ok || !payload?.accessToken) {
