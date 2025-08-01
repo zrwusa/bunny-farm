@@ -1,5 +1,5 @@
 // app/checkout/page.tsx
-import { getMyAddresses, getSelectedCartItems } from "@/lib/api/server-actions";
+import {getMyAddresses, getSelectedCartItems} from '@/lib/api/server-actions';
 import Checkout from '@/components/features/shopping/checkout/checkout';
 import Image from 'next/image';
 
@@ -11,11 +11,11 @@ export default async function CheckoutPage() {
         <div className="mx-auto max-w-4xl p-6">
             <h1 className="mb-8 text-3xl font-bold">Items</h1>
             <ul className="mb-8">
-                {items.map(({ skuId, quantity, product }) => (
+                {items && items.map(({skuId, quantity, product}) => (
                     <li key={skuId} className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-4">
                             <Image
-                                src={product?.images[0]?.url || "/avatar.svg"}
+                                src={product?.images[0]?.url || '/avatar.svg'}
                                 width={100}
                                 height={100}
                                 alt={skuId}
@@ -28,7 +28,9 @@ export default async function CheckoutPage() {
                 ))}
             </ul>
 
-            <Checkout addresses={addresses} items={items} />
+            {
+                addresses && items && <Checkout addresses={addresses} items={items}/>
+            }
         </div>
     );
 }

@@ -1,5 +1,9 @@
+// File: apps/web/src/lib/api/client-actions.ts
+'use client'
+
 import {
-    CreatePaymentIntentInput, CreateUserAddressInput,
+    CreatePaymentIntentInput,
+    CreateUserAddressInput,
     CreateUserInput,
     LoginInput,
     Mutation,
@@ -7,7 +11,7 @@ import {
     Product,
     Query
 } from '@/types/generated/graphql';
-import {fetchAuthGraphQL} from './client-graphql-fetch';
+import { fetchAuthGraphQL } from './client-graphql-fetch';
 import {
     ADD_MY_ADDRESS,
     CREATE_PAYMENT_INTENT,
@@ -23,39 +27,43 @@ import {
     PLACE_ORDER,
     REGISTER
 } from '@/lib/graphql';
-import {setStoredTokens} from '../auth/client-auth';
-import {GraphQLResponse} from '@/types/graphql';
+import { setStoredTokens } from '../auth/client-auth';
+import { handleGraphQLErrors } from './handle-graphql-errors';
 
-const handleGraphQLErrors = (response: GraphQLResponse<Mutation | Query>) => {
-    if (response.errors) throw new Error(response.errors.map((e) => e.message).join(';'))
-}
+// Keep handleGraphQLErrors: it propagates non-validation errors while allowing BAD_USER_INPUT and VALIDATION_FAILED
+// to be handled by the UI (like form validation feedback).
+
 export const createProductClient = async (prevState: Product, formData: FormData) => {
+    // Merge form data into existing product state
     const formEntries = Object.fromEntries(formData.entries());
     const product = {
         ...prevState,
         ...formEntries,
         price: Number(formEntries.price)
     } as Product;
+
     const response = await fetchAuthGraphQL<Mutation>(CREATE_PRODUCT_CLIENT.loc?.source.body || '', {
         variables: {
             createProductInput: product
         }
     });
 
-    const {createProduct} = response.data || {};
-    if (!createProduct?.id) return product;
+    handleGraphQLErrors(response);
+    const { createProduct } = response.data || {};
+    if (!createProduct?.id) return product; // If creation failed, return the temporary local product
     return createProduct;
 }
 
 export const getMe = async () => {
     const response = await fetchAuthGraphQL<Query>(ME_QUERY.loc?.source.body || '');
     handleGraphQLErrors(response);
+    // Return current authenticated user information
     return response.data?.me;
 };
 
 export const googleLogin = async (loginInput: LoginInput) => {
     const response = await fetchAuthGraphQL<Mutation>(GOOGLE_LOGIN.loc?.source.body || '', {
-        variables: {input: loginInput}
+        variables: { input: loginInput }
     });
     handleGraphQLErrors(response);
     return response.data?.login;
@@ -65,6 +73,7 @@ export const logout = async () => {
     const response = await fetchAuthGraphQL<Mutation>(LOGOUT.loc?.source.body || '');
     handleGraphQLErrors(response);
     if (response.data?.logout) {
+        // Remove locally stored tokens after logout
         localStorage.removeItem('ACCESS_TOKEN');
         localStorage.removeItem('REFRESH_TOKEN');
     }
@@ -73,15 +82,14 @@ export const logout = async () => {
 
 export const register = async (createUserInput: CreateUserInput) => {
     const response = await fetchAuthGraphQL<Mutation>(REGISTER.loc?.source.body || '', {
-        variables: {createUserInput}
+        variables: { createUserInput }
     });
     handleGraphQLErrors(response);
     return response.data?.createUser;
 };
 
 export async function localLogin(email: string, password: string) {
-    try {
-        const {data} = await fetchAuthGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
+        const response = await fetchAuthGraphQL<{ login: { accessToken: string; refreshToken: string } }>(
             LOCAL_LOGIN.loc?.source.body || '',
             {
                 variables: {
@@ -94,16 +102,12 @@ export async function localLogin(email: string, password: string) {
             }
         );
 
-        if (data?.login) {
-            await setStoredTokens(data.login.accessToken, data.login.refreshToken);
-            return data.login;
+        handleGraphQLErrors(response);
+        if (response.data?.login) {
+            // Save tokens after successful login
+            await setStoredTokens(response.data.login.accessToken, response.data.login.refreshToken);
+            return response.data.login;
         }
-
-        // TODO find the best approach to handle error properly
-        throw new Error('Login failed');
-    } catch (error) {
-        throw error;
-    }
 }
 
 export const getSelectedCartItems = async () => {
@@ -144,7 +148,7 @@ export const addMyAddress = async (createUserAddressInput: CreateUserAddressInpu
 
 export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
     const response = await fetchAuthGraphQL<Mutation>(PLACE_ORDER.loc?.source.body, {
-        variables: {placeOrderInput: placeOrderInput}
+        variables: { placeOrderInput: placeOrderInput }
     });
     handleGraphQLErrors(response);
     return response.data?.placeOrder;
@@ -152,7 +156,7 @@ export const placeOrder = async (placeOrderInput: PlaceOrderInput) => {
 
 export const getOrder = async (id: string) => {
     const response = await fetchAuthGraphQL<Query>(GET_ORDER.loc?.source.body, {
-        variables: {id}
+        variables: { id }
     });
     handleGraphQLErrors(response);
     return response.data?.order;
@@ -160,7 +164,7 @@ export const getOrder = async (id: string) => {
 
 export const createPaymentIntent = async (createPaymentIntentInput: CreatePaymentIntentInput) => {
     const response = await fetchAuthGraphQL<Mutation>(CREATE_PAYMENT_INTENT.loc?.source.body, {
-        variables: {createPaymentIntentInput: createPaymentIntentInput}
+        variables: { createPaymentIntentInput: createPaymentIntentInput }
     });
     handleGraphQLErrors(response);
     return response.data?.createPaymentIntent;

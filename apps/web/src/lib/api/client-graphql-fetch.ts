@@ -1,11 +1,11 @@
-// File: apps/web/src/lib/api/graphql-client.ts
+// File: apps/web/src/lib/api/client-graphql-fetch.ts
 'use client';
 
-import { GraphQLError } from 'graphql/error';
-import { AuthError, NetworkError } from '@/lib/errors';
-import { GraphQLResponse } from '@/types/graphql';
-import { TOKEN_MODE } from '@/lib/config';
-import { getValidAccessToken, refreshTokens } from '@/lib/auth/client-auth';
+import {AuthError, NetworkError} from '@/lib/errors';
+import {GraphQLResponse} from '@/types/graphql';
+import {TOKEN_MODE} from '@/lib/config';
+import {getValidAccessToken, refreshTokens} from '@/lib/auth/client-auth';
+import {handleGraphQLAuthErrors} from '@/lib/api/handle-graphql-errors';
 
 interface FetchOptions {
     variables?: Record<string, unknown>;
@@ -42,27 +42,9 @@ async function fetchGraphQLInternal<T>(
         throw new NetworkError(`${res.status} ${res.statusText}`);
     }
 
-    const result: GraphQLResponse<T> = await res.json();
-
-    if (result.errors?.length) {
-        const { code } = result.errors[0].extensions ?? {};
-        const message = result.errors[0].message;
-        switch (code) {
-            case 'UNAUTHORIZED':
-            case 'FORBIDDEN':
-            case 'UNAUTHENTICATED':
-                throw new AuthError(message);
-            case 'BAD_USER_INPUT':
-            case 'VALIDATION_FAILED':
-                return result;
-            case 'INTERNAL_SERVER_ERROR':
-                throw new NetworkError('Server encountered an error');
-            default:
-                throw new GraphQLError(message);
-        }
-    }
-
-    return result;
+    // No GraphQL errors handling here anymore, just return the result.
+    // The caller should invoke handleGraphQLErrors to handle these.
+    return await res.json();
 }
 
 // GraphQL requests with authentication
@@ -72,10 +54,12 @@ export async function fetchAuthGraphQL<T>(
 ): Promise<GraphQLResponse<T>> {
     if (TOKEN_MODE === 'cookie') {
         try {
-            return await fetchGraphQLInternal<T>(query, {
+            const response =  await fetchGraphQLInternal<T>(query, {
                 variables: options.variables,
                 revalidate: options.revalidate,
             });
+            handleGraphQLAuthErrors(response);
+            return response;
         } catch (err: unknown) {
             if (err instanceof AuthError) {
                 await refreshTokens();
@@ -90,11 +74,13 @@ export async function fetchAuthGraphQL<T>(
 
     const accessToken = await getValidAccessToken();
     try {
-        return await fetchGraphQLInternal<T>(query, {
+        const response = await fetchGraphQLInternal<T>(query, {
             variables: options.variables,
             accessToken,
             revalidate: options.revalidate,
         });
+        handleGraphQLAuthErrors(response);
+        return response;
     } catch (err: unknown) {
         if (err instanceof AuthError) {
             const newToken = await getValidAccessToken();
