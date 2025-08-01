@@ -2,15 +2,11 @@
 
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AddItemToCartInput, Mutation, Query } from '@/types/generated/graphql';
-import { RootState } from '@/store/store';
-import {
-    setCartSession,
-    setError,
-    setLoading,
-} from '@/store/slices/cartSlice';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {AddItemToCartInput, Mutation, Query} from '@/types/generated/graphql';
+import {RootState} from '@/store/store';
+import {setCartSession, setError, setLoading,} from '@/store/slices/cartSlice';
 import {Dispatch, PayloadAction} from '@reduxjs/toolkit';
 import {
     ADD_ITEM_TO_CART,
@@ -20,17 +16,17 @@ import {
     TOGGLE_ITEM_SELECTION,
     UPDATE_ITEM_QUANTITY,
 } from '@/lib/graphql';
-import { fetchAuthGraphQL } from '@/lib/api/client-graphql-fetch';
+import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch';
+import * as Sentry from '@sentry/nextjs';
 
-const handleError = (error: unknown, dispatch: Dispatch<PayloadAction<string>>) => {
+const dispatchError = (error: unknown, dispatch: Dispatch<PayloadAction<string>>) => {
     let errorMessage = 'An unexpected error occurred';
 
     if (error instanceof Error) {
-        if (error.message.includes('Either userId or clientCartId must be provided')) {
-            errorMessage = 'Please provide a cart ID for guest cart';
-        } else {
-            errorMessage = error.message;
-        }
+        errorMessage = error.message;
+        Sentry.captureException(error);
+    } else {
+        Sentry.captureMessage(String(error));
     }
 
     dispatch(setError(errorMessage));
@@ -47,13 +43,13 @@ const handleGraphQLRequest = async <T>(
 ) => {
     try {
         if (setLocalLoading) setLocalLoading(true);
-        const response = await fetchAuthGraphQL<T>(query, { variables });
+        const response = await fetchAuthGraphQL<T>(query, {variables});
         if (onSuccess && response?.data) {
             onSuccess(response.data);
         }
         return response?.data ?? null;
     } catch (error) {
-        return handleError(error, dispatch);
+        return dispatchError(error, dispatch);
     } finally {
         if (setLocalLoading) setLocalLoading(false);
     }
@@ -61,7 +57,7 @@ const handleGraphQLRequest = async <T>(
 
 export const useCart = () => {
     const dispatch = useDispatch();
-    const { cart, loading, error } = useSelector((state: RootState) => state.cart);
+    const {cart, loading, error} = useSelector((state: RootState) => state.cart);
 
     const [initialLoading, setInitialLoading] = useState(true);
     const [clientCartId, setClientCartId] = useState<string | null>(null);
@@ -84,7 +80,7 @@ export const useCart = () => {
 
         await handleGraphQLRequest<Query>(
             GET_MY_CART.loc?.source.body,
-            { clientCartId },
+            {clientCartId},
             dispatch,
             (data) => {
                 if (data.cart) {
@@ -108,7 +104,7 @@ export const useCart = () => {
     const clearCartItems = useCallback(async (cartId: string) => {
         return handleGraphQLRequest<Mutation>(
             CLEAR_CART.loc?.source.body,
-            { id: cartId },
+            {id: cartId},
             dispatch,
             (data) => {
                 if (data.clearCart) {
@@ -126,7 +122,7 @@ export const useCart = () => {
 
         return handleGraphQLRequest<Mutation>(
             ADD_ITEM_TO_CART.loc?.source.body,
-            { addItemToCartInput: { item, clientCartId } },
+            {addItemToCartInput: {item, clientCartId}},
             dispatch,
             (data) => {
                 if (data.addToCart) {
@@ -141,7 +137,7 @@ export const useCart = () => {
 
         return handleGraphQLRequest<Mutation>(
             UPDATE_ITEM_QUANTITY.loc?.source.body,
-            { updateItemQuantityInput: { skuId, quantity } },
+            {updateItemQuantityInput: {skuId, quantity}},
             dispatch,
             (data) => {
                 if (data.updateItemQuantity) {
@@ -156,7 +152,7 @@ export const useCart = () => {
 
         return handleGraphQLRequest<Mutation>(
             TOGGLE_ITEM_SELECTION.loc?.source.body,
-            { toggleItemSelectionInput: { skuId, selected } },
+            {toggleItemSelectionInput: {skuId, selected}},
             dispatch,
             (data) => {
                 if (data.toggleItemSelection) {
@@ -188,7 +184,7 @@ export const useCart = () => {
                 throw new Error('Failed to remove item from cart');
             }
         } catch (error) {
-            handleError(error, dispatch);
+            dispatchError(error, dispatch);
         } finally {
             dispatch(setLoading(false));
         }

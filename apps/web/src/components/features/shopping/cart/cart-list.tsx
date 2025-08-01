@@ -9,7 +9,7 @@ import {CartItem as CartItemType} from '@/types/generated/graphql';
 import {Button} from '@/components/ui/button';
 import {ButtonLink} from '@/components/ui/button-link';
 
-export const CartList = () => {
+export const Cart = () => {
     const {cart, loading, error, clearCartItems} = useCart();
 
     if (loading) {

@@ -1,87 +1,71 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { GqlArgumentsHost } from '@nestjs/graphql';
-import { Request, Response } from 'express';
 import * as Sentry from '@sentry/nestjs';
+import { Request, Response } from 'express';
 import { NestContext } from '../../types/nest';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const contextType = host.getType() as NestContext;
-    const isHttp = contextType === 'http';
-    const isGraphQL = contextType === 'graphql';
 
+    // GraphQL Request
+    if (contextType === 'graphql') {
+      const gqlHost = GqlArgumentsHost.create(host);
+      const ctx = gqlHost.getContext<{ req: Request }>();
+      const req = ctx?.req;
+
+      Sentry.captureException(exception, {
+        extra: {
+          type: 'graphql',
+          url: req?.url,
+          body: req?.body,
+          headers: req?.headers,
+        },
+        user: req?.user ?? undefined,
+        tags: { context: 'graphql' },
+      });
+
+      // Continue to throw, retain GraphQLError default behavior
+      throw exception;
+    }
+
+    // HTTP Request
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
 
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      const response = exception.getResponse();
-      message = typeof response === 'string' ? response : ((response as any).message ?? message);
+      const res = exception.getResponse();
+      message = typeof res === 'string' ? res : ((res as any).message ?? message);
+    } else if (exception instanceof Error) {
+      message = exception.message;
     }
 
-    const context = isHttp
-      ? this.captureHttpContext(host)
-      : isGraphQL
-        ? this.captureGraphQLContext(host)
-        : {};
+    const ctx = host.switchToHttp();
+    const req = ctx.getRequest<Request>();
+    const res = ctx.getResponse<Response>();
 
     Sentry.captureException(exception, {
       extra: {
-        type: host.getType(),
-        ...context,
+        type: 'http',
+        url: req?.url,
+        method: req?.method,
+        body: req?.body,
+        params: req?.params,
+        query: req?.query,
+        headers: req?.headers,
       },
-      user: context?.user,
-      tags: {
-        context: contextType,
-      },
+      user: req?.user ?? undefined,
+      tags: { context: 'http' },
     });
 
     console.error(exception);
 
-    const responseBody = {
+    res.status(statusCode).json({
       success: false,
       statusCode,
       message,
-    };
-
-    if (isHttp) {
-      const res = host.switchToHttp().getResponse<Response>();
-      res.status(statusCode).json(responseBody);
-    } else if (isGraphQL) {
-      // It is recommended to directly throw the standard Error (GraphQL will be converted to GraphQLError)
-      throw Object.assign(new Error(typeof message === 'string' ? message : message.join(', ')), {
-        statusCode,
-        success: false,
-      });
-    }
-  }
-
-  private captureHttpContext(host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const req = ctx.getRequest<Request>();
-    return {
-      url: req.url,
-      method: req.method,
-      body: req.body,
-      params: req.params,
-      query: req.query,
-      headers: req.headers,
-      user: req.user ?? null,
-    };
-  }
-
-  private captureGraphQLContext(host: ArgumentsHost) {
-    const gqlHost = GqlArgumentsHost.create(host);
-    const req = gqlHost.getContext()?.req;
-    return req
-      ? {
-          url: req.url,
-          method: req.method,
-          body: req.body,
-          headers: req.headers,
-          user: req.user ?? null,
-        }
-      : {};
+    });
   }
 }

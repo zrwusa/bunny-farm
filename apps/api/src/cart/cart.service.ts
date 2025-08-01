@@ -1,5 +1,5 @@
 // apps/api/src/cart/cart.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Redis } from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { CartItemInput } from './dto/cart-item.input';
@@ -31,7 +31,7 @@ export class CartService {
   private getRedisKey(userId?: string, clientCartId?: string): string {
     if (userId) return `cart:user:${userId}`;
     if (clientCartId) return `cart:guest:${clientCartId}`;
-    throw new Error('Either userId or clientCartId must be provided');
+    throw new BadRequestException('Either userId or clientCartId must be provided');
   }
 
   async getCart(userId?: string, clientCartId?: string): Promise<CachedCart> {
@@ -144,7 +144,7 @@ export class CartService {
   ): Promise<any> {
     const existing = await this.getItem(skuId, userId, clientCartId);
     if (!existing) {
-      throw new Error(`Item with skuId "${skuId}" not found in cart`);
+      throw new NotFoundException(`Item with skuId "${skuId}" not found in cart`);
     }
 
     const updatedItem = { ...existing, quantity };
