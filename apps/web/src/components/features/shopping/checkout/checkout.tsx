@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {Button} from '@/components/ui/button';
 import {EnrichedCartItem, PaymentMethod, UserAddress} from '@/types/generated/graphql';
-import {getMyAddresses, placeOrder} from '@/lib/api/client-actions';
+import {getMyAddressesViaClient, placeOrderViaClient} from '@/lib/api/client-actions';
 import {Combobox} from '@/components/ui/combobox';
 import {useRouter} from 'next/navigation';
 import {AddAddressForm} from '@/components/features/address/add-address';
@@ -20,7 +20,7 @@ export default function Checkout({addresses, items}: CheckoutProps) {
     const router = useRouter();
 
     const handlePlaceOrder = async () => {
-        const orderPlaced = await placeOrder({
+        const orderPlaced = await placeOrderViaClient({
             items: items.map(({product: _, ...rest}) => ({...rest})),
             addressId: selectedAddress,
             paymentMethod: PaymentMethod.CreditCard,
@@ -29,11 +29,13 @@ export default function Checkout({addresses, items}: CheckoutProps) {
     };
 
     const refreshAddresses = async () => {
-        const updated = await getMyAddresses();
-        setAddressList(updated);
-        const defaultAddress = updated.filter(address => address.isDefault)[0];
-        if (defaultAddress) setSelectedAddress(defaultAddress.id);
-        setIsEditingAddress(false);
+        const updated = await getMyAddressesViaClient();
+        if (updated) {
+            setAddressList(updated);
+            const defaultAddress = updated.filter(address => address.isDefault)[0];
+            if (defaultAddress) setSelectedAddress(defaultAddress.id);
+            setIsEditingAddress(false);
+        }
     };
 
     const options = addressList.map(

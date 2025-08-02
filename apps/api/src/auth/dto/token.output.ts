@@ -38,9 +38,9 @@ export class TokenOutput {
   @Field(() => String)
   refreshToken: string;
 
-  @Field(() => TokenMeta)
-  accessTokenMeta: TokenMeta;
+  @Field(() => TokenMeta, { nullable: true })
+  accessTokenMeta?: TokenMeta;
 
-  @Field(() => TokenMeta)
-  refreshTokenMeta: TokenMeta;
+  @Field(() => TokenMeta, { nullable: true })
+  refreshTokenMeta?: TokenMeta;
 }

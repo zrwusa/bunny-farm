@@ -14,7 +14,59 @@ import {
     ME_QUERY,
     SEARCH_PRODUCTS,
 } from '@/lib/graphql';
-import { handleGraphQLErrors } from './handle-graphql-errors';
+
+
+export const getProducts = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
+    
+
+    return response.data?.products;
+}
+
+export const getMe = async () => {
+    const response = await fetchAuthGraphQL<Query>(ME_QUERY.loc?.source.body || '');
+
+    return response.data?.me;
+};
+
+export const getProductIds = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
+    
+
+    return response.data?.products;
+}
+
+export const getProduct = async (id: string) => {
+    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT.loc?.source.body, { variables: { id } });
+    
+    return response.data?.product;
+}
+
+export const searchProducts = async (keyword: string) => {
+    const response = await fetchPublicGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
+        variables: { keyword }
+    });
+    
+
+    return response.data?.searchProducts;
+};
+
+export const getMyAddresses = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
+        variables: {}
+    });
+    
+
+    return response.data?.myAddresses;
+}
+
+export const getSelectedCartItems = async () => {
+    const response = await fetchAuthGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
+        variables: {}
+    });
+    
+    return response.data?.selectedCartItems;
+}
 
 export const createProduct = async (formData: FormData) => {
     // Convert form data into a product object
@@ -26,40 +78,13 @@ export const createProduct = async (formData: FormData) => {
         }
     });
 
-    handleGraphQLErrors(response);
+    
     return response.data?.createProduct;
-}
-
-export const getProducts = async () => {
-    const response = await fetchAuthGraphQL<Query>(GET_PRODUCTS.loc?.source.body);
-    handleGraphQLErrors(response);
-
-    return response.data?.products;
-}
-
-export const getMe = async () => {
-    const response = await fetchAuthGraphQL<Query>(ME_QUERY.loc?.source.body || '');
-    handleGraphQLErrors(response);
-    // Return current authenticated user information
-    return response.data?.me;
-};
-
-export const getProductIds = async () => {
-    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT_IDS.loc?.source.body);
-    handleGraphQLErrors(response);
-
-    return response.data?.products;
-}
-
-export const getProduct = async (id: string) => {
-    const response = await fetchAuthGraphQL<Query>(GET_PRODUCT.loc?.source.body, { variables: { id } });
-    handleGraphQLErrors(response);
-    return response.data?.product;
 }
 
 export const getUsers = async () => {
     const response = await fetchAuthGraphQL<Query>(GET_USERS.loc?.source.body);
-    handleGraphQLErrors(response);
+    
 
     const users = response.data?.users ?? [];
     // Map to a simplified user object with additional static fields for UI
@@ -74,30 +99,4 @@ export const getUsers = async () => {
         },
         posts: []
     }));
-}
-
-export const searchProducts = async (keyword: string) => {
-    const response = await fetchPublicGraphQL<Query>(SEARCH_PRODUCTS.loc?.source.body, {
-        variables: { keyword }
-    });
-    handleGraphQLErrors(response);
-
-    return response.data?.searchProducts;
-};
-
-export const getMyAddresses = async () => {
-    const response = await fetchAuthGraphQL<Query>(GET_MY_ADDRESSES.loc?.source.body, {
-        variables: {}
-    });
-    handleGraphQLErrors(response);
-
-    return response.data?.myAddresses;
-}
-
-export const getSelectedCartItems = async () => {
-    const response = await fetchAuthGraphQL<Query>(GET_SELECTED_CART_ITEMS.loc?.source.body, {
-        variables: {}
-    });
-    handleGraphQLErrors(response);
-    return response.data?.selectedCartItems;
 }

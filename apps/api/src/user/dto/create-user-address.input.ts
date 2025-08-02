@@ -1,11 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsEmail } from 'class-validator';
+import { IsEmail, IsNumber } from 'class-validator';
 
 @InputType()
 export class CreateUserAddressInput {
   @Field()
   recipientName: string;
 
+  @IsNumber()
   @Field({ nullable: true })
   phone?: string;
 

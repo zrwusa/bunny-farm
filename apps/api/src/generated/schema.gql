@@ -267,7 +267,7 @@ type Cart {
   createdAt: DateTime!
   updatedAt: DateTime!
   user: User
-  clientCartId: String!
+  guestCartId: String!
   deviceType: DeviceType!
   items: [CartItem!]!
 }
@@ -312,7 +312,7 @@ type EnrichedCartItem {
 type CachedCart {
   id: ID!
   user: User
-  clientCartId: String
+  guestCartId: String
   deviceType: DeviceType!
   items: [EnrichedCartItem!]!
   createdAt: DateTime!
@@ -364,8 +364,8 @@ type TokenMeta {
 type TokenOutput {
   accessToken: String!
   refreshToken: String!
-  accessTokenMeta: TokenMeta!
-  refreshTokenMeta: TokenMeta!
+  accessTokenMeta: TokenMeta
+  refreshTokenMeta: TokenMeta
 }
 
 type Geometry {
@@ -583,8 +583,8 @@ type Query {
   pingElasticsearch: String!
   orders(filterOrderInput: FilterOrderInput!): [Order!]!
   order(id: String!): Order!
-  cart(clientCartId: String): CachedCart!
-  selectedCartItems(clientCartId: String): [EnrichedCartItem!]!
+  cart(guestCartId: String): CachedCart!
+  selectedCartItems(guestCartId: String): [EnrichedCartItem!]!
   payments: [Payment!]!
   payment(id: Int!): Payment!
   shipments: [Shipment!]!
@@ -612,9 +612,9 @@ type Mutation {
   placeOrder(input: PlaceOrderInput!): Order!
   addToCart(addItemToCartInput: AddItemToCartInput!): CachedCart!
   updateItemQuantity(updateItemQuantityInput: UpdateItemQuantityInput!): CachedCart!
-  toggleItemSelection(toggleItemSelection: ToggleItemSelectionInput!, clientCartId: String): CachedCart!
+  toggleItemSelection(toggleItemSelection: ToggleItemSelectionInput!, guestCartId: String): CachedCart!
   removeItems(removeItemsInput: RemoveItemsInput!): CachedCart!
-  clearCart(clientCartId: String): CachedCart!
+  clearCart(guestCartId: String): CachedCart!
   createPayment(createPaymentInput: CreatePaymentInput!): Payment!
   confirmPayment(paymentId: String!, status: String!): Payment!
   updatePayment(updatePaymentInput: UpdatePaymentInput!): Payment!
@@ -753,24 +753,24 @@ input CartItemInput {
 
 input AddItemToCartInput {
   item: CartItemInput!
-  clientCartId: String
+  guestCartId: String
 }
 
 input UpdateItemQuantityInput {
   skuId: String!
   quantity: Int!
-  clientCartId: String
+  guestCartId: String
 }
 
 input ToggleItemSelectionInput {
   skuId: String!
   selected: Boolean!
-  clientCartId: String
+  guestCartId: String
 }
 
 input RemoveItemsInput {
   skuIds: [String!]!
-  clientCartId: String
+  guestCartId: String
 }
 
 input CreatePaymentInput {

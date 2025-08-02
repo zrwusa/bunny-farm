@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import {ReactNode} from 'react';
+import {Toaster} from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
     title: 'Bunny Shopping',
@@ -14,6 +15,7 @@ export default function RootLayout({
     return (
         <div>
             {children}
+            <Toaster />
         </div>
     );
 }

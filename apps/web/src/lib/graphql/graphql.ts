@@ -87,7 +87,7 @@ export const GET_PRODUCT_IDS = gql`
 
 export const GET_MY_CART = gql`
     query cart($clientCartId: String) {
-        cart(clientCartId: $clientCartId) {
+        cart(guestCartId: $clientCartId) {
             id
             items {
                 id
@@ -428,7 +428,7 @@ export const REMOVE_ITEM_FROM_CART = gql`
 
 export const CLEAR_CART = gql`
     mutation ClearCart($clientCartId: String) {
-        clearCart(clientCartId: $clientCartId) {
+        clearCart(guestCartId: $clientCartId) {
             id
             items {
                 id
@@ -561,9 +561,11 @@ export const REFRESH_TOKENS = gql`
         refreshToken(refreshToken: $refreshToken) {
             accessToken
             refreshToken
-            tokenMeta {
-                accessTokenMaxAge
-                refreshTokenMaxAge
+            accessTokenMeta {
+                maxAge
+            }
+            refreshTokenMeta {
+                maxAge
             }
         }
     }

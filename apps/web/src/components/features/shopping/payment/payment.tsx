@@ -5,7 +5,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
-import { createPaymentIntent, getOrder } from '@/lib/api/client-actions';
+import { createPaymentIntentViaClient, getOrderViaClient } from '@/lib/api/client-actions';
 import { Button } from '@/components/ui/button';
 import { useParams } from 'next/navigation';
 import { Order } from '@/types/generated/graphql';
@@ -46,7 +46,7 @@ const PaymentForm = ({ amountOfCents }: { amountOfCents: number }) => {
 
     useEffect(() => {
         (async () => {
-            const clientSecret = await createPaymentIntent({ amountOfCents, currency });
+            const clientSecret = await createPaymentIntentViaClient({ amountOfCents, currency });
             if (clientSecret) setClientSecret(clientSecret);
         })();
     }, [amountOfCents, currency]);
@@ -106,7 +106,7 @@ export default function Payment() {
 
     useEffect(() => {
         if (typeof orderId === 'string') {
-            getOrder(orderId).then((order) => setOrder(order));
+            getOrderViaClient(orderId).then((order) => setOrder(order));
         }
     }, [orderId]);
 

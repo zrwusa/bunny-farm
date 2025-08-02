@@ -3,54 +3,28 @@
 import {useEffect, useState} from 'react'
 import {ProductsTable} from '@/components/features/cms/product-table'
 import {Product} from '@/types/generated/graphql'
-import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch'
+import {getProductsViaClient} from '@/lib/api/client-actions';
+import {extractErrorsString} from '@/lib/api/graphql-error-helpers';
 
-interface ProductsResponse {
-    products: Product[]
-}
 
 export default function ProductsPage() {
-    const [products, setProducts] = useState<Product[]>([])
+    const [products, setProducts] = useState<Product[] | undefined>()
     const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string>('')
 
     useEffect(() => {
         const fetchProducts = async () => {
-            try {
-                const response = await fetchAuthGraphQL<ProductsResponse>(
-                    `query GetProducts {
-                        products {
-                            id
-                            name
-                            description
-                            brand {
-                                id
-                                name
-                            }
-                            skus {
-                                id
-                                prices {
-                                    id
-                                    price
-                                }
-                            }
-                        }
-                    }`
-                )
+            const response = await getProductsViaClient();
 
-                if (!response.data) {
-                    throw new Error('No data returned from API')
-                }
+            setProducts(response?.data?.products);
+            const errors = extractErrorsString(response);
+            if (errors) setError(errors);
 
-                setProducts(response.data.products)
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'An error occurred')
-            } finally {
-                setLoading(false)
-            }
+
+            setLoading(false)
         }
 
-        fetchProducts()
+        fetchProducts().then()
     }, [])
 
     if (loading) {
@@ -64,7 +38,7 @@ export default function ProductsPage() {
     return (
         <div className="container mx-auto py-10">
             <h1 className="text-2xl font-bold mb-5">Products</h1>
-            <ProductsTable products={products}/>
+            {products && <ProductsTable products={products}/>}
         </div>
     )
 }

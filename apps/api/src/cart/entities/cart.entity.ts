@@ -16,7 +16,7 @@ export class Cart extends BaseEntity {
 
   @Column()
   @Field(() => String)
-  clientCartId?: string;
+  guestCartId?: string;
 
   @Field(() => DeviceType)
   @Column({

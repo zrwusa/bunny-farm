@@ -3,7 +3,7 @@
 
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { Query } from '@/types/generated/graphql';
-import { getMe, logout } from '@/lib/api/client-actions';
+import { getMeViaClient, logoutViaClient } from '@/lib/api/client-actions';
 import { removeStoredTokens } from '@/lib/auth/client-auth';
 import { TOKEN_MODE } from '@/lib/config';
 import { TokenMode } from '@/types/config';
@@ -50,7 +50,7 @@ export function AuthProvider({
         }
         const initializeAuth = async () => {
             try {
-                    const me = await getMe();
+                    const me = await getMeViaClient();
 
                     if (me) {
                         setUser(me);
@@ -72,7 +72,7 @@ export function AuthProvider({
 
     const handleLogout = async () => {
         try {
-            await logout();
+            await logoutViaClient();
             await removeStoredTokens();
             setUser(null);
         } catch (err) {

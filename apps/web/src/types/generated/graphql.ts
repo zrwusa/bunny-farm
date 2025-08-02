@@ -20,7 +20,7 @@ export type Scalars = {
 };
 
 export type AddItemToCartInput = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
   item: CartItemInput;
 };
 
@@ -66,9 +66,9 @@ export type BrandInput = {
 };
 
 export type CachedCart = {
-  clientCartId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   deviceType: DeviceType;
+  guestCartId?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   items: Array<EnrichedCartItem>;
   updatedAt: Scalars['DateTime']['output'];
@@ -85,9 +85,9 @@ export enum Carrier {
 }
 
 export type Cart = {
-  clientCartId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   deviceType: DeviceType;
+  guestCartId: Scalars['String']['output'];
   id: Scalars['String']['output'];
   items: Array<CartItem>;
   updatedAt: Scalars['DateTime']['output'];
@@ -447,7 +447,7 @@ export type MutationAddToCartArgs = {
 
 
 export type MutationClearCartArgs = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -533,7 +533,7 @@ export type MutationRemoveShipmentArgs = {
 
 
 export type MutationToggleItemSelectionArgs = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
   toggleItemSelection: ToggleItemSelectionInput;
 };
 
@@ -739,7 +739,7 @@ export type Query = {
 
 
 export type QueryCartArgs = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -779,7 +779,7 @@ export type QuerySearchProductsArgs = {
 
 
 export type QuerySelectedCartItemsArgs = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -798,7 +798,7 @@ export type QueryUserArgs = {
 };
 
 export type RemoveItemsInput = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
   skuIds: Array<Scalars['String']['input']>;
 };
 
@@ -882,24 +882,28 @@ export type Timezone = {
 };
 
 export type ToggleItemSelectionInput = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
   selected: Scalars['Boolean']['input'];
   skuId: Scalars['String']['input'];
 };
 
 export type TokenMeta = {
-  accessTokenMaxAge: Scalars['Float']['output'];
-  refreshTokenMaxAge: Scalars['Float']['output'];
+  domain?: Maybe<Scalars['String']['output']>;
+  httpOnly: Scalars['Boolean']['output'];
+  maxAge: Scalars['Float']['output'];
+  sameSite?: Maybe<Scalars['String']['output']>;
+  secure: Scalars['Boolean']['output'];
 };
 
 export type TokenOutput = {
   accessToken: Scalars['String']['output'];
+  accessTokenMeta?: Maybe<TokenMeta>;
   refreshToken: Scalars['String']['output'];
-  tokenMeta: TokenMeta;
+  refreshTokenMeta?: Maybe<TokenMeta>;
 };
 
 export type UpdateItemQuantityInput = {
-  clientCartId?: InputMaybe<Scalars['String']['input']>;
+  guestCartId?: InputMaybe<Scalars['String']['input']>;
   quantity: Scalars['Int']['input'];
   skuId: Scalars['String']['input'];
 };
@@ -1224,6 +1228,18 @@ export type LocalLoginMutationVariables = Exact<{
 
 export type LocalLoginMutation = { login: { accessToken: string, refreshToken: string } };
 
+export type RefreshTokenMutationVariables = Exact<{
+  refreshToken: Scalars['String']['input'];
+}>;
+
+
+export type RefreshTokenMutation = { refreshToken: { accessToken: string, refreshToken: string, accessTokenMeta?: { maxAge: number } | null, refreshTokenMeta?: { maxAge: number } | null } };
+
+export type RefreshTokensByCookieMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RefreshTokensByCookieMutation = { refreshTokenByCookie: { accessToken: string, refreshToken: string, accessTokenMeta?: { maxAge: number, domain?: string | null, sameSite?: string | null, secure: boolean, httpOnly: boolean } | null, refreshTokenMeta?: { maxAge: number, domain?: string | null, sameSite?: string | null, secure: boolean, httpOnly: boolean } | null } };
+
 
 export const GetUsersDocument = gql`
     query GetUsers {
@@ -1437,7 +1453,7 @@ export type GetProductIdsSuspenseQueryHookResult = ReturnType<typeof useGetProdu
 export type GetProductIdsQueryResult = Apollo.QueryResult<GetProductIdsQuery, GetProductIdsQueryVariables>;
 export const CartDocument = gql`
     query cart($clientCartId: String) {
-  cart(clientCartId: $clientCartId) {
+  cart(guestCartId: $clientCartId) {
     id
     items {
       id
@@ -2155,7 +2171,7 @@ export type RemoveItemsMutationResult = Apollo.MutationResult<RemoveItemsMutatio
 export type RemoveItemsMutationOptions = Apollo.BaseMutationOptions<RemoveItemsMutation, RemoveItemsMutationVariables>;
 export const ClearCartDocument = gql`
     mutation ClearCart($clientCartId: String) {
-  clearCart(clientCartId: $clientCartId) {
+  clearCart(guestCartId: $clientCartId) {
     id
     items {
       id
@@ -2507,3 +2523,90 @@ export function useLocalLoginMutation(baseOptions?: Apollo.MutationHookOptions<L
 export type LocalLoginMutationHookResult = ReturnType<typeof useLocalLoginMutation>;
 export type LocalLoginMutationResult = Apollo.MutationResult<LocalLoginMutation>;
 export type LocalLoginMutationOptions = Apollo.BaseMutationOptions<LocalLoginMutation, LocalLoginMutationVariables>;
+export const RefreshTokenDocument = gql`
+    mutation RefreshToken($refreshToken: String!) {
+  refreshToken(refreshToken: $refreshToken) {
+    accessToken
+    refreshToken
+    accessTokenMeta {
+      maxAge
+    }
+    refreshTokenMeta {
+      maxAge
+    }
+  }
+}
+    `;
+export type RefreshTokenMutationFn = Apollo.MutationFunction<RefreshTokenMutation, RefreshTokenMutationVariables>;
+
+/**
+ * __useRefreshTokenMutation__
+ *
+ * To run a mutation, you first call `useRefreshTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRefreshTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [refreshTokenMutation, { data, loading, error }] = useRefreshTokenMutation({
+ *   variables: {
+ *      refreshToken: // value for 'refreshToken'
+ *   },
+ * });
+ */
+export function useRefreshTokenMutation(baseOptions?: Apollo.MutationHookOptions<RefreshTokenMutation, RefreshTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RefreshTokenMutation, RefreshTokenMutationVariables>(RefreshTokenDocument, options);
+      }
+export type RefreshTokenMutationHookResult = ReturnType<typeof useRefreshTokenMutation>;
+export type RefreshTokenMutationResult = Apollo.MutationResult<RefreshTokenMutation>;
+export type RefreshTokenMutationOptions = Apollo.BaseMutationOptions<RefreshTokenMutation, RefreshTokenMutationVariables>;
+export const RefreshTokensByCookieDocument = gql`
+    mutation RefreshTokensByCookie {
+  refreshTokenByCookie {
+    accessToken
+    refreshToken
+    accessTokenMeta {
+      maxAge
+      domain
+      sameSite
+      secure
+      httpOnly
+    }
+    refreshTokenMeta {
+      maxAge
+      domain
+      sameSite
+      secure
+      httpOnly
+    }
+  }
+}
+    `;
+export type RefreshTokensByCookieMutationFn = Apollo.MutationFunction<RefreshTokensByCookieMutation, RefreshTokensByCookieMutationVariables>;
+
+/**
+ * __useRefreshTokensByCookieMutation__
+ *
+ * To run a mutation, you first call `useRefreshTokensByCookieMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRefreshTokensByCookieMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [refreshTokensByCookieMutation, { data, loading, error }] = useRefreshTokensByCookieMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRefreshTokensByCookieMutation(baseOptions?: Apollo.MutationHookOptions<RefreshTokensByCookieMutation, RefreshTokensByCookieMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RefreshTokensByCookieMutation, RefreshTokensByCookieMutationVariables>(RefreshTokensByCookieDocument, options);
+      }
+export type RefreshTokensByCookieMutationHookResult = ReturnType<typeof useRefreshTokensByCookieMutation>;
+export type RefreshTokensByCookieMutationResult = Apollo.MutationResult<RefreshTokensByCookieMutation>;
+export type RefreshTokensByCookieMutationOptions = Apollo.BaseMutationOptions<RefreshTokensByCookieMutation, RefreshTokensByCookieMutationVariables>;

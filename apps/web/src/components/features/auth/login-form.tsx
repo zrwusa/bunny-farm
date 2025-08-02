@@ -9,7 +9,7 @@ import {Label} from '@/components/ui/label'
 import {GoogleLoginButton} from '@/components/features/auth/google-login';
 import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import {getMe, localLogin} from '@/lib/api/client-actions';
+import {getMeViaClient, localLoginViaClient} from '@/lib/api/client-actions';
 import {useAuth} from '@/contexts/auth-context';
 
 export type LoginFormProps = ComponentPropsWithoutRef<'div'> & {
@@ -37,7 +37,7 @@ export function LoginForm({
         setIsLoading(true);
 
         try {
-            const result = await localLogin(email, password);
+            const result = await localLoginViaClient(email, password);
 
             if (result) {
                 const {accessToken, refreshToken} = result;
@@ -45,7 +45,7 @@ export function LoginForm({
                 localStorage.setItem('REFRESH_TOKEN', refreshToken);
 
                 // Refresh user state
-                const me = await getMe();
+                const me = await getMeViaClient();
                 if (me) setUser(me);
 
                 // Redirect to original page after successful login

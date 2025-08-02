@@ -8,7 +8,7 @@ import {Input} from '@/components/ui/input'
 import {Label} from '@/components/ui/label'
 import {useRouter, useSearchParams} from 'next/navigation';
 import Link from 'next/link';
-import {register} from '@/lib/api/client-actions';
+import {registerViaClient} from '@/lib/api/client-actions';
 
 export type RegisterFormProps = ComponentPropsWithoutRef<'div'> & {
     onSuccess?: () => void;
@@ -43,7 +43,7 @@ export function RegisterForm({
         }
 
         try {
-            const result = await register({
+            const result = await registerViaClient({
                 username,
                 email,
                 password,

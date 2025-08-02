@@ -2,9 +2,11 @@
 'use server';
 
 import {cookies} from 'next/headers';
-import {AuthError, NetworkError} from '@/lib/errors';
+import {NetworkError} from '@bunny/shared';
 import {GRAPH_QL_API_URL} from '@/lib/config';
 import {FetchGraphQLOptions, GraphQLResponse} from '@/types/graphql';
+import {UnauthorizedException} from '@bunny/shared';
+import {serverHandleGraphqlErrors} from '@/lib/api/server-handle-graphql-errors';
 
 // Build a cookie header from available tokens
 function buildCookieHeader(accessToken?: string, refreshToken?: string): string {
@@ -47,15 +49,17 @@ export async function fetchAuthGraphQL<T>(
     const accessToken = cookieStore.get('ACCESS_TOKEN')?.value;
     const refreshToken = cookieStore.get('REFRESH_TOKEN')?.value;
 
-    if (!refreshToken) throw new AuthError('Missing refresh token');
+    if (!refreshToken) throw new UnauthorizedException('Missing refresh token');
 
     const cookieHeader = buildCookieHeader(accessToken, refreshToken);
 
     // We don't do token refresh on server because server cannot update browser cookies
-    return await fetchGraphQLInternal<T>(query, {
+    const response = await fetchGraphQLInternal<T>(query, {
         ...options,
         cookieHeader,
     });
+    serverHandleGraphqlErrors(response);
+    return response;
 }
 
 // No authentication required (for public queries)
@@ -63,5 +67,8 @@ export async function fetchPublicGraphQL<T>(
     query?: string,
     options?: { variables?: Record<string, unknown>; revalidate?: number }
 ): Promise<GraphQLResponse<T>> {
-    return await fetchGraphQLInternal<T>(query, options);
+    const response = await fetchGraphQLInternal<T>(query, options);
+
+    serverHandleGraphqlErrors(response);
+    return response;
 }

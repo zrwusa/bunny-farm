@@ -21,3 +21,4 @@ export * from './service-unavailable.exception';
 export * from './unauthorized.exception';
 export * from './unprocessable-entity.exception';
 export * from './unsupported-media-type.exception';
+export * from './network.exception';

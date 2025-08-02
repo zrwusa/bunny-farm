@@ -9,7 +9,7 @@ export class UpdateItemQuantityInput {
   quantity: number;
 
   @Field(() => String, { nullable: true })
-  clientCartId?: string;
+  guestCartId?: string;
 }
 
 @InputType()
@@ -21,5 +21,5 @@ export class ToggleItemSelectionInput {
   selected: boolean;
 
   @Field(() => String, { nullable: true })
-  clientCartId?: string;
+  guestCartId?: string;
 }

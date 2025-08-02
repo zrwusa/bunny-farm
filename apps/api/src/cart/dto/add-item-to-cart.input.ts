@@ -7,5 +7,5 @@ export class AddItemToCartInput {
   item: CartItemInput;
 
   @Field(() => String, { nullable: true })
-  clientCartId?: string;
+  guestCartId?: string;
 }

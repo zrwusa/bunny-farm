@@ -82,45 +82,47 @@ Used to persist cart data (prevent Redis data loss).
 Used for big data analysis (such as user behavior, product preference).
 
 Used for cold start user recovery (such as the user merges historical shopping carts when logging in across devices)
-| 功能分类     | 功能点                           | 游客支持 | 登录用户支持 | 说明 / 备注 |
+
+| Function Classification | Function Points | Visitor Support | Login User Support | Description / Note |
 |--------------|----------------------------------|-----------|----------------|--------------|
-| 🧍 用户识别   | 使用 `clientCartId` 识别游客       | ✅        | ❌             | 存于 localStorage |
-|              | 使用 `userId` 识别登录用户         | ❌        | ✅             |           |
-| 🛒 基本操作   | 添加商品到购物车                  | ✅        | ✅             | SKU 维度添加                 |
-|              | 修改数量                           | ✅        | ✅             | 数量 +/−                      |
-|              | 勾选删除商品                           | ✅        | ✅             | 按 SKU 删除                   |
-|              | 清空购物车                         | ✅        | ✅             | 一键清空                      |
-| ✅ 状态管理   | 勾选/取消勾选某商品                | ✅        | ✅             | 用于结算页                    |
-|              | 全选/全不选                        | ✅        | ✅             | 按商家/全局                   |
-|              | 限购提醒、无货标识                 | ✅        | ✅             | 通常放在 `extraData`         |
-| 🔁 合并逻辑   | 登录后将游客购物车合并到用户购物车 | ✅        | ✅             | 自动触发合并                 |
-|              | SKU 冲突合并策略                   | ✅        | ✅             | 如同一 SKU 数量相加/覆盖     |
-| 🧠 商品快照   | 保留商品信息快照（名称/图片/价）  | ✅        | ✅             | 商品下架后依然展示原信息     |
-|              | 商品价格变动提醒                   | ✅        | ✅             | 用于标记“涨价/降价”          |
-| ⏰ 生命周期   | 游客购物车保存 30 天             | ✅        | —              | Redis             |
-|              | 登录用户购物车永久保存             | —         | ✅             | Redis，定时1小时同步到数据库                     |
-| 🧱 数据存储   | 游客购物车存在 Redis 中            | ✅        | —              | Redis Key: `cart:guest:{clientCartId}` |
-|              | 登录用户购物车 Redis 中          | —         | ✅             | Redis Key: `cart:user:{userId}` |
-| 📱 多端支持   | Web / App购物车同步       | ❌/部分支持 | ✅             | 需登录同步                    |
-| 🛡 安全与校验 | SKU 是否有效、是否可购买校验       | ✅        | ✅             | 添加和结算前都需检查         |
-|              | 商品库存校验                       | ✅        | ✅             | 价格、库存、限购检查         |
-| 📊 分析日志   | 记录购物车修改日志（可选）         | 可选      | 可选           | 用于运营、转化分析           |
-## 数据同步策略（从 Redis → PostgreSQL）
+| 🧍 User Identification | Use `guestCartId` to identify visitors | ✅ | ❌ | Saved in localStorage |
+| | Use `userId` to identify logged-in users | ❌ | ✅ | |
+| 🛒 Basic Operations | Add Product to Cart | ✅ | ✅ | SKU Dimension Add |
+| | Modified Quantity | ✅ | ✅ | Quantity +/− |
+| | Check to delete product | ✅ | ✅ | Press SKU to delete |
+| | Clear the shopping cart | ✅ | ✅ | Clear with one click |
+| ✅ Status Management | Check/Uncheck a product | ✅ | ✅ | Used for settlement page |
+| | Select all/not select all | ✅ | ✅ | By merchant/global |
+| | Purchase restrictions, no-stock sign | ✅ | ✅ | Usually placed in `extraData` |
+| 🔁 Merge logic | Merge the tourist cart to the user cart after logging in | ✅ | ✅ | Automatically trigger the merge |
+| | SKU Conflict Merge Strategy | ✅ | ✅ | Add/cover the number of SKUs |
+| 🧠 Product snapshot | Keep product information snapshot (name/picture/price) | ✅ | ✅ | The original information will still be displayed after the product is removed |
+| | Reminder for product price changes | ✅ | ✅ | Used to mark "price increase/price reduction" |
+| ⏰ Life Cycle | Save the Visitor Cart for 30 Days | ✅ | — | Redis |
+| | Login user's shopping cart is permanently saved | — | ✅ | Redis, sync to the database in 1 hour regularly |
+| 🧱 Data storage | Visitor shopping cart exists in Redis | ✅ | — | Redis Key: `cart:guest:{guestCartId}` |
+| | Log in to user shopping cart Redis | — | ✅ | Redis Key: `cart:user:{userId}` |
+| 📱 Multi-terminal support | Web/App shopping cart synchronization | ❌/partial support | ✅ | Need to log in and synchronize |
+| 🛡 Safety and verification | Whether the SKU is valid and whether it is available for purchase | ✅ | ✅ | Check before addition and settlement |
+| | Product inventory verification | ✅ | ✅ | Price, inventory, purchase restrictions inspection |
+| 📊 Analysis log | Record shopping cart modification log (optional) | Optional | Optional | For operation and conversion analysis |
 
-| 同步时机        | 说明                                |
+## Data synchronization policy (from Redis → PostgreSQL)
+
+| Synchronization timing | Description                             |
 |------------------|-------------------------------------|
-| 用户登录时       | 将 `cart:guest:{clientCartId}` 合并进 `cart:user:{userId}`，并写入数据库 |
-| 用户结算提交前   | 提前持久化一次，以防订单失败无法还原购物车 |
-| 后台定时任务     | 每小时同步活跃用户购物车到数据库   |
-| 手动触发（运维） | 对某个用户强制同步 Redis → DB      |
+| When the user logs in | Merge `cart:guest:{guestCartId}` into `cart:user:{userId}` and write to the database |
+| Before submission of user settlement | Persist once in advance to prevent order failure and cannot restore the shopping cart |
+| Backend timed tasks | Synchronize active users shopping carts to the database every hour |
+| Manual trigger (operation and maintenance) | Force synchronization of a user Redis → DB |
 
-注意点（陷阱）
-✅ Redis 与数据库结构一致性 要有映射工具，如转换器（DTO → DB Model）；
+Note points (trap)
+✅ Redis and database structure consistency. You need to have mapping tools, such as converters (DTO → DB Model);
 
-⚠ 避免脏数据覆盖，如 A 端未同步时 B 端登录导致 Redis 被覆盖；
+⚠ Avoid dirty data overwriting, such as the B-side login caused Redis to be overwritten when the A-side is not synchronized;
 
-⚠ Redis 数据 TTL 过期时要有 fallback（如读数据库）；
+⚠ Redis data TTL must have fallback (such as reading the database);
 
-✅ 登录合并要有冲突处理策略（覆盖？合并？跳过？）；
+✅ Log in to merge with conflict handling policies (overwrite? Merge? Skip?);
 
-✅ 多选删除可以 Redis 侧实现“批量 SKU 移除”，非常适合 Hash
+✅ Multiple choice deletion can implement "batch SKU removal" on the Redis side, which is very suitable for Hash

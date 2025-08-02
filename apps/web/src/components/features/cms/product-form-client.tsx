@@ -1,6 +1,6 @@
 'use client'
 
-import {createProductClient} from '@/lib/api/client-actions';
+import {createProductViaClient} from '@/lib/api/client-actions';
 import {useActionState} from 'react';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -14,7 +14,7 @@ export const ProductFormClient = () => {
                 ...prevState,
                 ...Object.fromEntries(formData.entries())
             };
-            await createProductClient(newState, formData);
+            await createProductViaClient(newState, formData);
             return newState;
         },
         {
@@ -36,7 +36,7 @@ export const ProductFormClient = () => {
             <form action={createProductAction}>
                 <Input type="text" defaultValue={state.name} name="name" id="name" placeholder="name"/>
                 <Input type="text" defaultValue={state.brand?.name} name="brand" id="brand" placeholder="brand"/>
-                <Input type="number" defaultValue={state.skus[0].prices[0].price} name="price" id="price"
+                <Input type="number" defaultValue={state.skus?.[0].prices[0].price} name="price" id="price"
                        placeholder="price"/>
                 <Input type="text" defaultValue={JSON.stringify(state.description)} name="description" id="description"
                        placeholder="description"/>

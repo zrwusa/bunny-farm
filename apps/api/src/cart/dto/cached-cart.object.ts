@@ -13,7 +13,7 @@ export class CachedCart {
   user: User | null;
 
   @Field(() => String, { nullable: true })
-  clientCartId?: string;
+  guestCartId?: string;
 
   @Field(() => DeviceType)
   deviceType: DeviceType;

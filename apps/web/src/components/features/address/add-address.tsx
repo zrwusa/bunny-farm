@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
-import { addMyAddress, getAddressDetail } from "@/lib/api/client-actions";
+import { addMyAddressViaClient, getAddressDetailViaClient } from "@/lib/api/client-actions";
 import { useState } from "react";
 import {AddressFormData, AddressSchema} from '@bunny/shared';
 
@@ -43,7 +43,7 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
     });
 
     const handleAddressCorrection = async () => {
-        const corrected = await getAddressDetail(inputAddress);
+        const corrected = await getAddressDetailViaClient(inputAddress);
         if (corrected?.components) {
             const values = {
                 recipientName: "",
@@ -62,10 +62,16 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
     };
 
     const onSubmit = async (data: AddressFormData) => {
-        await addMyAddress(data);
-        form.reset();
-        setInputAddress("");
-        onAddressAdded?.();
+        const res = await addMyAddressViaClient(data);
+
+        if(res?.data?.addMyAddress?.id) {
+            form.reset();
+            setInputAddress("");
+            onAddressAdded?.();
+        }
+        if (res.errors) {
+            console.log(res.errors)
+        }
     };
 
     return (

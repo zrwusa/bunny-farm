@@ -6,5 +6,5 @@ export class RemoveItemsInput {
   skuIds: string[];
 
   @Field(() => String, { nullable: true })
-  clientCartId?: string;
+  guestCartId?: string;
 }
