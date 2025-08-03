@@ -15,9 +15,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
-import { addMyAddressViaClient, getAddressDetailViaClient } from "@/lib/api/client-actions";
+import { useMutation } from "@apollo/client";
+import { AddressFormData, AddressSchema } from "@bunny/shared";
 import { useState } from "react";
-import {AddressFormData, AddressSchema} from '@bunny/shared';
+import { getAddressDetailViaClient } from "@/lib/api/client-actions";
+import {ADD_MY_ADDRESS} from '@/lib/graphql';
+import {handleFormError} from '@/lib/api/handle-form-error';
+import {Mutation} from '@/types/generated/graphql';
 
 interface AddAddressFormProps {
     onAddressAdded?: () => void;
@@ -42,6 +46,8 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
         },
     });
 
+    const [addMyAddress, { loading }] = useMutation<Mutation>(ADD_MY_ADDRESS);
+
     const handleAddressCorrection = async () => {
         const corrected = await getAddressDetailViaClient(inputAddress);
         if (corrected?.components) {
@@ -62,15 +68,20 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
     };
 
     const onSubmit = async (data: AddressFormData) => {
-        const res = await addMyAddressViaClient(data);
+        try {
+            const res = await addMyAddress({
+                variables: {
+                    input: data,
+                },
+            });
 
-        if(res?.data?.addMyAddress?.id) {
-            form.reset();
-            setInputAddress("");
-            onAddressAdded?.();
-        }
-        if (res.errors) {
-            console.log(res.errors)
+            if (res.data?.addMyAddress?.id) {
+                form.reset();
+                setInputAddress("");
+                onAddressAdded?.();
+            }
+        } catch (e: unknown) {
+            handleFormError(e, form.setError)
         }
     };
 
@@ -83,7 +94,6 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
                 onChange={(e) => setInputAddress(e.target.value)}
                 onBlur={handleAddressCorrection}
             />
-
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
@@ -141,7 +151,7 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
                         )}
                     />
 
-                    <Button type="submit" className="col-span-full w-full">
+                    <Button type="submit" className="col-span-full w-full" disabled={loading}>
                         Submit New Address
                     </Button>
                 </form>

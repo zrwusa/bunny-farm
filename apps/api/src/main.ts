@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as process from 'node:process';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import * as Sentry from '@sentry/nestjs';
@@ -32,8 +32,14 @@ async function bootstrap() {
   // 4. Global validator (such as class-validator validation DTO)
   app.useGlobalPipes(
     new ValidationPipe({
-      // whitelist: true,
-      // forbidNonWhitelisted: true,
+      exceptionFactory: (validationErrors = []) => {
+        return new BadRequestException(
+          validationErrors.map((error) => ({
+            property: error.property,
+            constraints: error.constraints,
+          })),
+        );
+      },
     }),
   );
 

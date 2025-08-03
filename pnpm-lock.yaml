@@ -132,8 +132,8 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
       stripe:
-        specifier: ^18.2.1
-        version: 18.3.0(@types/node@22.16.0)
+        specifier: ^18.4.0
+        version: 18.4.0(@types/node@22.16.0)
       typeorm:
         specifier: ^0.3.20
         version: 0.3.25(ioredis@5.6.1)(pg@8.16.3)(reflect-metadata@0.2.2)(ts-node@10.9.2(@types/node@22.16.0)(typescript@5.8.3))
@@ -223,7 +223,7 @@ importers:
   apps/web:
     dependencies:
       '@apollo/client':
-        specifier: ^3.13.1
+        specifier: ^3.13.8
         version: 3.13.8(@types/react@19.1.8)(graphql-ws@6.0.5(graphql@16.11.0)(ws@8.18.3))(graphql@16.11.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(subscriptions-transport-ws@0.11.0(graphql@16.11.0))
       '@bunny/shared':
         specifier: workspace:*
@@ -352,7 +352,7 @@ importers:
         specifier: ^12.4.7
         version: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       graphql:
-        specifier: ^16.10.0
+        specifier: ^16.11.0
         version: 16.11.0
       graphql-request:
         specifier: ^7.1.2
@@ -8017,8 +8017,8 @@ packages:
   strip-literal@3.0.0:
     resolution: {integrity: sha512-TcccoMhJOM3OebGhSBEmp3UZ2SfDMZUEBdRA/9ynfLi8yYajyWX3JiXArcJt4Umh4vISpspkQIY8ZZoCqjbviA==}
 
-  stripe@18.3.0:
-    resolution: {integrity: sha512-FkxrTUUcWB4CVN2yzgsfF/YHD6WgYHduaa7VmokCy5TLCgl5UNJkwortxcedrxSavQ8Qfa4Ir4JxcbIYiBsyLg==}
+  stripe@18.4.0:
+    resolution: {integrity: sha512-LKFeDnDYo4U/YzNgx2Lc9PT9XgKN0JNF1iQwZxgkS4lOw5NunWCnzyH5RhTlD3clIZnf54h7nyMWkS8VXPmtTQ==}
     engines: {node: '>=12.*'}
     peerDependencies:
       '@types/node': '>=12.x.x'
@@ -17815,7 +17815,7 @@ snapshots:
     dependencies:
       js-tokens: 9.0.1
 
-  stripe@18.3.0(@types/node@22.16.0):
+  stripe@18.4.0(@types/node@22.16.0):
     dependencies:
       qs: 6.14.0
     optionalDependencies:

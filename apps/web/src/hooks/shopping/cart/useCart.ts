@@ -2,12 +2,13 @@
 
 'use client';
 
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {AddItemToCartInput, Mutation, Query} from '@/types/generated/graphql';
-import {RootState} from '@/store/store';
-import {setCartSession, setError, setLoading,} from '@/store/slices/cartSlice';
-import {Dispatch, PayloadAction} from '@reduxjs/toolkit';
+import { useCallback, useEffect, useState } from 'react';
+import { useMutation, useQuery } from '@apollo/client';
+import {
+    AddItemToCartInput,
+    Mutation,
+    Query,
+} from '@/types/generated/graphql';
 import {
     ADD_ITEM_TO_CART,
     CLEAR_CART,
@@ -16,41 +17,14 @@ import {
     TOGGLE_ITEM_SELECTION,
     UPDATE_ITEM_QUANTITY,
 } from '@/lib/graphql';
-import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch';
-import {generateUuNumId} from '@bunny/shared';
-import {clientHandleGraphqlErrorsUiConvention} from '@/lib/api/client-handle-graphql-errors-ui-convention';
-
-// Shared helper for GraphQL operations
-const handleGraphQLRequest = async <T>(
-    query: string | undefined,
-    variables: Record<string, unknown>,
-    dispatch: Dispatch<PayloadAction<string>>,
-    onSuccess?: (data: T) => void,
-    setLocalLoading?: (loading: boolean) => void,
-) => {
-    if (setLocalLoading) setLocalLoading(true);
-    const response = await fetchAuthGraphQL<T>(query, {variables});
-    clientHandleGraphqlErrorsUiConvention(response);
-
-    if (setLocalLoading) setLocalLoading(false);
-
-    if (onSuccess && response?.data) {
-        onSuccess(response.data);
-    }
-    return response?.data ?? null;
-};
+import { generateUuNumId } from '@bunny/shared';
 
 export const useCart = () => {
-    const dispatch = useDispatch();
-    const {cart, loading, error} = useSelector((state: RootState) => state.cart);
-
-    const [initialLoading, setInitialLoading] = useState(true);
     const [guestCartId, setGuestCartId] = useState<string | null>(null);
+    const [initialLoading, setInitialLoading] = useState(true);
 
-    const isFetching = useRef(false);
-
+    // Get or create guest cart ID
     useEffect(() => {
-        // Generate or retrieve cart ID
         let storedId = localStorage.getItem('GUEST_CART_ID');
         if (!storedId) {
             storedId = generateUuNumId();
@@ -59,123 +33,93 @@ export const useCart = () => {
         setGuestCartId(storedId);
     }, []);
 
-    const fetchCart = useCallback(async () => {
-        if (isFetching.current || !guestCartId) return;
-        isFetching.current = true;
+    // Fetch cart
+    const {
+        data,
+        loading: cartLoading,
+        error: cartError,
+        refetch: fetchCart,
+    } = useQuery<Query>(GET_MY_CART, {
+        variables: { guestCartId },
+        skip: !guestCartId,
+        onCompleted: () => setInitialLoading(false),
+    });
 
-        await handleGraphQLRequest<Query>(
-            GET_MY_CART.loc?.source.body,
-            {guestCartId},
-            dispatch,
-            (data) => {
-                if (data.cart) {
-                    dispatch(setCartSession(data.cart));
-                }
-            },
-            setInitialLoading, // use local loading
-        );
+    const cart = data?.cart ?? null;
 
-        isFetching.current = false;
-    }, [guestCartId, dispatch]);
-
-    useEffect(() => {
-        if (!cart && guestCartId) {
-            fetchCart();
-        } else {
-            setInitialLoading(false); // fallback
-        }
-    }, [cart, fetchCart, guestCartId]);
-
-    const clearCartItems = useCallback(async (cartId: string) => {
-        return handleGraphQLRequest<Mutation>(
-            CLEAR_CART.loc?.source.body,
-            {id: cartId},
-            dispatch,
-            (data) => {
-                if (data.clearCart) {
-                    dispatch(setCartSession(data.clearCart));
-                }
-            },
-        );
-    }, [dispatch]);
+    // Mutations
+    const [addItemToCartMutation] = useMutation<Mutation>(ADD_ITEM_TO_CART);
+    const [clearCartMutation] = useMutation<Mutation>(CLEAR_CART);
+    const [updateItemQuantityMutation] = useMutation<Mutation>(UPDATE_ITEM_QUANTITY);
+    const [toggleItemSelectionMutation] = useMutation<Mutation>(TOGGLE_ITEM_SELECTION);
+    const [removeFromCartMutation] = useMutation<Mutation>(REMOVE_ITEM_FROM_CART);
 
     const addToCart = useCallback(async (item: AddItemToCartInput['item']) => {
-        if (!guestCartId) {
-            dispatch(setError('Client Cart ID is required for guest cart'));
+        if (!guestCartId) return;
+        try {
+            const { data } = await addItemToCartMutation({
+                variables: { addItemToCartInput: { item, guestCartId } },
+            });
+            return data?.addToCart ?? null;
+        } catch (err: unknown) {
             return null;
         }
+    }, [addItemToCartMutation, guestCartId]);
 
-        return handleGraphQLRequest<Mutation>(
-            ADD_ITEM_TO_CART.loc?.source.body,
-            {addItemToCartInput: {item, guestCartId}},
-            dispatch,
-            (data) => {
-                if (data.addToCart) {
-                    dispatch(setCartSession(data.addToCart));
-                }
-            },
-        );
-    }, [guestCartId, dispatch]);
+    const clearCartItems = useCallback(async (cartId: string) => {
+        try {
+            const { data } = await clearCartMutation({ variables: { id: cartId } });
+            return data?.clearCart ?? null;
+        } catch (err) {
+            return null;
+        }
+    }, [clearCartMutation]);
 
     const updateCartItemQuantity = useCallback(async (skuId: string, quantity: number) => {
-        if (!cart) return;
-
-        return handleGraphQLRequest<Mutation>(
-            UPDATE_ITEM_QUANTITY.loc?.source.body,
-            {updateItemQuantityInput: {skuId, quantity}},
-            dispatch,
-            (data) => {
-                if (data.updateItemQuantity) {
-                    dispatch(setCartSession(data.updateItemQuantity));
-                }
-            },
-        );
-    }, [cart, dispatch]);
+        try {
+            const { data } = await updateItemQuantityMutation({
+                variables: { updateItemQuantityInput: { skuId, quantity } },
+            });
+            return data?.updateItemQuantity ?? null;
+        } catch (err) {
+            return null;
+        }
+    }, [updateItemQuantityMutation]);
 
     const toggleItemSelection = useCallback(async (skuId: string, selected: boolean) => {
-        if (!cart) return;
-
-        return handleGraphQLRequest<Mutation>(
-            TOGGLE_ITEM_SELECTION.loc?.source.body,
-            {toggleItemSelectionInput: {skuId, selected}},
-            dispatch,
-            (data) => {
-                if (data.toggleItemSelection) {
-                    dispatch(setCartSession(data.toggleItemSelection));
-                }
-            },
-        );
-    }, [cart, dispatch]);
+        try {
+            const { data } = await toggleItemSelectionMutation({
+                variables: { toggleItemSelectionInput: { skuId, selected } },
+            });
+            return data?.toggleItemSelection ?? null;
+        } catch (err) {
+            return null;
+        }
+    }, [toggleItemSelectionMutation]);
 
     const removeFromCart = useCallback(async (itemId: string) => {
         if (!cart) return;
-
-        dispatch(setLoading(true));
-        const updatedItems = cart.items.filter(item => item.id == itemId);
-        const response = await fetchAuthGraphQL<Mutation>(
-            REMOVE_ITEM_FROM_CART.loc?.source.body,
-            {
+        try {
+            const updatedItems = cart.items.filter(item => item.id === itemId);
+            const { data } = await removeFromCartMutation({
                 variables: {
                     removeItemsInput: {
                         skuIds: updatedItems.map(item => item.skuId),
                     },
                 },
-            },
-        );
-
-        clientHandleGraphqlErrorsUiConvention(response);
-        if (response?.data?.removeItems) {
-            dispatch(setCartSession(response.data.removeItems));
+            });
+            return data?.removeItems ?? null;
+        } catch (err) {
+            return null;
         }
-        dispatch(setLoading(false));
-    }, [cart, dispatch]);
+    }, [cart, removeFromCartMutation]);
 
     return {
         cart,
-        loading: loading || initialLoading,
-        error,
-        addToCart,
+        loading: cartLoading || initialLoading,
+        error: cartError,
         fetchCart,
+        addToCart,
         clearCartItems,
         updateCartItemQuantity,
         toggleItemSelection,

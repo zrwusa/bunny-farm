@@ -17,7 +17,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@apollo/client": "^3.13.1",
+    "@apollo/client": "^3.13.8",
     "@bunny/shared": "workspace:*",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -60,7 +60,7 @@
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.5.2",
     "framer-motion": "^12.4.7",
-    "graphql": "^16.10.0",
+    "graphql": "^16.11.0",
     "graphql-request": "^7.1.2",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.473.0",

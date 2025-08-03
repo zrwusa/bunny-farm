@@ -14,7 +14,7 @@ interface DecodedToken {
     exp: number;
 }
 
-let refreshPromise: Promise<void> | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 export async function getStoredTokens(): Promise<TokenOutput> {
     return {
@@ -82,7 +82,7 @@ async function refreshViaStorage() {
     await setStoredTokens(newTokens.accessToken, newTokens.refreshToken);
 }
 
-export async function refreshTokens(): Promise<void> {
+export async function refreshTokens(): Promise<boolean> {
     if (!refreshPromise) {
         refreshPromise = (async () => {
             try {
@@ -96,12 +96,13 @@ export async function refreshTokens(): Promise<void> {
                     default:
                         throw new Error('TOKEN_MODE needs to be specified');
                 }
+                return true;
             } catch (err: unknown) {
                 if (err instanceof UnauthorizedException) {
                     authManager.triggerAuthFailure();
                     await removeStoredTokens();
                 }
-                throw err;
+                return false;
             } finally {
                 refreshPromise = null;
             }
