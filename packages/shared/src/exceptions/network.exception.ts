@@ -16,9 +16,9 @@ export class NetworkError extends Error {
     super(message);
     this.cause = cause;
 
-    // Maintains proper stack trace for where this error was thrown (only works in V8 engines like Chrome & Node.js)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, NetworkError);
-    }
+    // // Maintains proper stack trace for where this error was thrown (only works in V8 engines like Chrome & Node.js)
+    // if (Error.captureStackTrace) {
+    //   Error.captureStackTrace(this, NetworkError);
+    // }
   }
 }
