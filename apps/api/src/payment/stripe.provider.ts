@@ -9,7 +9,7 @@ export const StripeClientProvider: Provider = {
   inject: [ConfigService],
   useFactory: (configService: ConfigService) => {
     return new Stripe(configService.get<string>('STRIPE_SECRET_KEY')!, {
-      apiVersion: configService.get<'2025-06-30.basil'>('STRIPE_API_VERSION') || '2025-06-30.basil',
+      apiVersion: configService.get<'2025-07-30.basil'>('STRIPE_API_VERSION') || '2025-07-30.basil',
     });
   },
 };
