@@ -1,16 +1,7 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import {requestKeys} from '@/lib/constants/request-keys';
 import {fetchAuthGraphQL} from '@/lib/api/client-graphql-fetch';
-import {Product, Query} from '@/types/generated/graphql';
+import {Query} from '@/types/generated/graphql';
 
-
-const authSlice = createSlice({
-    name: 'auth',
-    initialState: {},
-    reducers: {}
-});
-
-export const authReducer = authSlice.reducer;
 
 export const fetchData = createAsyncThunk(
     'fetchData',
@@ -27,25 +18,6 @@ export const fetchData = createAsyncThunk(
         return {requestKey, data: response.data};
     }
 );
-
-const productSlice = createSlice({
-    name: 'product',
-    initialState: {products: [] as Product[]},
-    reducers: {},
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchData.fulfilled, (state, action) => {
-                if (action.payload.requestKey === requestKeys.FETCH_PRODUCTS && action.payload.data?.products) {
-                    state.products = action.payload.data.products.map(product => ({
-                        ...product,
-                        price: 0 // Add required price field
-                    })) as Product[];
-                }
-            });
-    },
-});
-
-export const productReducer = productSlice.reducer;
 
 const apiStateSlice = createSlice({
     name: 'apiState',

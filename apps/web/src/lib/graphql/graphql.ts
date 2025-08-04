@@ -237,6 +237,7 @@ export const GET_ORDER = gql`
                     skuCode
                 }
             }
+            status
         }
     }
 `;

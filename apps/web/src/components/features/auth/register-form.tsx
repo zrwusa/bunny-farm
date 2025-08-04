@@ -1,18 +1,19 @@
-'use client'
+'use client';
 
-import {ComponentPropsWithoutRef, FormEvent, useState} from 'react';
-import {cn} from '../../../lib/utils'
-import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card'
-import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {useRouter, useSearchParams} from 'next/navigation';
+import { ComponentPropsWithoutRef, FormEvent, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import {registerViaClient} from '@/lib/api/client-actions';
+import { useMutation } from '@apollo/client';
+import { RegisterDocument, Mutation } from '@/types/generated/graphql';
 
 export type RegisterFormProps = ComponentPropsWithoutRef<'div'> & {
     onSuccess?: () => void;
-}
+};
 
 export function RegisterForm({
                                  className,
@@ -30,6 +31,9 @@ export function RegisterForm({
     const router = useRouter();
     const from = searchParams.get('redirect') || '/';
 
+    // Apollo mutation for registration
+    const [register] = useMutation<Mutation>(RegisterDocument);
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -43,13 +47,17 @@ export function RegisterForm({
         }
 
         try {
-            const result = await registerViaClient({
-                username,
-                email,
-                password,
+            const result = await register({
+                variables: {
+                    createUserInput: {
+                        username,
+                        email,
+                        password,
+                    },
+                },
             });
 
-            if (result) {
+            if (result.data?.createUser) {
                 // Redirect to login page after successful registration
                 router.replace(`/auth/login?redirect=${from}`);
                 onSuccess?.();
@@ -126,8 +134,10 @@ export function RegisterForm({
                             </Button>
                             <div className="text-center text-sm">
                                 Already have an account?{' '}
-                                <Link href={`/auth/login${from ? `?redirect=${encodeURIComponent(from)}` : ''}`}
-                                      className="underline underline-offset-4">
+                                <Link
+                                    href={`/auth/login${from ? `?redirect=${encodeURIComponent(from)}` : ''}`}
+                                    className="underline underline-offset-4"
+                                >
                                     Login
                                 </Link>
                             </div>
@@ -135,8 +145,7 @@ export function RegisterForm({
                     </form>
                 </CardContent>
             </Card>
-            <div
-                className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
+            <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
                 By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
                 and <a href="#">Privacy Policy</a>.
             </div>

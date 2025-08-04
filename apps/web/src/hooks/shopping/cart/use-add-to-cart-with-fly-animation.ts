@@ -1,5 +1,5 @@
 import {MouseEvent, useState} from 'react';
-import {useCart} from './useCart';
+import {useCart} from './use-cart';
 import {ProductPrice, Sku} from '@/types/generated/graphql';
 
 export function useAddToCartWithFlyAnimation(imageUrl: string = '/placeholder.jpg') {

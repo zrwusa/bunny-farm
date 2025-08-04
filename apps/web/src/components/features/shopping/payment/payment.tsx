@@ -5,11 +5,11 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { stripePromise } from '@/lib/stripe';
-import { createPaymentIntentViaClient, getOrderViaClient } from '@/lib/api/client-actions';
 import { Button } from '@/components/ui/button';
 import { useParams } from 'next/navigation';
-import { Order } from '@/types/generated/graphql';
 import {StripeTheme} from '@/types/stripe';
+import { useOrder } from '@/hooks/order/use-order';
+import { useCreatePaymentIntent } from '@/hooks/payment/use-create-payment-intent';
 
 // Stripe element style configuration
 const ELEMENTS_OPTIONS = {
@@ -44,12 +44,28 @@ const PaymentForm = ({ amountOfCents }: { amountOfCents: number }) => {
     const elements = useElements();
     const [clientSecret, setClientSecret] = useState('');
 
+    // ✅ Apollo lazy query to create payment intent
+    const [fetchClientSecret, { data }] = useCreatePaymentIntent();
+
     useEffect(() => {
-        (async () => {
-            const clientSecret = await createPaymentIntentViaClient({ amountOfCents, currency });
-            if (clientSecret) setClientSecret(clientSecret);
-        })();
-    }, [amountOfCents, currency]);
+        if (!amountOfCents || !currency) return;
+
+        fetchClientSecret({
+            variables: {
+                createPaymentIntentInput: {
+                    amountOfCents,
+                    currency,
+                },
+            },
+        });
+    }, [amountOfCents, currency, fetchClientSecret]);
+
+    useEffect(() => {
+        const secret = data?.createPaymentIntent;
+        if (secret) {
+            setClientSecret(secret);
+        }
+    }, [data]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -101,18 +117,19 @@ const PaymentForm = ({ amountOfCents }: { amountOfCents: number }) => {
 
 export default function Payment() {
     const params = useParams();
-    const orderId = params.id;
-    const [order, setOrder] = useState<Order>();
+    const orderId = params.id as string;
 
-    useEffect(() => {
-        if (typeof orderId === 'string') {
-            getOrderViaClient(orderId).then((order) => setOrder(order));
-        }
-    }, [orderId]);
+    // ✅ Apollo query to get order data
+    const { data, loading, error } = useOrder(orderId);
+    const order = data?.order;
 
     return (
         <div className="max-w-xl mx-auto px-4 py-8">
             <h1 className="mb-6 text-3xl font-bold">Payment for order {orderId}</h1>
+
+            {loading && <p>Loading order...</p>}
+            {error && <p className="text-red-500">Error fetching order</p>}
+
             {order && (
                 <Elements stripe={stripePromise} options={ELEMENTS_OPTIONS}>
                     <div className="space-y-4">
@@ -124,4 +141,5 @@ export default function Payment() {
         </div>
     );
 }
+
 

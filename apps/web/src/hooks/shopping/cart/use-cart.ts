@@ -56,50 +56,33 @@ export const useCart = () => {
 
     const addToCart = useCallback(async (item: AddItemToCartInput['item']) => {
         if (!guestCartId) return;
-        try {
             const { data } = await addItemToCartMutation({
                 variables: { addItemToCartInput: { item, guestCartId } },
             });
             return data?.addToCart ?? null;
-        } catch (err: unknown) {
-            return null;
-        }
     }, [addItemToCartMutation, guestCartId]);
 
     const clearCartItems = useCallback(async (cartId: string) => {
-        try {
             const { data } = await clearCartMutation({ variables: { id: cartId } });
             return data?.clearCart ?? null;
-        } catch (err) {
-            return null;
-        }
     }, [clearCartMutation]);
 
     const updateCartItemQuantity = useCallback(async (skuId: string, quantity: number) => {
-        try {
             const { data } = await updateItemQuantityMutation({
                 variables: { updateItemQuantityInput: { skuId, quantity } },
             });
             return data?.updateItemQuantity ?? null;
-        } catch (err) {
-            return null;
-        }
     }, [updateItemQuantityMutation]);
 
     const toggleItemSelection = useCallback(async (skuId: string, selected: boolean) => {
-        try {
             const { data } = await toggleItemSelectionMutation({
                 variables: { toggleItemSelectionInput: { skuId, selected } },
             });
             return data?.toggleItemSelection ?? null;
-        } catch (err) {
-            return null;
-        }
     }, [toggleItemSelectionMutation]);
 
     const removeFromCart = useCallback(async (itemId: string) => {
         if (!cart) return;
-        try {
             const updatedItems = cart.items.filter(item => item.id === itemId);
             const { data } = await removeFromCartMutation({
                 variables: {
@@ -109,9 +92,6 @@ export const useCart = () => {
                 },
             });
             return data?.removeItems ?? null;
-        } catch (err) {
-            return null;
-        }
     }, [cart, removeFromCartMutation]);
 
     return {

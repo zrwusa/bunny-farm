@@ -1,7 +1,7 @@
 'use client'
 
-import {useCart} from '@/hooks/shopping/cart/useCart';
-import {useCartItemsCount} from '@/hooks/shopping/cart/useCartItemsCount';
+import {useCart} from '@/hooks/shopping/cart/use-cart';
+import {useCartItemsCount} from '@/hooks/shopping/cart/use-cart-items-count';
 import {ShoppingCart} from 'lucide-react';
 import Link from 'next/link';
 import {motion} from 'framer-motion';

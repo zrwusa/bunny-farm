@@ -2,14 +2,14 @@
 'use client';
 
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Query } from '@/types/generated/graphql';
-import { getMeViaClient, logoutViaClient } from '@/lib/api/client-actions';
+import { Query, Mutation, MeDocument, LogoutDocument } from '@/types/generated/graphql';
 import { removeStoredTokens } from '@/lib/auth/client-auth';
 import { TOKEN_MODE } from '@/lib/config';
 import { TokenMode } from '@/types/config';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { isAuthExemptPath } from '@bunny/shared/dist/utils/auth';
+import { useLazyQuery, useMutation } from '@apollo/client';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -43,21 +43,27 @@ export function AuthProvider({
     const [error, setError] = useState<Error | null>(null);
     const pathname = usePathname();
 
+    const [fetchMe] = useLazyQuery<Query>(MeDocument, {
+        fetchPolicy: 'network-only', // Avoid returning cached value on login
+    });
+
+    const [logoutMutation] = useMutation<Mutation>(LogoutDocument);
+
     useEffect(() => {
         if (ssrUser || isAuthExemptPath(pathname)) {
-            setIsLoading(false)
+            setIsLoading(false);
             return;
         }
+
         const initializeAuth = async () => {
             try {
-                    const me = await getMeViaClient();
-
-                    if (me) {
-                        setUser(me);
-                    } else {
-                        console.warn('[AuthProvider] Cookie mode: still no user after refresh.');
-                        setUser(null);
-                    }
+                const { data } = await fetchMe();
+                if (data?.me) {
+                    setUser(data.me);
+                } else {
+                    console.warn('[AuthProvider] Cookie mode: still no user after refresh.');
+                    setUser(null);
+                }
             } catch (err) {
                 console.warn('[AuthProvider] Auth init failed:', err);
                 setError(err as Error);
@@ -68,11 +74,11 @@ export function AuthProvider({
         };
 
         initializeAuth().then();
-    }, [tokenMode, pathname, ssrUser]);
+    }, [tokenMode, pathname, ssrUser, fetchMe]);
 
     const handleLogout = async () => {
         try {
-            await logoutViaClient();
+            await logoutMutation();
             await removeStoredTokens();
             setUser(null);
         } catch (err) {
@@ -109,3 +115,4 @@ export function useAuth() {
     }
     return context;
 }
+

@@ -3,7 +3,7 @@
 'use client';
 
 import {FC, useEffect, useState} from 'react';
-import {useCart} from '@/hooks/shopping/cart/useCart';
+import {useCart} from '@/hooks/shopping/cart/use-cart';
 import {EnrichedCartItem} from '@/types/generated/graphql';
 import Image from 'next/image';
 import {Checkbox} from '@/components/ui/checkbox';

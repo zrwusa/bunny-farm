@@ -1,14 +1,9 @@
 'use client'
 
-import {useSelector} from 'react-redux';
-import {RootState} from '@/store/store';
 import {Product} from '@/types/generated/graphql';
 
 
 const Products = ({products}: { products?: Product[] }) => {
-
-    const {products: productsState} = useSelector((rootState: RootState) => rootState.product)
-    products = products || productsState;
 
     return (
         <div>

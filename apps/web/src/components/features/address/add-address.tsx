@@ -15,13 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useMutation } from "@apollo/client";
 import { AddressFormData, AddressSchema } from "@bunny/shared";
 import { useState } from "react";
-import { getAddressDetailViaClient } from "@/lib/api/client-actions";
-import {ADD_MY_ADDRESS} from '@/lib/graphql';
 import {handleFormError} from '@/lib/api/handle-form-error';
-import {Mutation} from '@/types/generated/graphql';
+import {useAddMyAddress} from '@/hooks/address/use-add-my-address';
+import {useAddressDetail} from '@/hooks/address/use-address-detail';
 
 interface AddAddressFormProps {
     onAddressAdded?: () => void;
@@ -46,10 +44,20 @@ export function AddAddressForm({ onAddressAdded }: AddAddressFormProps) {
         },
     });
 
-    const [addMyAddress, { loading }] = useMutation<Mutation>(ADD_MY_ADDRESS);
-
+    const [addMyAddress, {loading}] = useAddMyAddress();
+    const [fetchAddressDetail, { data: addressData }] = useAddressDetail();
     const handleAddressCorrection = async () => {
-        const corrected = await getAddressDetailViaClient(inputAddress);
+        if (!inputAddress.trim()) return;
+
+        // Apollo lazy query
+        await fetchAddressDetail({
+            variables: {
+                address: inputAddress
+            }
+        });
+
+        const corrected = addressData?.placeDetail;
+
         if (corrected?.components) {
             const values = {
                 recipientName: "",

@@ -1,12 +1,12 @@
 'use client'
 
-import {Product} from '@/types/generated/graphql';
+import {GetProductsQuery} from '@/types/generated/graphql';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table'
 import {Button} from '@/components/ui/button'
 import {useRouter} from 'next/navigation'
 
 interface ProductsTableProps {
-    products: Product[]
+    products: GetProductsQuery['products']
 }
 
 export function ProductsTable({products}: ProductsTableProps) {

@@ -10,7 +10,7 @@ import {Button} from '@/components/ui/button';
 import React, {FC} from 'react';
 import {RichTextEditor} from '@/components/features/shopping/shop/rich-text-editor';
 import {FlyingItemAnimation} from '@/components/features/animations/flyingItem-animation';
-import {useAddToCartWithFlyAnimation} from '@/hooks/shopping/cart/useAddToCartWithFlyAnimation';
+import {useAddToCartWithFlyAnimation} from '@/hooks/shopping/cart/use-add-to-cart-with-fly-animation';
 import Image from 'next/image';
 
 export interface ProductProps {

@@ -5,7 +5,7 @@ import {ReactNode} from 'react';
 import ReduxProvider from '@/providers/redux-provider';
 import {GoogleOAuthProvider} from '@react-oauth/google';
 import {AuthProvider} from '@/contexts/auth-context';
-import { ApolloWrapper } from '@/lib/apollo/provider';
+import {ApolloClientProvider} from '@/lib/apollo/provider';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -31,15 +31,15 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}
               suppressHydrationWarning>
-        <ApolloWrapper>
-        <ReduxProvider>
-            <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
-                <AuthProvider>
-                    {children}
-                </AuthProvider>
-            </GoogleOAuthProvider>
-        </ReduxProvider>
-        </ApolloWrapper>
+        <ApolloClientProvider>
+            <ReduxProvider>
+                <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+                    <AuthProvider>
+                        {children}
+                    </AuthProvider>
+                </GoogleOAuthProvider>
+            </ReduxProvider>
+        </ApolloClientProvider>
         </body>
         </html>
     );

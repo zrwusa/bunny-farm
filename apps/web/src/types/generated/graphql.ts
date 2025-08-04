@@ -1130,7 +1130,7 @@ export type GetOrderQueryVariables = Exact<{
 }>;
 
 
-export type GetOrderQuery = { order: { id: string, totalPrice: number, paymentMethod: PaymentMethod, shippingStatus: ShippingStatus, items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
+export type GetOrderQuery = { order: { id: string, totalPrice: number, paymentMethod: PaymentMethod, shippingStatus: ShippingStatus, status: OrderStatus, items?: Array<{ id: string, quantity: number, sku: { id: string, skuCode?: string | null } }> | null } };
 
 export type CreateProductMutationVariables = Exact<{
   createProductInput: CreateProductInput;
@@ -1823,6 +1823,7 @@ export const GetOrderDocument = gql`
         skuCode
       }
     }
+    status
   }
 }
     `;

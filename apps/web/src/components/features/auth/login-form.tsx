@@ -1,20 +1,21 @@
-'use client'
+'use client';
 
-import {ComponentPropsWithoutRef, useState} from 'react';
-import {cn} from '@/lib/utils'
-import {Button} from '@/components/ui/button'
-import {Card, CardContent, CardDescription, CardHeader, CardTitle,} from '@/components/ui/card'
-import {Input} from '@/components/ui/input'
-import {Label} from '@/components/ui/label'
-import {GoogleLoginButton} from '@/components/features/auth/google-login';
-import {useRouter, useSearchParams} from 'next/navigation';
+import { ComponentPropsWithoutRef, useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { GoogleLoginButton } from '@/components/features/auth/google-login';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import {getMeViaClient, localLoginViaClient} from '@/lib/api/client-actions';
-import {useAuth} from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-context';
+import { useLazyQuery, useMutation } from '@apollo/client';
+import { MeDocument, LocalLoginDocument, Mutation, Query } from '@/types/generated/graphql';
 
 export type LoginFormProps = ComponentPropsWithoutRef<'div'> & {
     onSuccess?: () => void;
-}
+};
 
 export function LoginForm({
                               className,
@@ -28,8 +29,15 @@ export function LoginForm({
 
     const searchParams = useSearchParams();
     const router = useRouter();
-    const {setUser} = useAuth();
+    const { setUser } = useAuth();
     const from = searchParams.get('redirect') || '/';
+
+    const [fetchMe] = useLazyQuery<Query>(MeDocument, {
+        fetchPolicy: 'network-only',
+    });
+
+    // Apollo mutation for local login
+    const [localLogin] = useMutation<Mutation>(LocalLoginDocument);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -37,15 +45,26 @@ export function LoginForm({
         setIsLoading(true);
 
         try {
-            const result = await localLoginViaClient(email, password);
+            const result = await localLogin({
+                variables: {
+                    input: {
+                        email,
+                        password,
+                        type: 'local',
+                    },
+                },
+            });
 
-            if (result) {
-                const {accessToken, refreshToken} = result;
+            const login = result.data?.login;
+            if (login) {
+                const { accessToken, refreshToken } = login;
+
                 localStorage.setItem('ACCESS_TOKEN', accessToken);
                 localStorage.setItem('REFRESH_TOKEN', refreshToken);
 
-                // Refresh user state
-                const me = await getMeViaClient();
+                // Refresh user state using Apollo
+                const { data } = await fetchMe();
+                const me = data?.me;
                 if (me) setUser(me);
 
                 // Redirect to original page after successful login
@@ -53,6 +72,7 @@ export function LoginForm({
                 onSuccess?.();
             }
         } catch (err: unknown) {
+            // Same error handling logic as before
             if (err instanceof Error && err.message?.includes('Invalid credentials')) {
                 setError('Invalid email or password. Please try again.');
             } else if (typeof err === 'string' && err.includes('User not found')) {
@@ -78,13 +98,14 @@ export function LoginForm({
                     <form onSubmit={handleSubmit}>
                         <div className="grid gap-6">
                             <div className="flex flex-col gap-4">
-                                <GoogleLoginButton from={from} onSuccess={onSuccess}/>
+                                <GoogleLoginButton from={from} onSuccess={onSuccess} />
                             </div>
                             <div
-                                className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
+                                className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border"
+                            >
+                                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                                    Or continue with
+                                </span>
                             </div>
                             <div className="grid gap-6">
                                 {error && (
@@ -127,8 +148,10 @@ export function LoginForm({
                             </div>
                             <div className="text-center text-sm">
                                 Don&apos;t have an account?{' '}
-                                <Link href={`/auth/register${from ? `?redirect=${encodeURIComponent(from)}` : ''}`}
-                                      className="underline underline-offset-4">
+                                <Link
+                                    href={`/auth/register${from ? `?redirect=${encodeURIComponent(from)}` : ''}`}
+                                    className="underline underline-offset-4"
+                                >
                                     Sign up
                                 </Link>
                             </div>
@@ -136,11 +159,10 @@ export function LoginForm({
                     </form>
                 </CardContent>
             </Card>
-            <div
-                className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+            <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary">
                 By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
                 and <a href="#">Privacy Policy</a>.
             </div>
         </div>
-    )
+    );
 }

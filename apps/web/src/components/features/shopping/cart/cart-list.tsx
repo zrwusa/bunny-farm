@@ -1,7 +1,7 @@
 // apps/web/src/components/features/shopping/cart/cart-list.tsx
 'use client';
 
-import { useCart } from '@/hooks/shopping/cart/useCart';
+import { useCart } from '@/hooks/shopping/cart/use-cart';
 import { CartItem } from './cart-item';
 import Link from 'next/link';
 import { CartItem as CartItemType } from '@/types/generated/graphql';
@@ -13,7 +13,7 @@ export const Cart = () => {
     const { cart, loading, error, clearCartItems } = useCart();
 
     if (error) {
-        return <div className="p-4 text-red-500">Error: {error}</div>;
+        return <div className="p-4 text-red-500">Error: {JSON.stringify(error)}</div>;
     }
 
     if (!loading && !cart?.items.length) {
