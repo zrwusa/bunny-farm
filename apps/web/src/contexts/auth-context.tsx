@@ -6,10 +6,10 @@ import { Query, Mutation, MeDocument, LogoutDocument } from '@/types/generated/g
 import { removeStoredTokens } from '@/lib/auth/client-auth';
 import { TOKEN_MODE } from '@/lib/config';
 import { TokenMode } from '@/types/config';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { isAuthExemptPath } from '@bunny/shared/dist/utils/auth';
 import { useLazyQuery, useMutation } from '@apollo/client';
+import {LoadingScreen} from '@/components/features/shopping/loading-screen';
 
 interface AuthContextType {
     user: Query['me'] | null;
@@ -98,9 +98,7 @@ export function AuthProvider({
             }}
         >
             {isLoading ? (
-                <div className="flex items-center justify-center h-screen">
-                    <Image priority={true} src="/cog.svg" width={100} height={100} alt="loading" />
-                </div>
+                <LoadingScreen />
             ) : (
                 children
             )}

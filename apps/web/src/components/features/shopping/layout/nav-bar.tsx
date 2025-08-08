@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { SUGGEST_PRODUCT_NAMES } from '@/lib/graphql';
 import { useLazyQuery } from '@apollo/client';
 import { Query } from '@/types/generated/graphql';
+import Image from 'next/image';
 
 interface NavBarProps {
     me?: Query["me"];
@@ -39,7 +40,8 @@ const NavBar = ({ me }: NavBarProps) => {
             <div className="w-full flex h-14 items-center px-4">
                 <div className="flex">
                     <a className="mr-6 flex items-center space-x-2" href="/shopping">
-                        <span className="font-bold">Bunny Farm</span>
+                        {/*<span className="font-bold">Bunny Farm</span>*/}
+                        <Image src="/images/bunny-farm-text-cut.png" alt="bunny-farm" width={160} height={65} />
                     </a>
                 </div>
                 <div className="flex flex-1 items-center justify-between">
