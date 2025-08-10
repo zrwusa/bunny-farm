@@ -1,5 +1,6 @@
 import Me from '@/components/auth/me';
-import {Query} from '@/types/generated/graphql';
+import {MeQuery} from '@/types/generated/graphql';
+import Image from 'next/image';
 interface FlowNavBarProps {
     me?: MeQuery['me']
 }
@@ -10,7 +11,7 @@ export const FlowNavBar = ({me}: FlowNavBarProps) => {
             <div className="w-full flex h-14 items-center px-4">
                 <div className="mr-4 flex">
                     <a className="mr-6 flex items-center space-x-2" href="/shopping">
-                        <span className="font-bold">Bunny Farm</span>
+                        <Image src="/images/bunny-farm-text-cut.png" alt="bunny-farm" width={160} height={65} />
                     </a>
                 </div>
                 <div className="flex flex-1 items-center justify-end">

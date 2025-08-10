@@ -5,9 +5,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import {
-    AddItemToCartInput,
-    Mutation,
-    Query,
+    AddItemToCartInput, AddItemToCartMutation, CartQuery, ClearCartMutation,
+    RemoveItemsMutation, ToggleItemSelectionMutation, UpdateItemQuantityMutation,
 } from '@/types/generated/graphql';
 import {
     ADD_ITEM_TO_CART,
@@ -39,7 +38,7 @@ export const useCart = () => {
         loading: cartLoading,
         error: cartError,
         refetch: fetchCart,
-    } = useQuery<Query>(GET_MY_CART, {
+    } = useQuery<CartQuery>(GET_MY_CART, {
         variables: { guestCartId },
         skip: !guestCartId,
         onCompleted: () => setInitialLoading(false),
@@ -48,11 +47,11 @@ export const useCart = () => {
     const cart = data?.cart ?? null;
 
     // Mutations
-    const [addItemToCartMutation] = useMutation<Mutation>(ADD_ITEM_TO_CART);
-    const [clearCartMutation] = useMutation<Mutation>(CLEAR_CART);
-    const [updateItemQuantityMutation] = useMutation<Mutation>(UPDATE_ITEM_QUANTITY);
-    const [toggleItemSelectionMutation] = useMutation<Mutation>(TOGGLE_ITEM_SELECTION);
-    const [removeFromCartMutation] = useMutation<Mutation>(REMOVE_ITEM_FROM_CART);
+    const [addItemToCartMutation] = useMutation<AddItemToCartMutation>(ADD_ITEM_TO_CART);
+    const [clearCartMutation] = useMutation<ClearCartMutation>(CLEAR_CART);
+    const [updateItemQuantityMutation] = useMutation<UpdateItemQuantityMutation>(UPDATE_ITEM_QUANTITY);
+    const [toggleItemSelectionMutation] = useMutation<ToggleItemSelectionMutation>(TOGGLE_ITEM_SELECTION);
+    const [removeFromCartMutation] = useMutation<RemoveItemsMutation>(REMOVE_ITEM_FROM_CART);
 
     const addToCart = useCallback(async (item: AddItemToCartInput['item']) => {
         if (!guestCartId) return;

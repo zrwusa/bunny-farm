@@ -40,7 +40,6 @@ const NavBar = ({ me }: NavBarProps) => {
             <div className="w-full flex h-14 items-center px-4">
                 <div className="flex">
                     <a className="mr-6 flex items-center space-x-2" href="/shopping">
-                        {/*<span className="font-bold">Bunny Farm</span>*/}
                         <Image src="/images/bunny-farm-text-cut.png" alt="bunny-farm" width={160} height={65} />
                     </a>
                 </div>
