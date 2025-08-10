@@ -109,6 +109,9 @@ export const GET_MY_CART = gql`
                         position
                         url
                     }
+                    prices {
+                        price
+                    }
                 }
                 createdAt
                 updatedAt

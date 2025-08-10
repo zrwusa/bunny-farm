@@ -1,17 +1,8 @@
-// apps/web/src/components/ui/quantity-input.tsx
-
 'use client';
 
 import { Minus, Plus, Loader } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import React, {
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 interface QuantityInputProps {
     value?: number;
@@ -28,7 +19,6 @@ interface QuantityInputProps {
     isPending?: boolean;
 }
 
-// Custom debounce hook
 function useDebouncedCallback<Args extends unknown[]>(
     callback: (...args: Args) => void,
     delay: number
@@ -69,7 +59,9 @@ export const QuantityInput: React.FC<QuantityInputProps> = ({
                                                                 isPending = false,
                                                             }) => {
     const isControlled = value !== undefined;
-    const [internalValue, setInternalValue] = useState<number>(value ?? defaultValue);
+    const [internalValue, setInternalValue] = useState<number>(
+        value ?? defaultValue
+    );
     const currentValue = isControlled ? value! : internalValue;
 
     const debouncedEmit = useDebouncedCallback((val: number) => {
@@ -110,7 +102,6 @@ export const QuantityInput: React.FC<QuantityInputProps> = ({
         }
     };
 
-    // Sync controlled external value back to internal
     useEffect(() => {
         if (isControlled && value !== undefined) {
             const clamped = Math.min(Math.max(value, min), max);
@@ -119,18 +110,23 @@ export const QuantityInput: React.FC<QuantityInputProps> = ({
     }, [isControlled, value, min, max]);
 
     return (
-        <div className={cn('flex items-center gap-2 relative', className)}>
-            <Button
+        <div
+            className={cn(
+                'inline-flex items-center rounded-full border border-border bg-background overflow-hidden h-8',
+                className
+            )}
+        >
+            <button
                 type="button"
-                size="icon"
-                variant="outline"
                 onClick={decrement}
                 disabled={disabled || currentValue <= min}
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50"
             >
                 <Minus className="w-4 h-4" />
-            </Button>
-            <div className="relative">
-                <Input
+            </button>
+
+            <div className="relative w-8 flex items-center justify-center">
+                <input
                     type="number"
                     value={currentValue}
                     onChange={handleInputChange}
@@ -140,23 +136,25 @@ export const QuantityInput: React.FC<QuantityInputProps> = ({
                     min={min}
                     max={max}
                     step={step}
-                    className="w-16 text-center pr-6"
+                    className="w-full text-center border-none bg-transparent text-sm focus:outline-none appearance-none
+    [&::-webkit-outer-spin-button]:appearance-none
+    [&::-webkit-inner-spin-button]:appearance-none
+    [-moz-appearance:textfield]"
                 />
                 {isPending && (
-                    <Loader className="absolute h-full right-1 top-0 animate-spin text-muted-foreground" />
+                    <Loader className="absolute inset-0 m-auto w-4 h-4 animate-spin text-gray-400" />
                 )}
             </div>
-            <Button
+
+            {/* 加号按钮 */}
+            <button
                 type="button"
-                size="icon"
-                variant="outline"
                 onClick={increment}
                 disabled={disabled || currentValue >= max}
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-200 disabled:opacity-50"
             >
                 <Plus className="w-4 h-4" />
-            </Button>
+            </button>
         </div>
     );
 };
-
-

@@ -1,33 +1,27 @@
-// apps/web/src/components/features/shopping/cart/cart-item.tsx
-// apps/web/src/components/features/shopping/cart/cart-item.tsx
 'use client';
 
 import {FC, useEffect, useState} from 'react';
 import {useCart} from '@/hooks/shopping/cart/use-cart';
-import {EnrichedCartItem} from '@/types/generated/graphql';
+import {CartQuery} from '@/types/generated/graphql';
 import Image from 'next/image';
-import {Checkbox} from '@/components/ui/checkbox';
-import {CheckedState} from '@radix-ui/react-checkbox';
-import {Button} from '@/components/ui/button';
 import {QuantityInput} from '@/components/ui/quantity-input';
+import {X} from 'lucide-react';
 
 interface CartItemProps {
-    item: EnrichedCartItem;
+    item: CartQuery['cart']['items'][number];
 }
 
 export const CartItem: FC<CartItemProps> = ({item}) => {
-    const {updateCartItemQuantity, toggleItemSelection, removeFromCart} = useCart();
-
+    const {updateCartItemQuantity, removeFromCart} = useCart();
     const [quantity, setQuantity] = useState(item.quantity);
-    const [isPending, setIsPending] = useState(false); // Request Status
+    const [isPending, setIsPending] = useState(false);
 
-    // If the server data changes, synchronize it back
     useEffect(() => {
         setQuantity(item.quantity);
     }, [item.quantity]);
 
     const handleQuantityChange = (val: number) => {
-        setQuantity(val); // Instant UI updates
+        setQuantity(val);
     };
 
     const handleDebouncedQuantityChange = async (val: number) => {
@@ -36,51 +30,57 @@ export const CartItem: FC<CartItemProps> = ({item}) => {
         setIsPending(false);
     };
 
-    const handleSelectionToggle = (isChecked: CheckedState) => {
-        if (isChecked !== 'indeterminate') {
-            toggleItemSelection(item.skuId, isChecked).catch(() => {
-            });
-        }
-    };
-
     const handleRemove = () => {
         removeFromCart(item.id).catch(() => {
         });
     };
 
     return (
-        <div className="flex items-center justify-between p-4 border-b" data-testid="cart-item">
-            <div className="flex items-center space-x-4">
-                <Checkbox checked={item.selected} onCheckedChange={handleSelectionToggle}/>
+        <div className="flex items-start px-2 py-3 border-b last:border-b-0">
+            <div className="flex-shrink-0 w-[100px] h-[100px] md:w-[160px] md:h-[160px] flex items-center">
+                <Image
+                    src={item.product?.images?.[0]?.url || '/avatar.svg'}
+                    alt={item.product?.name ?? item.productId}
+                    width={160}
+                    height={160}
+                    className="rounded-md object-cover"
+                />
             </div>
-            <div className="flex items-center space-x-4">
+
+            <div className="flex flex-col flex-1 md:pl-6 px-3 h-[100px] md:h-[160px] justify-between">
                 <div>
-                    <h3 className="text-lg font-medium">{item.product?.name}</h3>
-                    <p className="text-sm text-gray-500">
-                        <Image
-                            src={item.product?.images[0]?.url || '/avatar.svg'}
-                            width={100}
-                            height={100}
-                            alt={item.product?.name ?? item.productId}
-                        />
-                    </p>
+                    <div className="flex items-start justify-between">
+                    <span className="font-medium leading-tight line-clamp-1">
+                        {item.product?.name}
+                    </span>
+                        <button
+                            onClick={handleRemove}
+                            className="p-1 text-gray-400 hover:text-gray-700"
+                        >
+                            <X className="w-4 h-4"/>
+                        </button>
+                    </div>
+
+                    <span className="text-xs text-gray-500 mt-0.5">
+        {item.sku?.size || ''}
+      </span>
                 </div>
-            </div>
-            <div className="flex items-center space-x-8">
-                <div className="flex items-center space-x-4">
+
+                <div className="flex items-center justify-between">
+      <span className="text-sm font-semibold">
+        ${item.sku?.prices[0].price ?? '0.00'} USD
+      </span>
                     <QuantityInput
                         value={quantity}
                         onChange={handleQuantityChange}
                         onDebouncedChange={handleDebouncedQuantityChange}
                         min={1}
                         isPending={isPending}
+                        className="ml-2"
                     />
-                    <Button data-testid="remove-item" onClick={handleRemove}>
-                        Remove
-                    </Button>
                 </div>
             </div>
         </div>
+
     );
 };
-

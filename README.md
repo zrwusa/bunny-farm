@@ -1,4 +1,4 @@
-Typescript, NestJS, Next.js, PostgreSQL, GraphQL, Redis, TypeORM, Elastic search, Turborepo Monorepo
+Typescript, NestJS, Next.js, ShadCN, PostgreSQL, GraphQL, Redis, TypeORM, Elastic search, Turborepo Monorepo
 
 | Provider   | Service                        | Tech Stack / Version             | Project Name      | URL                                       |
 |------------|--------------------------------|----------------------------------|-------------------|--------------------------------------------|

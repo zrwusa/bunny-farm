@@ -1087,7 +1087,7 @@ export type CartQueryVariables = Exact<{
 }>;
 
 
-export type CartQuery = { cart: { id: string, createdAt: Date, updatedAt: Date, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: Date, updatedAt: Date, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }> } | null }>, user?: { id: string, email: string } | null } };
+export type CartQuery = { cart: { id: string, createdAt: Date, updatedAt: Date, items: Array<{ id: string, productId: string, skuId: string, quantity: number, selected: boolean, createdAt: Date, updatedAt: Date, product?: { name: string, images: Array<{ position?: number | null, url: string }> } | null, sku?: { size: string, color: string, images: Array<{ position?: number | null, url: string }>, prices: Array<{ price: number }> } | null }>, user?: { id: string, email: string } | null } };
 
 export type GetMyAddressesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1474,6 +1474,9 @@ export const CartDocument = gql`
         images {
           position
           url
+        }
+        prices {
+          price
         }
       }
       createdAt
