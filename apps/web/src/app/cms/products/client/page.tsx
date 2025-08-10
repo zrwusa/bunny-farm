@@ -1,6 +1,6 @@
 'use client';
 
-import { ProductsTable } from '@/components/features/cms/product-table';
+import { ProductsTable } from '@/components/cms/product-table';
 import { useProducts } from '@/hooks/product/use-products';
 
 export default function ProductsPage() {

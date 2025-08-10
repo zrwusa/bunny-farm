@@ -5,7 +5,7 @@ import {Button} from '@/components/ui/button';
 import {EnrichedCartItem, PaymentMethod, Query} from '@/types/generated/graphql';
 import {Combobox} from '@/components/ui/combobox';
 import {useRouter} from 'next/navigation';
-import {AddAddressForm} from '@/components/features/address/add-address';
+import {AddAddressForm} from '@/components/shopping/address/add-address';
 import {useMyAddresses} from '@/hooks/address/use-my-addresses';
 import {usePlaceOrder} from '@/hooks/order/use-place-order';
 

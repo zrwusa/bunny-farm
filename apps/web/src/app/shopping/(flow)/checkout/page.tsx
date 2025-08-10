@@ -1,6 +1,6 @@
 // app/checkout/page.tsx
 import {getMyAddresses, getSelectedCartItems} from '@/lib/api/server-actions';
-import Checkout from '@/components/features/shopping/checkout/checkout';
+import Checkout from '@/components/shopping/checkout/checkout';
 import Image from 'next/image';
 
 export default async function CheckoutPage() {

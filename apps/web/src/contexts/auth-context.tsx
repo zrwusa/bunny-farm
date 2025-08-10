@@ -2,21 +2,21 @@
 'use client';
 
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-import { Query, Mutation, MeDocument, LogoutDocument } from '@/types/generated/graphql';
+import {Query, Mutation, MeDocument, LogoutDocument, MeQuery} from '@/types/generated/graphql';
 import { removeStoredTokens } from '@/lib/auth/client-auth';
 import { TOKEN_MODE } from '@/lib/config';
 import { TokenMode } from '@/types/config';
 import { usePathname } from 'next/navigation';
 import { isAuthExemptPath } from '@bunny/shared/dist/utils/auth';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import {LoadingScreen} from '@/components/features/shopping/loading-screen';
+import {LoadingScreen} from '@/components/shopping/loading-screen';
 
 interface AuthContextType {
-    user: Query['me'] | null;
+    user: MeQuery['me'] | null;
     isLoading: boolean;
     error: Error | null;
     logout: () => Promise<void>;
-    setUser: (user: Query['me'] | null) => void;
+    setUser: (user: MeQuery['me'] | null) => void;
     tokenMode: TokenMode;
 }
 
@@ -30,7 +30,7 @@ interface AuthProviderProps {
      * If you have SSR Embed, you can pass it in when using <AuthProvider ssrUser={...}>
      * In this way, the CSR can be reused directly when starting, without adjusting /me
      */
-    ssrUser?: Query['me'] | null;
+    ssrUser?: MeQuery['me'] | null;
 }
 
 export function AuthProvider({
@@ -38,7 +38,7 @@ export function AuthProvider({
                                  tokenMode = TOKEN_MODE,
                                  ssrUser = null,
                              }: AuthProviderProps) {
-    const [user, setUser] = useState<Query['me'] | null>(ssrUser ?? null);
+    const [user, setUser] = useState<MeQuery['me'] | null>(ssrUser ?? null);
     const [isLoading, setIsLoading] = useState(!ssrUser); // If the SSR already has a user, loading is not required
     const [error, setError] = useState<Error | null>(null);
     const pathname = usePathname();
@@ -78,9 +78,11 @@ export function AuthProvider({
 
     const handleLogout = async () => {
         try {
-            await logoutMutation();
-            await removeStoredTokens();
-            setUser(null);
+            const {data} = await logoutMutation();
+            if (data?.logout) {
+                await removeStoredTokens();
+                setUser(null);
+            }
         } catch (err) {
             setError(err as Error);
         }

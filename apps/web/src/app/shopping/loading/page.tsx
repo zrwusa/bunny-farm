@@ -1,4 +1,4 @@
-import {LoadingScreen} from '@/components/features/shopping/loading-screen';
+import {LoadingScreen} from '@/components/shopping/loading-screen';
 
 const LoadingScreenPage = () => {
     return <LoadingScreen />

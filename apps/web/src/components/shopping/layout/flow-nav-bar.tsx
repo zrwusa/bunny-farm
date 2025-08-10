@@ -1,7 +1,7 @@
-import Me from '../../auth/me';
+import Me from '@/components/auth/me';
 import {Query} from '@/types/generated/graphql';
 interface FlowNavBarProps {
-    me?: Query["me"]
+    me?: MeQuery['me']
 }
 export const FlowNavBar = ({me}: FlowNavBarProps) => {
     return (

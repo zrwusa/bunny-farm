@@ -1,6 +1,11 @@
 // File: apps/api/src/auth/auth.resolver.ts
 import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
-import { UseGuards, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  UseGuards,
+  UnauthorizedException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginInput } from './dto/login.input';
 import { TokenOutput } from './dto/token.output';
@@ -83,10 +88,15 @@ export class AuthResolver {
   @Mutation(() => Boolean)
   @UseGuards(GqlAuthGuard)
   async logout(
-    @CurrentUser('userId') userId: string,
+    @CurrentUser('id') userId: string,
     @Context() { res }: GqlContext,
   ): Promise<boolean> {
-    await this.authService.logout(userId);
+    const success = await this.authService.logout(userId);
+
+    if (!success) {
+      // If the refresh token is not successfully deleted, a custom error response is returned
+      throw new NotFoundException('No refresh token found to log out');
+    }
     this.cookieService.clearAuthCookies(res);
     return true;
   }

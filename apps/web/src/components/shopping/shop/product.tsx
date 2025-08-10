@@ -8,8 +8,8 @@ import {Separator} from '@/components/ui/separator';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Button} from '@/components/ui/button';
 import React, {FC} from 'react';
-import {RichTextEditor} from '@/components/features/shopping/shop/rich-text-editor';
-import {FlyingItemAnimation} from '@/components/features/animations/flyingItem-animation';
+import {RichTextEditor} from '@/components/shopping/shop/rich-text-editor';
+import {FlyingItemAnimation} from '@/components/common/animations/flyingItem-animation';
 import {useAddToCartWithFlyAnimation} from '@/hooks/shopping/cart/use-add-to-cart-with-fly-animation';
 import Image from 'next/image';
 

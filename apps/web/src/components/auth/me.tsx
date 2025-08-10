@@ -5,10 +5,10 @@ import {usePathname, useRouter} from 'next/navigation';
 import Image from 'next/image';
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from '@/components/ui/dropdown-menu';
 import {LogOut, User} from 'lucide-react';
-import {Query} from '@/types/generated/graphql';
+import {MeQuery} from '@/types/generated/graphql';
 
 interface MeProps {
-    me?: Query["me"]
+    me?: MeQuery['me']
 }
 
 export default function Me({me}: MeProps) {

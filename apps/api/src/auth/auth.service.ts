@@ -8,7 +8,7 @@ import { UserService } from '../user/user.service';
 import { User } from '../user/entities/user.entity';
 import { GoogleOAuthService } from './google-oauth.service';
 import { ms, StringValue } from '@bunny/shared';
-import { TokenOutput, TokenMeta } from './dto/token.output';
+import { TokenMeta, TokenOutput } from './dto/token.output';
 
 @Injectable()
 export class AuthService {
@@ -119,7 +119,8 @@ export class AuthService {
     return this.jwtService.verifyAsync(token, { secret: this.config.get<string>('JWT_SECRET') });
   }
 
-  async logout(userId: string): Promise<void> {
-    await this.redis.del(`refresh:${userId}`);
+  async logout(userId: string): Promise<boolean> {
+    const deletedCount = await this.redis.del(`refresh:${userId}`);
+    return deletedCount > 0;
   }
 }

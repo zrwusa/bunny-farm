@@ -1,16 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Me from '@/components/features/auth/me';
+import Me from '@/components/auth/me';
 import { SearchInput } from '@/components/ui/search-bar';
 import { useEffect, useState } from 'react';
 import { SUGGEST_PRODUCT_NAMES } from '@/lib/graphql';
 import { useLazyQuery } from '@apollo/client';
-import { Query } from '@/types/generated/graphql';
+import {MeQuery, SuggestProductNamesQuery} from '@/types/generated/graphql';
 import Image from 'next/image';
 
 interface NavBarProps {
-    me?: Query["me"];
+    me?: MeQuery['me'];
 }
 
 const NavBar = ({ me }: NavBarProps) => {
@@ -18,7 +18,7 @@ const NavBar = ({ me }: NavBarProps) => {
     const [debouncedQuery, setDebouncedQuery] = useState('');
 
     // Apollo lazy query for product name suggestions
-    const [fetchSuggestions, { data: suggestData }] = useLazyQuery<Query>(SUGGEST_PRODUCT_NAMES);
+    const [fetchSuggestions, { data: suggestData }] = useLazyQuery<SuggestProductNamesQuery>(SUGGEST_PRODUCT_NAMES);
 
     useEffect(() => {
         if (!debouncedQuery) return;

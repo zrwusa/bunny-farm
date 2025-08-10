@@ -1,7 +1,7 @@
-import {BarChartCard} from '@/components/features/cms/bar-chart-card';
-import {AreaChartCard} from '@/components/features/cms/area-chart-card';
-import {RadarChartCard} from '@/components/features/cms/radar-chart-card';
-import {LineChartCard} from '@/components/features/cms/line-chart-card';
+import {BarChartCard} from '@/components/cms/bar-chart-card';
+import {AreaChartCard} from '@/components/cms/area-chart-card';
+import {RadarChartCard} from '@/components/cms/radar-chart-card';
+import {LineChartCard} from '@/components/cms/line-chart-card';
 
 const CMSHome = () => {
     return (

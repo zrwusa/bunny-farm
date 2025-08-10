@@ -25,7 +25,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         tags: { context: 'graphql' },
       });
 
-      throw exception; // 保持 GraphQL 行为
+      throw exception; // Keep GraphQL behavior
     }
 
     const ctx = host.switchToHttp();
@@ -45,7 +45,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       tags: { context: 'http' },
     });
 
-    // 继续抛出异常，交给 Nest 默认 ExceptionHandler 处理
+    // Continue to throw exceptions and leave them to Nest's default ExceptionHandler for processing
     throw exception;
   }
 }

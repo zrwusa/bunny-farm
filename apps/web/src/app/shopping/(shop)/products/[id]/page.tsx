@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Product} from '@/components/features/shopping/shop/product';
+import {Product} from '@/components/shopping/shop/product';
 import {getProduct} from '@/lib/api/server-actions';
 
 // // For SSR caching the detail pages

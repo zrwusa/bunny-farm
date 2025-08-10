@@ -1,17 +1,17 @@
 'use client';
 
-import { ComponentPropsWithoutRef, useState } from 'react';
+import {ComponentPropsWithoutRef, FormEvent, useState} from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { GoogleLoginButton } from '@/components/features/auth/google-login';
+import { GoogleLoginButton } from '@/components/auth/google-login';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/auth-context';
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { MeDocument, LocalLoginDocument, Mutation, Query } from '@/types/generated/graphql';
+import {MeDocument, LocalLoginDocument, Mutation, MeQuery} from '@/types/generated/graphql';
 
 export type LoginFormProps = ComponentPropsWithoutRef<'div'> & {
     onSuccess?: () => void;
@@ -32,14 +32,14 @@ export function LoginForm({
     const { setUser } = useAuth();
     const from = searchParams.get('redirect') || '/';
 
-    const [fetchMe] = useLazyQuery<Query>(MeDocument, {
+    const [fetchMe] = useLazyQuery<MeQuery>(MeDocument, {
         fetchPolicy: 'network-only',
     });
 
     // Apollo mutation for local login
     const [localLogin] = useMutation<Mutation>(LocalLoginDocument);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);

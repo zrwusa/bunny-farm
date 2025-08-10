@@ -1,4 +1,4 @@
-import Products from '@/components/features/cms/products';
+import Products from '@/components/cms/products';
 import {getProducts} from '@/lib/api/server-actions';
 
 const ProductList = async () => {
